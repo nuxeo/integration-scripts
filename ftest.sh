@@ -19,7 +19,7 @@ echo "BINDHOST=127.0.0.1" >output/jboss/bin/bind.conf
 output/jboss/bin/jbossctl start || exit 1
 # Run functional tests
 mkdir -p "$PWD/results/" 2>/dev/null
-CMD="java -jar selenium/selenium-server.jar -port 14440 -timeout 7200 "
+CMD="xvfb-run java -jar selenium/selenium-server.jar -port 14440 -timeout 7200 "
 if [ $NXVERSION = "5.1" ] ; then
         suite1=suite1.html
         suite2=suite2.html
