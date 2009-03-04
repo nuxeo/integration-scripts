@@ -4,6 +4,7 @@
 NOW=$(date +"%y%m%d")
 DAILY_RELEASE=${DAILY_RELEASE:-nuxeo-ep-5.2-${NOW}}
 DAILY_DOWNLOAD="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots"
+NXVERSION=${NXVERSION:-5.2}
 
 # download and start last packaged server
 rm -f nuxeo-ep*.zip
@@ -18,12 +19,19 @@ echo "BINDHOST=127.0.0.1" >output/jboss/bin/bind.conf
 output/jboss/bin/jbossctl start || exit 1
 # Run functional tests
 mkdir -p "$PWD/results/" 2>/dev/null
-CMD="xvfb-run java -jar selenium/selenium-server.jar -port 14440 -timeout 7200 "
-$CMD -htmlSuite "*firefox" http://127.0.0.1:8080/nuxeo/ "$PWD/selenium/tests/suite1.html" "$PWD/results/results1.html" || exit 1
+CMD="java -jar selenium/selenium-server.jar -port 14440 -timeout 7200 "
+if [ $NXVERSION = "5.1" ] ; then
+        suite1=suite1.html
+        suite2=suite2.html
+else
+        suite1=suite1-5.2.html
+        suite2=suite2-5.2.html
+fi
+$CMD -htmlSuite "*firefox" http://127.0.0.1:8080/nuxeo/ "$PWD/selenium/tests/$suite1" "$PWD/results/results1.html" || exit 1
 ret1=$?
-$CMD -htmlSuite "*firefox" http://127.0.0.1:8080/nuxeo/ "$PWD/selenium/tests/suite2.html" "$PWD/results/results2.html" || exit 1
+$CMD -htmlSuite "*firefox" http://127.0.0.1:8080/nuxeo/ "$PWD/selenium/tests/$suite2" "$PWD/results/results2.html" || exit 1
 ret2=$?
-#stop nuxeo
+# Stop nuxeo
 output/jboss/bin/jbossctl stop
 
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
