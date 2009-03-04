@@ -27,9 +27,9 @@ else
         suite1=suite1-5.2.html
         suite2=suite2-5.2.html
 fi
-$CMD -htmlSuite "*firefox" http://127.0.0.1:8080/nuxeo/ "$PWD/selenium/tests/$suite1" "$PWD/results/results1.html" || exit 1
+$CMD -htmlSuite "*firefox" http://127.0.0.1:8080/nuxeo/ "$PWD/selenium/tests/$suite1" "$PWD/results/results1.html"
 ret1=$?
-$CMD -htmlSuite "*firefox" http://127.0.0.1:8080/nuxeo/ "$PWD/selenium/tests/$suite2" "$PWD/results/results2.html" || exit 1
+$CMD -htmlSuite "*firefox" http://127.0.0.1:8080/nuxeo/ "$PWD/selenium/tests/$suite2" "$PWD/results/results2.html"
 ret2=$?
 # Stop nuxeo
 output/jboss/bin/jbossctl stop
