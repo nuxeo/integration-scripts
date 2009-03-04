@@ -7,7 +7,7 @@ DAILY_DOWNLOAD="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots"
 
 # download and start last packaged server
 rm -f nuxeo-ep*.zip
-wget -r http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSuccessfulBuild/artifact/trunk/release/archives/${DAILY_RELEASE}.zip || exit 1
+wget -r -nd http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSuccessfulBuild/artifact/trunk/release/archives/${DAILY_RELEASE}.zip || exit 1
 unzip ${DAILY_RELEASE}.zip
 mkdir output 2>/dev/null
 rm -rf output/jboss 2>/dev/null
