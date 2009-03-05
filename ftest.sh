@@ -13,7 +13,7 @@ unzip ${DAILY_RELEASE}.zip
 mkdir output 2>/dev/null
 rm -rf output/jboss 2>/dev/null
 mv ${DAILY_RELEASE} output/jboss
-echo "BINDHOST=127.0.0.1" >output/jboss/bin/bind.conf
+echo "BINDHOST=0.0.0.0" >output/jboss/bin/bind.conf
 
 # Start jboss
 output/jboss/bin/jbossctl start || exit 1
