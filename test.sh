@@ -6,8 +6,7 @@ ADDONS=${ADDONS:-}
 DWS=$(pwd)/dev
 # release workspace
 RWS=$(pwd)/release
-# non standard date pattern
-NOW=$(date +"%y%m%d")
+TAG="I"$(date +"%Y%m%d_%H%M")
 
 if [ ! -e $DWS ]; then
     mkdir -p $DWS || exit 1
@@ -31,18 +30,18 @@ JBOSS_PATCH=patch
 
 NXP_BRANCH=5.2
 NXP_SNAPSHOT=5.2-SNAPSHOT
-NXP_TAG=5.2-$NOW
+NXP_TAG=5.2-$TAG
 NXP_NEXT_SNAPSHOT=5.2-SNAPSHOT
 
 NXC_BRANCH=1.5
 NXC_SNAPSHOT=1.5-SNAPSHOT
-NXC_TAG=1.5-$NOW
+NXC_TAG=1.5-$TAG
 NXC_NEXT_SNAPSHOT=1.5-SNAPSHOT
 
 # Addons
 NXA_BRANCH=5.2
 NXA_SNAPSHOT=5.2-SNAPSHOT
-NXA_TAG=5.2-$NOW
+NXA_TAG=5.2-$TAG
 NXA_NEXT_SNAPSHOT=5.2-SNAPSHOT
 
 NXP_BRANCH_NULL_MERGE=
@@ -57,4 +56,6 @@ nx-builder prepare || exit 1
 
 nx-builder package || exit 1
 
-
+# build a tar file to bundle the release
+cd archives
+for f in `ls *.zip`; do md5sum $f > $f.md5 ; tar cvf build.tar $f $f.md5; done
