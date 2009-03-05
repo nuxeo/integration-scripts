@@ -15,7 +15,7 @@ wget -nv $LAST_BUILD_URL/$LAST_BUILD || exit 1
 tar xvf $LAST_BUILD || exit 1
 unzip -q *.zip
 cd ..
-build=$(find ./downlaod -maxdepth 1 -name 'nuxeo-ep*'  -type d)
+build=$(find ./download -maxdepth 1 -name 'nuxeo-ep*'  -type d)
 mv $build ./jboss || exit 1
 
 # Start jboss
@@ -24,7 +24,7 @@ echo "BINDHOST=0.0.0.0" > jboss/bin/bind.conf
 
 
 # Run selenium tests
-CMD="xvfb-run java -jar selenium/selenium-server.jar -port 14440 -timeout 7200"
+CMD="xvfb-run -e xvfb.log java -jar selenium/selenium-server.jar -port 14440 -timeout 7200"
 if [ $NXVERSION = "5.1" ] ; then
         suite1=suite1.html
         suite2=suite2.html
