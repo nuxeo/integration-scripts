@@ -7,19 +7,20 @@ DAILY_DOWNLOAD="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots"
 
 #cleaning
 rm -rf ./jboss ./results ./download
-mkdir ./jboss ./results ./download || exit 1
+mkdir ./results ./download || exit 1
 
 # download and unpack distrib
 cd download
 wget -nv $LAST_BUILD_URL/$LAST_BUILD || exit 1
 tar xvf $LAST_BUILD || exit 1
 unzip -q *.zip
-find . -name "nuxeo-ep*" -type d -exec mv {} ../jboss \; || exit 1
 cd ..
+build=$(find ./downlaod -maxdepth 1 -name 'nuxeo-ep*'  -type d)
+mv $build ./jboss || exit 1
 
 # Start jboss
 echo "BINDHOST=0.0.0.0" > jboss/bin/bind.conf
-output/jboss/bin/jbossctl start || exit 1
+./jboss/bin/jbossctl start || exit 1
 
 
 # Run selenium tests
@@ -45,11 +46,11 @@ ret2=$?
 date
 
 # Stop nuxeo
-output/jboss/bin/jbossctl stop
-gzip output/jboss/server/default/log/*.log
+./jboss/bin/jbossctl stop
+gzip jboss/server/default/log/*.log
 
 # Exit if some tests failed
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
 
 # Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
-scp ${DAILY_RELEASE}.zip ${DAILY_RELEASE}.zip.md5 $DAILY_DOWNLOAD || exit 1
+scp ${build}.zip.md5 ${build}.zip $DAILY_DOWNLOAD || exit 1
