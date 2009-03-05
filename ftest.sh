@@ -1,27 +1,28 @@
 #!/bin/sh -x
 
-# non standard date pattern
-NOW=$(date +"%y%m%d")
 NXVERSION=${NXVERSION:-5.2}
-DAILY_RELEASE=${DAILY_RELEASE:-nuxeo-ep-${NXVERSION}-${NOW}}
+LAST_BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSuccessfulBuild/artifact/trunk/release/archives
+LAST_BUILD=build.tar
 DAILY_DOWNLOAD="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots"
-LAST_BUILD=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSuccessfulBuild/artifact/trunk/release/archives/${DAILY_RELEASE}.zip
 
 #cleaning
-rm -rf ./nuxeo-ep* ./output ./results
-mkdir results output
+rm -rf ./jboss ./results ./download
+mkdir ./jboss ./results ./download || exit 1
 
-# download and start last packaged server
-wget -nv -r -nd $LAST_BUILD || exit 1
-unzip -q ${DAILY_RELEASE}.zip || exit -1
-mv ${DAILY_RELEASE} output/jboss
-echo "BINDHOST=0.0.0.0" > output/jboss/bin/bind.conf
+# download and unpack distrib
+cd download
+wget -nv $LAST_BUILD_URL/$LAST_BUILD || exit 1
+tar xvf $LAST_BUILD || exit 1
+unzip -q *.zip
+find . -name "nuxeo-ep*" -type d -exec mv {} ../jboss \; || exit 1
+cd ..
 
 # Start jboss
+echo "BINDHOST=0.0.0.0" > jboss/bin/bind.conf
 output/jboss/bin/jbossctl start || exit 1
 
 
-# Run functional tests
+# Run selenium tests
 CMD="xvfb-run java -jar selenium/selenium-server.jar -port 14440 -timeout 7200"
 if [ $NXVERSION = "5.1" ] ; then
         suite1=suite1.html
@@ -51,5 +52,4 @@ gzip output/jboss/server/default/log/*.log
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
 
 # Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
-scp ${DAILY_RELEASE}.zip $DAILY_DOWNLOAD || exit 1
-
+scp ${DAILY_RELEASE}.zip ${DAILY_RELEASE}.zip.md5 $DAILY_DOWNLOAD || exit 1
