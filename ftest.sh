@@ -8,7 +8,7 @@ DAILY_DOWNLOAD="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots"
 LAST_BUILD=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSuccessfulBuild/artifact/trunk/release/archives/${DAILY_RELEASE}.zip
 
 #cleaning
-rm -rf nuxeo-ep*.zip output results
+rm -rf ./nuxeo-ep* ./output ./results
 mkdir results output
 
 # download and start last packaged server
