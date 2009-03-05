@@ -9,7 +9,7 @@ LAST_BUILD=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSu
 
 #cleaning
 rm -rf nuxeo-ep*.zip output results
-mkdir results ouptut
+mkdir results output
 
 # download and start last packaged server
 wget -nv -r -nd $LAST_BUILD || exit 1
