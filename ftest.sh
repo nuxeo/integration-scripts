@@ -33,17 +33,16 @@ else
         suite2=suite2-5.2.html
 fi
 
-date
-$CMD -htmlSuite "*firefox" http://localhost:8080/nuxeo/ \
+($CMD -htmlSuite "*firefox" http://localhost:8080/nuxeo/ \
   "$PWD/selenium/tests/$suite1" "$PWD/results/results1.html" \
-   -userExtensions selenium/user-extensions.js
+   -userExtensions selenium/user-extensions.js)
 ret1=$?
-date
-$CMD -htmlSuite "*firefox" http://localhost:8080/nuxeo/ \
+
+($CMD -htmlSuite "*firefox" http://localhost:8080/nuxeo/ \
   "$PWD/selenium/tests/$suite2" "$PWD/results/results2.html" \
-  -userExtensions selenium/user-extensions.js
+  -userExtensions selenium/user-extensions.js)
 ret2=$?
-date
+
 
 # Stop nuxeo
 ./jboss/bin/jbossctl stop
@@ -51,6 +50,7 @@ gzip jboss/server/default/log/*.log
 
 # Exit if some tests failed
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
-
+date
 # Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
 scp ${build}.zip.md5 ${build}.zip $DAILY_DOWNLOAD || exit 1
+date
