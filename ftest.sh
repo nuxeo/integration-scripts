@@ -33,7 +33,7 @@ echo "BINDHOST=0.0.0.0" > jboss/bin/bind.conf
 
 
 # Run selenium tests
-HIDE_FF=true ./nuxeo-platform-ear/ftest/selenium/run.sh
+HIDE_FF=true ./nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/run.sh
 ret1=$?
 
 # Stop nuxeo
