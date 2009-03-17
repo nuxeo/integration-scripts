@@ -19,7 +19,7 @@ links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*.zip" | sort -u`
 cd download
 for link in links; do
     wget -nv $link || exit 1
-fi
+done
 
 # JBOSS tests --------------------------------------------------------
 unzip -q nuxeo-*jboss*.zip
