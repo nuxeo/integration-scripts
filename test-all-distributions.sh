@@ -54,7 +54,8 @@ stop_jboss
 
 
 # Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
-date
-scp download/*jboss* $DAILY_DOWNLOAD || exit 1
-date
-
+if [ ! -z $UPLOAD_URL ]; then
+    date
+    scp download/*jboss* $UPLOAD_URL || exit 1
+    date
+fi
