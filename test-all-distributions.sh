@@ -36,7 +36,7 @@ update_distribution_source
 start_jboss
 
 # Run selenium tests
-HIDE_FF=true ./nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/run.sh
+HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/run.sh
 ret1=$?
 
 # TODO: test nuxeo shell
@@ -45,11 +45,10 @@ ret1=$?
 # Stop nuxeo
 stop_jboss
 
-# JBOSS tests --------------------------------------------------------
-
 # Exit if some tests failed
 [ $ret1 -eq 0 ] || exit 9
 
+# JBOSS tests --------------------------------------------------------
 
 # TODO process jetty and glassfish
 

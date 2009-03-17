@@ -83,11 +83,9 @@ JBOSS_ARCHIVE=~/appservers/jboss-4.2.3.GA.zip \
 
 5.2_Integration_test
 
-UPLOAD_URL="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots"
-BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastBuild/
-
-
-TODO: describe job configuration
+UPLOAD_URL="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots" \
+BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastBuild/ \
+./test-all-distributions.sh
 
 
 Release
@@ -112,13 +110,9 @@ JBOSS_ARCHIVE=~/appservers/jboss-4.2.3.GA.zip \
 
 When: After a successful release build
 
-BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastBuild/
 
-
-TODO: describe job configuraton
-
-
-
+BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastBuild/ \
+./test-all-distributions.sh
 
 
 
