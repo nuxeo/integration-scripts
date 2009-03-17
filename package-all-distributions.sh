@@ -70,7 +70,7 @@ nx-builder prepare || exit 1
 nx-builder package || exit 1
 
 if [ $DISTRIBUTIONS == 'ALL' ]; then
-    jboss_zip=`find $RWS/archives/ -name 'nuxeo*jboss*.zip`
+    jboss_zip=`find $RWS/archives/ -name "nuxeo*jboss*.zip"`
 
     nx-builder package-we || exit 1
 
