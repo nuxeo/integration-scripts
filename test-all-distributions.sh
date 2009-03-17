@@ -17,7 +17,7 @@ links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*.zip" | sort -u`
 
 # Download and unpack the lastest builds
 cd download
-for link in links; do
+for link in $links; do
     wget -nv $link || exit 1
 done
 
