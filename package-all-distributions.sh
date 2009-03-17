@@ -6,13 +6,13 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 ADDONS=${ADDONS:-}
 TAG=${TAG:-"I"$(date +"%Y%m%d_%H%M")}
-if [ $TAG == "final" ]; then
+if [ $TAG = "final" ]; then
     # final release no more tag
     $TAG=
 fi
 # label for the zip package
 LABEL=${LABEL:-}
-DISTRIBUTIONS=${DISTRIBUTION:-'ALL'}
+DISTRIBUTIONS=${DISTRIBUTIONS:-"ALL"}
 
 # dev workspace
 DWS="$HERE"/dev
@@ -69,7 +69,7 @@ nx-builder prepare || exit 1
 
 nx-builder package || exit 1
 
-if [ $DISTRIBUTIONS == 'ALL' ]; then
+if [ $DISTRIBUTIONS = "ALL" ]; then
     jboss_zip=`find $RWS/archives/ -name "nuxeo*jboss*.zip"`
 
     nx-builder package-we || exit 1
