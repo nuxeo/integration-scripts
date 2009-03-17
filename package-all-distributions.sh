@@ -1,12 +1,23 @@
 #!/bin/sh -x
+# 5.2 specific integration build
+HERE=$(cd $(dirname $0); pwd -P)
 
-JBOSS_ARCHIVE=${JBOSS_ARCHIVE:-~/archive/jboss42.zip}
+. $HERE/integration-lib.sh
+
 ADDONS=${ADDONS:-}
+TAG=${TAG:-"I"$(date +"%Y%m%d_%H%M")}
+if [ $TAG == "final" ]; then
+    # final release no more tag
+    $TAG=
+fi
+# label for the zip package
+LABEL=${LABEL:-}
+DISTRIBUTIONS=${DISTRIBUTION:-'ALL'}
+
 # dev workspace
-DWS=$(pwd)/dev
+DWS="$HERE"/dev
 # release workspace
-RWS=$(pwd)/release
-TAG="I"$(date +"%Y%m%d_%H%M")
+RWS="$HERE"/release
 
 if [ ! -e $DWS ]; then
     mkdir -p $DWS || exit 1
@@ -20,6 +31,8 @@ fi
 [ -e $RWS ] && rm -rf $RWS
 mkdir $RWS || exit 1
 cd $RWS || exit 1
+
+# setup nx configuration file
 cat > nx-builder.conf <<EOF
 NX_HG=$DWS/nuxeo
 NXA_HG=$DWS/addons
@@ -30,18 +43,18 @@ JBOSS_PATCH=patch
 
 NXP_BRANCH=5.2
 NXP_SNAPSHOT=5.2-SNAPSHOT
-NXP_TAG=5.2-$TAG
+NXP_TAG=5.2.0$TAG
 NXP_NEXT_SNAPSHOT=5.2-SNAPSHOT
 
 NXC_BRANCH=1.5
 NXC_SNAPSHOT=1.5-SNAPSHOT
-NXC_TAG=1.5-$TAG
+NXC_TAG=1.5.0$TAG
 NXC_NEXT_SNAPSHOT=1.5-SNAPSHOT
 
 # Addons
 NXA_BRANCH=5.2
 NXA_SNAPSHOT=5.2-SNAPSHOT
-NXA_TAG=5.2-$TAG
+NXA_TAG=5.2.0$TAG
 NXA_NEXT_SNAPSHOT=5.2-SNAPSHOT
 
 NXP_BRANCH_NULL_MERGE=
@@ -56,6 +69,12 @@ nx-builder prepare || exit 1
 
 nx-builder package || exit 1
 
-# build a tar file to bundle the release
-cd archives
-for f in `ls *.zip`; do md5sum $f > $f.md5 ; tar cvf build.tar $f $f.md5; done
+if [ $DISTRIBUTIONS == 'ALL' ]; then
+    jboss_zip=`find $RWS/archives/ -name 'nuxeo*jboss*.zip`
+
+    nx-builder package-we || exit 1
+
+    nx-builder zip2jar $jboss_zip || exit 1
+fi
+
+cp fallback* archives/

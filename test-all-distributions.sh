@@ -1,6 +1,8 @@
 #!/bin/sh -x
+HERE=$(cd $(dirname $0); pwd -P)
 
-NXVERSION=${NXVERSION:-5.2}
+. $HERE/integration-lib.sh
+
 LAST_BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSuccessfulBuild/artifact/trunk/release/archives
 LAST_BUILD=build.tar
 DAILY_DOWNLOAD="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots"
@@ -21,16 +23,11 @@ mv $build ./jboss || exit 1
 
 
 # Update selenium tests
-if [ ! -d nuxeo-distribution ]; then
-    hg clone -r $NXVERSION http://hg.nuxeo.org/nuxeo/nuxeo-distribution 2>/dev/null || exit 1
-else
-    (cd nuxeo-distribution && hg pull && hg up -C $NXVERSION) || exit 1
-fi
+update_distribution_source
 
 # Start jboss
 echo "BINDHOST=0.0.0.0" > jboss/bin/bind.conf
 ./jboss/bin/jbossctl start || exit 1
-
 
 # Run selenium tests
 HIDE_FF=true ./nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/run.sh
