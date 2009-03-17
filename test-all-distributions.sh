@@ -3,21 +3,28 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 . $HERE/integration-lib.sh
 
-LAST_BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSuccessfulBuild/artifact/trunk/release/archives
-LAST_BUILD=build.tar
-DAILY_DOWNLOAD="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots"
+BUILD_URL=${BUILD_URL:-http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastSuccessfulBuild/artifact/trunk/release/archives}
+UPLOAD_URL=${UPLOAD_URL:-}
 
 
 # Cleaning
 rm -rf ./jboss ./results ./download
 mkdir ./results ./download || exit 1
 
-# Download and unpack the last build
+
+# extract list of links
+links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*.zip" | sort -u`
+
+# Download and unpack the lastest builds
 cd download
-wget -nv $LAST_BUILD_URL/$LAST_BUILD || exit 1
-tar xvf $LAST_BUILD || exit 1
-unzip -q *.zip
+for link in links; do
+    wget -nv $link || exit 1
+fi
+
+# JBOSS tests --------------------------------------------------------
+unzip -q nuxeo-*jboss*.zip
 cd ..
+
 build=$(find ./download -maxdepth 1 -name 'nuxeo-ep*'  -type d)
 mv $build ./jboss || exit 1
 
@@ -26,21 +33,29 @@ mv $build ./jboss || exit 1
 update_distribution_source
 
 # Start jboss
-echo "BINDHOST=0.0.0.0" > jboss/bin/bind.conf
-./jboss/bin/jbossctl start || exit 1
+start_jboss
 
 # Run selenium tests
 HIDE_FF=true ./nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/run.sh
 ret1=$?
 
+# TODO: test nuxeo shell
+
+
 # Stop nuxeo
-./jboss/bin/jbossctl stop
-gzip jboss/server/default/log/*.log
+stop_jboss
+
+# JBOSS tests --------------------------------------------------------
 
 # Exit if some tests failed
 [ $ret1 -eq 0 ] || exit 9
 
+
+# TODO process jetty and glassfish
+
+
 # Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
 date
-scp ${build}.zip.md5 ${build}.zip $DAILY_DOWNLOAD || exit 1
+scp download/*jboss* $DAILY_DOWNLOAD || exit 1
 date
+

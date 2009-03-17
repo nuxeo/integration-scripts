@@ -11,7 +11,7 @@ Requirements
 
   http://svn.nuxeo.org/nuxeo/tools/nx-builder/trunk
 
-
+* lynx, wget
 
 Scripts
 ========
@@ -50,11 +50,20 @@ ex of jboss zip name
 
 * test-all-distributions.sh
 
-TODO
+Run test on all available distribution including:
 
-BUILD_URL   http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSuccessfulBuild/artifact/trunk/release/archives
-UPLOAD_URL  zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots
-JAVA6_HOME  used by gf3
+  - funkload test on webengine jetty/glassfish
+  - selenium test on jboss
+  - funkload test on webengine jboss
+  - shell test (TODO)
+
+Options:
+
+BUILD_URL   Where to get the builds
+            http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSuccessfulBuild/artifact/trunk/release/archives
+UPLOAD_URL  Where to upload the builds if all tests pass
+            zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots
+JAVA6_HOME  Java 6 path for glassfish tests
 
 
 
@@ -67,20 +76,46 @@ Integration
 ---------------
 
 5.2_Integration_build
-TODO: describe job configuration
+
+JBOSS_ARCHIVE=~/appservers/jboss-4.2.3.GA.zip \
+./package-all-distributions.sh
+
 
 5.2_Integration_test
+
+UPLOAD_URL="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots"
+BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastBuild/
+
+
 TODO: describe job configuration
 
 
 Release
 ---------------
 
+
 5.2_Release_build
-TODO: describe job configuration
+
+When: Manual launch
+
+TAG="-RC1" \
+LABEL="all" \
+ADDONS="nuxeo-platform-annotations nuxeo-platform-preview \
+nuxeo-platform-imaging nuxeo-platform-imaging-tiling \
+nuxeo-platform-virtualnavigation nuxeo-platform-mail \
+nuxeo-platform-restpack" \
+JBOSS_ARCHIVE=~/appservers/jboss-4.2.3.GA.zip \
+./package-all-distributions.sh
+
 
 5.2_Release_test
-TODO: describe job configuratin
+
+When: After a successful release build
+
+BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastBuild/
+
+
+TODO: describe job configuraton
 
 
 

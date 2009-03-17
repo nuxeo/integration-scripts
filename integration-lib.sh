@@ -101,6 +101,7 @@ build_and_deploy() {
 
 
 start_jboss() {
+    echo "BINDHOST=0.0.0.0" > "$JBOSS_HOME"/bin/bind.conf
     "$JBOSS_HOME"/bin/jbossctl start || exit 1
 }
 
