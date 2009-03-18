@@ -65,6 +65,11 @@ NXA_MODULES="$ADDONS"
 
 EOF
 
+# Remove existing artifacts
+# TODO fix hard coded versions
+find ~/.m2/repository/org/nuxeo/ -name '*5.2.0$TAG*' -exec rm -rf {} \; 2>/dev/null
+find ~/.m2/repository/org/nuxeo/ -name '*1.5.0$TAG*' -exec rm -rf {} \; 2>/dev/null
+
 nx-builder prepare || exit 1
 
 nx-builder package || exit 1

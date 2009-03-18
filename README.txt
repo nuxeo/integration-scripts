@@ -11,17 +11,22 @@ Requirements
 
   http://svn.nuxeo.org/nuxeo/tools/nx-builder/trunk
 
-* lynx, wget
+* lynx
+
+* wget
+
 
 Scripts
 ========
 
-* package-all-distributions.sh
+package-all-distributions.sh
+-------------------------------
 
 Apply the release process and build jboss zip, jboss jar (izpack), webengine
 glassfish zip and webengine jetty zip.
 
-Options:
+Options
+~~~~~~~~
 
 JBOSS_ARCHIVE   Path of the jboss 4.2.3 zip
 ADDONS          List of nuxeo ep addons to deploy with the nuxeo ep ear
@@ -33,8 +38,10 @@ LABEL           The jboss zip label can be "all" to produce
 DISTRIBUTIONS   ZIP -> Build only the jboss zip
                 ALL -> Build jboss zip, jar, jetty and glassfish
 
-Outputs:
-release/archives/
+Outputs
+~~~~~~~~
+
+ * Packages: release/archives/*
    - nuxeo-ep-5.2.0$TAG-jboss-$LABEL.zip
    - nuxeo-ep-5.2.0$TAG-jboss-$LABEL.jar
    - nuxeo-ep-5.2.0$TAG-jboss-$LABEL-win32-x86_64.exe (TODO)
@@ -42,13 +49,15 @@ release/archives/
    - nuxeo-we-5.2.0$TAG-glassfish.zip
    - all md5 files
 
-ex of jboss zip name
+exemples:
    - nuxeo-ep-5.2.0-RC1-jboss-all.zip
+   - nuxeo-ep-5.2.0-RC1-jboss-all.zip.md5
    - nuxeo-ep-5.2.0-I20090315_1200-jboss.zip
 
 
 
-* test-all-distributions.sh
+test-all-distributions.sh
+------------------------------
 
 Run test on all available distribution including:
 
@@ -57,65 +66,103 @@ Run test on all available distribution including:
   - funkload test on webengine jboss
   - shell test (TODO)
 
-Options:
+Options
+~~~~~~~~
 
-BUILD_URL   Where to get the builds
-            http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastSuccessfulBuild/artifact/trunk/release/archives
+BUILD_URL   Where to get the builds, permalinks to hudson artifacts (lastSuccessfulBuild)
 UPLOAD_URL  Where to upload the builds if all tests pass
             zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots
 JAVA6_HOME  Java 6 path for glassfish tests
 
+Output
+~~~~~~~~
+
+* Selenium test results:
+  src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html
+
+* Jboss logs
+  jboss/server/default/log/*
 
 
+Hudson Jobs
+============
 
-
-Jobs
-=======
 
 Integration
 ---------------
 
-5.2_Integration_build
+Server_Test_5.2_-_Integration_build
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-JBOSS_ARCHIVE=~/appservers/jboss-4.2.3.GA.zip \
-./package-all-distributions.sh
+* Execute shell
+
+  DISTRIBUTIONS=ZIP \
+    JBOSS_ARCHIVE=~/appservers/jboss-4.2.3.GA.zip \
+    ./package-all-distributions.sh
+
+* Schedule working day at 5AM
+
+  0 5 * * 0-6
+
+* Archive artifacts
+
+  trunk/release/archives/*
 
 
-5.2_Integration_test
+Server_Test_5.2_-_Integration_tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-UPLOAD_URL="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots" \
-BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastBuild/ \
-./test-all-distributions.sh
+* Execute shell
+
+  UPLOAD_URL="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots" \
+    BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastBuild/ \
+    ./test-all-distributions.sh
+
+* Schedule: After a successful Integration_build
+
+* Archive artifacts
+
+  trunk/src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html, trunk/jboss/server/default/log/*
+
 
 
 Release
 ---------------
 
+Server_Test_5.2_-_Release_build
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-5.2_Release_build
+* Execute shell
 
-When: Manual launch
-
-TAG="-RC1" \
-LABEL="all" \
-ADDONS="nuxeo-platform-annotations nuxeo-platform-preview \
+  TAG="-RC1" \
+    LABEL="all" \
+    ADDONS="nuxeo-searchcenter \
+nuxeo-platform-nxwss-rootfilter \
+nuxeo-platform-nxwss \
+nuxeo-platform-annotations nuxeo-platform-preview \
 nuxeo-platform-imaging nuxeo-platform-imaging-tiling \
 nuxeo-platform-virtualnavigation nuxeo-platform-mail \
 nuxeo-platform-restpack" \
-JBOSS_ARCHIVE=~/appservers/jboss-4.2.3.GA.zip \
-./package-all-distributions.sh
+    JBOSS_ARCHIVE=~/appservers/jboss-4.2.3.GA.zip \
+    ./package-all-distributions.sh
+
+* Schedule: Manual launch
 
 
-5.2_Release_test
+Server_Test_5.2_-_Release_tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When: After a successful release build
 
+* Execute shell
 
-BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release/lastBuild/ \
-./test-all-distributions.sh
+  cd trunk
+  BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release_build/lastBuild/ \
+    ./test-all-distributions.sh
 
+* Schedule: After a successful Release_build
 
-
-
+* Archive artifacts
+ trunk/src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html, trunk/jboss/server/default/log/*
 
 
