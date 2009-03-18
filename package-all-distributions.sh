@@ -67,19 +67,19 @@ EOF
 
 # Remove existing artifacts
 # TODO fix hard coded versions
-find ~/.m2/repository/org/nuxeo/ -name "*-5.2.0$TAG*" -exec rm -rf {} \; 2>/dev/null
-find ~/.m2/repository/org/nuxeo/ -name "*-1.5.0$TAG*" -exec rm -rf {} \; 2>/dev/null
+find ~/.m2/repository/org/nuxeo/ -name "*5.2.0$TAG*" -exec rm -rf {} \; 2>/dev/null
+find ~/.m2/repository/org/nuxeo/ -name "*1.5.0$TAG*" -exec rm -rf {} \; 2>/dev/null
 
-nx-builder prepare || exit 1
+nx-builder -d prepare || exit 1
 
-nx-builder package || exit 1
+nx-builder -d package || exit 1
 
 if [ $DISTRIBUTIONS = "ALL" ]; then
     jboss_zip=`find $RWS/archives/ -name "nuxeo*jboss*.zip"`
 
-    nx-builder package-we || exit 1
+    nx-builder -d package-we || exit 1
 
-    nx-builder zip2jar $jboss_zip || exit 1
+    nx-builder -d zip2jar $jboss_zip || exit 1
 fi
 
 cp fallback* archives/
