@@ -11,6 +11,9 @@ Requirements
 
   http://svn.nuxeo.org/nuxeo/tools/nx-builder/trunk
 
+* funkload >=  FunkLoad 1.9.1b-r53416
+  http://funkload.nuxeo.org/INSTALL.html
+
 * lynx
 
 * wget
@@ -84,14 +87,61 @@ Output
   jboss/server/default/log/*
 
 
+
+build-and-test.sh
+------------------------------
+
+Deploy into a jboss then perform tests:
+
+  - selenium test on jboss
+  - funkload test on webengine jboss (TODO)
+  - shell test (TODO)
+
+The assembly used current ~/.m2/repo artifacts.
+
+Options
+~~~~~~~~
+
+JBOSS_ARCHIVE The 4.2.3 zip archive
+NEW_JBOSS     If set full reset of the jboss
+
+Output
+~~~~~~~~
+
+* Selenium test results:
+  src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html
+
+* Jboss logs
+  jboss/server/default/log/*
+
+
 Hudson Jobs
 ============
+
+Continuous builds
+-------------------
+
+FT-nuxeo-5.2-selenium
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Execute shell
+
+ JBOSS_ARCHIVE=~/appservers/jboss-4.2.3.GA.zip \
+    ./build-and-tests.sh
+
+* launched after nuxeo-distribution-5.2-skip.test
+
+* Archive artifacts
+
+  trunk/src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html, trunk/jboss/server/default/log/*
+
+
 
 
 Integration
 ---------------
 
-Server_Test_5.2_-_Integration_build
+IT-nuxeo-5.2-build
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Execute shell
@@ -109,7 +159,7 @@ Server_Test_5.2_-_Integration_build
   trunk/release/archives/*
 
 
-Server_Test_5.2_-_Integration_tests
+IT-nuxeo-5.2-tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Execute shell
@@ -129,14 +179,15 @@ Server_Test_5.2_-_Integration_tests
 Release
 ---------------
 
-Server_Test_5.2_-_Release_build
+IT-nuxeo-5.2-release-build
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Execute shell
 
   TAG="-RC1" \
     LABEL="all" \
-    ADDONS="nuxeo-searchcenter \
+    ADDONS="nuxeo-platform-userworkspace \
+nuxeo-searchcenter \
 nuxeo-platform-nxwss-rootfilter \
 nuxeo-platform-nxwss \
 nuxeo-platform-annotations nuxeo-platform-preview \
@@ -149,7 +200,7 @@ nuxeo-platform-restpack" \
 * Schedule: Manual launch
 
 
-Server_Test_5.2_-_Release_tests
+IT-nuxeo-5.2-release-tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When: After a successful release build
@@ -164,5 +215,6 @@ When: After a successful release build
 
 * Archive artifacts
  trunk/src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html, trunk/jboss/server/default/log/*
+
 
 
