@@ -102,6 +102,29 @@ EOF
 </datasources>
 EOF
 
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/default-repository-config.xml <<EOF || exit 1
+<?xml version="1.0"?>
+<component name="default-repository-config">
+  <extension target="org.nuxeo.ecm.core.repository.RepositoryService"
+    point="repository">
+    <repository name="default"
+      factory="org.nuxeo.ecm.core.storage.sql.coremodel.SQLRepositoryFactory">
+      <repository name="default">
+        <indexing>
+          <fulltext analyzer="english"/>
+        </indexing>
+      </repository>
+    </repository>
+  </extension>
+</component>
+EOF
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/sql.properties <<EOF || exit 1
+# Jena database type and transaction mode
+org.nuxeo.ecm.sql.jena.databaseType=PostgreSQL
+org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
+EOF
+
     cp -u ~/.m2/repository/postgresql/postgresql/8.2-*.jdbc3/postgresql-8.2-*.jdbc3.jar "$JBOSS_HOME"/server/default/lib/
 
 }
