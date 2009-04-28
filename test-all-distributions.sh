@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/bash -x
 HERE=$(cd $(dirname $0); pwd -P)
 
 . $HERE/integration-lib.sh
