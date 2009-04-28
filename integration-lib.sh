@@ -74,7 +74,7 @@ setup_database() {
     <xa-transaction/>
     <track-connection-by-tx/>
     <adapter-display-name>Nuxeo SQL Repository DataSource</adapter-display-name>
-    <rar-name>nuxeo.ear#nuxeo-core-storage-sql-ra-$NXCVERSION</rar-name>
+    <rar-name>nuxeo.ear#nuxeo-core-storage-sql-ra-$NXC_VERSION</rar-name>
     <connection-definition>org.nuxeo.ecm.core.storage.sql.Repository</connection-definition>
     <config-property name="name">default</config-property>
     <config-property name="xaDataSource" type="java.lang.String">org.postgresql.xa.PGXADataSource</config-property>
