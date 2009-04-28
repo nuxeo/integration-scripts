@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 HERE=$(cd $(dirname $0); pwd -P)
 NXVERSION=${NXVERSION:-5.2}
@@ -55,8 +55,54 @@ stop_jboss() {
 
 setup_database() {
     dbname=$1
-    export PGPASSWORD="secret"
+    if [ X$dbname = 'X' ]; then
+        dbname=qualiscope-ci-$(( RANDOM%10 ))
+    fi
+    echo "### Initializing PostgreSQL DATABASE: $dbname"
     dropdb $dbname -U qualiscope -h localhost
     createdb $dbname -U qualiscope -h localhost || exit 1
+
+    NXC_VERSION=$(cd "$JBOSS_HOME"; ls server/default/deploy/nuxeo.ear/system/nuxeo-core-storage-sql-ra-*.rar |cut -d"-" -f6- )
+
+    [ -z $NXC_VERSION ] && exit 1
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/default-repository-ds.xml <<EOF || exit 1
+<?xml version="1.0"?>
+<connection-factories>
+  <tx-connection-factory>
+    <jndi-name>NXRepository/default</jndi-name>
+    <xa-transaction/>
+    <track-connection-by-tx/>
+    <adapter-display-name>Nuxeo SQL Repository DataSource</adapter-display-name>
+    <rar-name>nuxeo.ear#nuxeo-core-storage-sql-ra-$NXCVERSION</rar-name>
+    <connection-definition>org.nuxeo.ecm.core.storage.sql.Repository</connection-definition>
+    <config-property name="name">default</config-property>
+    <config-property name="xaDataSource" type="java.lang.String">org.postgresql.xa.PGXADataSource</config-property>
+    <config-property name="property" type="java.lang.String">ServerName=localhost</config-property>
+    <config-property name="property" type="java.lang.String">PortNumber/Integer=5432</config-property>
+    <config-property name="property" type="java.lang.String">DatabaseName=$dbname</config-property>
+    <config-property name="property" type="java.lang.String">User=qualiscope</config-property>
+    <config-property name="property" type="java.lang.String">Password=$PGPASSWORD</config-property>
+  </tx-connection-factory>
+</connection-factories>
+
+EOF
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml <<EOF || exit 1
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+  <local-tx-datasource>
+  <jndi-name>NuxeoDS</jndi-name>
+  <connection-url>jdbc:postgresql://localhost:5432/$dbname</connection-url>
+  <driver-class>org.postgresql.Driver</driver-class>
+  <user-name>qualiscope</user-name>
+  <password>$PGPASSWORD</password>
+  <check-valid-connection-sql>;</check-valid-connection-sql>
+  </local-tx-datasource>
+</datasources>
+EOF
+
+    cp -u ~/.m2/repository/postgresql/postgresql/8.2-*.jdbc3/postgresql-8.2-*.jdbc3.jar "$JBOSS_HOME"/server/default/lib/
+
 }
 

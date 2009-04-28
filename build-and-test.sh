@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/bash -x
 
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
@@ -13,6 +13,11 @@ update_distribution_source
 setup_jboss
 
 build_and_deploy
+
+# Setup PostgreSQL
+if [ ! -z $PGPASSWORD ]; then
+    setup_database
+fi
 
 # Start
 start_jboss

@@ -18,6 +18,8 @@ Requirements
 
 * wget
 
+* postgresql with a qualiscope account:
+  sudo -u postgres createuser -SdRPe qualiscope
 
 Scripts
 ========
@@ -76,6 +78,9 @@ BUILD_URL   Where to get the builds, permalinks to hudson artifacts (lastSuccess
 UPLOAD_URL  Where to upload the builds if all tests pass
             zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots
 JAVA6_HOME  Java 6 path for glassfish tests
+PGPASSWORD Use postgresql for unified data source and VCS using qualiscope
+           account with the $PGPASSWORD password.
+
 
 Output
 ~~~~~~~~
@@ -104,7 +109,8 @@ Options
 
 JBOSS_ARCHIVE The 4.2.3 zip archive
 NEW_JBOSS     If set full reset of the jboss
-
+PGPASSWORD Use postgresql for unified data source and VCS using qualiscope
+           account with the $PGPASSWORD password.
 Output
 ~~~~~~~~
 

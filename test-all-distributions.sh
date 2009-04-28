@@ -11,9 +11,8 @@ UPLOAD_URL=${UPLOAD_URL:-}
 rm -rf ./jboss ./results ./download
 mkdir ./results ./download || exit 1
 
-
 # extract list of links
-links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*.zip" | sort -u`
+links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*.zip\(.md5\)*" | sort -u`
 
 # Download and unpack the lastest builds
 cd download
@@ -32,21 +31,33 @@ mv $build ./jboss || exit 1
 # Update selenium tests
 update_distribution_source
 
+# Use postgreSQL
+if [ ! -z $PGPASSWORD ]; then
+    setup_database
+fi
+
 # Start jboss
 start_jboss
 
-# Run selenium tests
-HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/run.sh
+
+# Run simple rest, web and webengine tests
+(cd "$NXDIR"/nuxeo-distribution/nuxeo-platform-ear/ftest/funkload; make)
 ret1=$?
 
 # TODO: test nuxeo shell
+#(cd "$NXDIR"/nuxeo-distribution/nuxeo-distribution-shell/ftest/; make)
+ret2=$?
 
+# Run selenium tests
+HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/run.sh
+ret3=$?
 
 # Stop nuxeo
 stop_jboss
 
 # Exit if some tests failed
-[ $ret1 -eq 0 ] || exit 9
+[ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
+[ $ret3 -eq 0 ] || exit 9
 
 # JBOSS tests --------------------------------------------------------
 
