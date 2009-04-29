@@ -5,6 +5,7 @@ NXVERSION=${NXVERSION:-5.2}
 NXDIR="$HERE/src-$NXVERSION"
 JBOSS_ARCHIVE=${JBOSS_ARCHIVE:-~/jboss-4.2.3.GA.zip}
 JBOSS_HOME="$HERE/jboss"
+DBPORT=${DBPORT:-5432}
 
 
 update_distribution_source() {
@@ -80,7 +81,7 @@ setup_database() {
     <config-property name="name">default</config-property>
     <config-property name="xaDataSource" type="java.lang.String">org.postgresql.xa.PGXADataSource</config-property>
     <config-property name="property" type="java.lang.String">ServerName=localhost</config-property>
-    <config-property name="property" type="java.lang.String">PortNumber/Integer=5432</config-property>
+    <config-property name="property" type="java.lang.String">PortNumber/Integer=$DBPORT</config-property>
     <config-property name="property" type="java.lang.String">DatabaseName=$dbname</config-property>
     <config-property name="property" type="java.lang.String">User=qualiscope</config-property>
     <config-property name="property" type="java.lang.String">Password=$PGPASSWORD</config-property>
@@ -94,7 +95,7 @@ EOF
 <datasources>
   <local-tx-datasource>
   <jndi-name>NuxeoDS</jndi-name>
-  <connection-url>jdbc:postgresql://localhost:5432/$dbname</connection-url>
+  <connection-url>jdbc:postgresql://localhost:$DBPORT/$dbname</connection-url>
   <driver-class>org.postgresql.Driver</driver-class>
   <user-name>qualiscope</user-name>
   <password>$PGPASSWORD</password>

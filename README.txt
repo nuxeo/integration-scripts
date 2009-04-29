@@ -20,6 +20,9 @@ Requirements
 
 * postgresql with a qualiscope account:
   sudo -u postgres createuser -SdRPe qualiscope
+  sudo -u postgres createlang plpgsql template1
+
+
 
 Scripts
 ========
@@ -78,9 +81,9 @@ BUILD_URL   Where to get the builds, permalinks to hudson artifacts (lastSuccess
 UPLOAD_URL  Where to upload the builds if all tests pass
             zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots
 JAVA6_HOME  Java 6 path for glassfish tests
-PGPASSWORD Use postgresql for unified data source and VCS using qualiscope
-           account with the $PGPASSWORD password.
-
+PGPASSWORD  Use PostgreSQL 8.3 for unified data source and VCS using qualiscope
+            account with the $PGPASSWORD password.
+DBPORT      PostgreSQL local port 5432 by default
 
 Output
 ~~~~~~~~
