@@ -60,9 +60,9 @@ setup_database() {
         dbname=qualiscope-ci-$(( RANDOM%10 ))
     fi
     echo "### Initializing PostgreSQL DATABASE: $dbname"
-    dropdb $dbname -U qualiscope -h localhost
-    createdb $dbname -U qualiscope -h localhost || exit 1
-    createlang plpgsql $dbname -U qualiscope -h localhost
+    dropdb $dbname -U qualiscope -h localhost -p $DBPORT
+    createdb $dbname -U qualiscope -h localhost -p $DBPORT || exit 1
+    createlang plpgsql $dbname -U qualiscope -h localhost -p $DBPORT
 
     NXC_VERSION=$(cd "$JBOSS_HOME"; ls server/default/deploy/nuxeo.ear/system/nuxeo-core-storage-sql-ra-*.rar |cut -d"-" -f6- )
 
