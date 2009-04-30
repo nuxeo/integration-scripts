@@ -8,7 +8,7 @@ ADDONS=${ADDONS:-}
 TAG=${TAG:-"-I"$(date +"%Y%m%d_%H%M")}
 if [ $TAG = "final" ]; then
     # final release no more tag
-    $TAG=
+    TAG=
 fi
 # label for the zip package
 LABEL=${LABEL:-}
