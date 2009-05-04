@@ -13,19 +13,21 @@ update_distribution_source() {
     else
         (cd "$NXDISTRIBUTION" && hg pull && hg up -C $NXVERSION) || exit 1
     fi
+    # should detect when it's necessary to rebuild JBoss (libraries or source code changed)
+    (cd "$NXDISTRIBUTION" && mvn clean package -Pnuxeo-ep-jboss) || exit 1
 }
 
 setup_jboss() {
-    if [ ! -d "$JBOSS_HOME" ] || [ ! -z $NEW_JBOSS ] ; then
-        [ -d "$JBOSS_HOME" ] && rm -rf "$JBOSS_HOME"
-        (cd "$NXDISTRIBUTION" && mvn clean package -Pnuxeo-ep-jboss) || exit 1
-        mv  "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/jboss "$JBOSS_HOME" || exit 1
-        svn export --force https://svn.nuxeo.org/nuxeo/tools/jboss/bin "$JBOSS_HOME"/bin/ || exit 1
-        cp "$HERE"/jbossctl.conf "$JBOSS_HOME"/bin/
+    JBOSS=${1:-$JBOSS_HOME}
+    if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
+        [ -d "$JBOSS" ] && rm -rf "$JBOSS"
+        cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/jboss "$JBOSS" || exit 1
+        svn export --force https://svn.nuxeo.org/nuxeo/tools/jboss/bin "$JBOSS"/bin/ || exit 1
+        cp "$HERE"/jbossctl.conf "$JBOSS"/bin/
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
-        rm -rf "$JBOSS_HOME"/server/default/data/*
-        rm -rf "$JBOSS_HOME"/server/default/log/*
+        rm -rf "$JBOSS"/server/default/data/*
+        rm -rf "$JBOSS"/server/default/log/*
     fi
 }
 
@@ -37,7 +39,7 @@ deploySRCtoDST() {
   SRC=$1
   DST=$2
   [ -d "$DST" ] && rm -rf "$DST"
-  mv $SRC $DST 
+  cp -r $SRC $DST 
 }
 
 start_jboss() {

@@ -13,10 +13,8 @@ mkdir ./results ./download || exit 1
 # Build
 update_distribution_source
 
-setup_jboss
-cp -r "$JBOSS_HOME" "$JBOSS_HOME_SF"
-setup_jboss
-cp -r "$JBOSS_HOME" "$JBOSS_HOME_SL"
+setup_jboss "$JBOSS_HOME_SF"
+setup_jboss "$JBOSS_HOME_SL"
 
 (cd "$NXDISTRIBUTION"/nuxeo-platform-ear/ && ./package.sh nuxeo-2parts) || exit 1
 deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-platform-ear/target/nuxeo-platform-stateful.ear "$JBOSS_HOME_SF"/server/default/deploy/nuxeo.ear
