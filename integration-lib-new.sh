@@ -43,12 +43,15 @@ deploySRCtoDST() {
 }
 
 start_jboss() {
-    echo "BINDHOST=0.0.0.0" > "$JBOSS_HOME"/bin/bind.conf
-    "$JBOSS_HOME"/bin/jbossctl start || exit 1
+    JBOSS=${1:-$JBOSS_HOME}
+    IP=${2:-0.0.0.0}
+    echo "BINDHOST=$IP" > "$JBOSS"/bin/bind.conf
+    "$JBOSS"/bin/jbossctl start || exit 1
 }
 
 stop_jboss() {
-    "$JBOSS_HOME"/bin/jbossctl stop
-    gzip "$JBOSS_HOME"/server/default/log/*.log
+    JBOSS=${1:-$JBOSS_HOME}
+    "$JBOSS"/bin/jbossctl stop
+    gzip "$JBOSS"/server/default/log/*.log
 }
 

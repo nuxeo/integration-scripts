@@ -25,21 +25,17 @@ if [ ! -z $PGPASSWORD ]; then
     setup_database
 fi
 
-# Start
-echo "BINDHOST=127.0.1.2" > "$JBOSS_HOME_SF"/bin/bind.conf
-"$JBOSS_HOME_SF"/bin/jbossctl start || exit 1
-echo "BINDHOST=127.0.0.1" > "$JBOSS_HOME_SL"/bin/bind.conf
-"$JBOSS_HOME_SL"/bin/jbossctl start || exit 1
+# Start Nuxeo
+start_jboss "$JBOSS_HOME_SF" 127.0.1.1
+start_jboss "$JBOSS_HOME_SL" 127.0.1.2
 
 # Run selenium tests
 HIDE_FF=true "$NXDISTRIBUTION"/nuxeo-platform-ear/ftest/selenium/run.sh
 ret1=$?
 
-# Stop nuxeo
-"$JBOSS_HOME_SL"/bin/jbossctl stop
-gzip "$JBOSS_HOME_SL"/server/default/log/*.log
-"$JBOSS_HOME_SF"/bin/jbossctl stop
-gzip "$JBOSS_HOME_SF"/server/default/log/*.log
+# Stop Nuxeo
+stop_jboss "$JBOSS_HOME_SL"
+stop_jboss "$JBOSS_HOME_SF"
 
 # Exit if some tests failed
 [ $ret1 -eq 0 ] || exit 9
