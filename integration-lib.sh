@@ -1,4 +1,9 @@
 #!/bin/bash
+# DEPRECATED : 
+# - JBOSS_ARCHIVE: JBoss must be retrieved from Maven
+# - update_distribution_source: no need to download nuxeo sources, it's nuxeo-distribution job to patch a JBoss
+# - setup_database: should use nuxeo-distribution profiles
+
 
 HERE=$(cd $(dirname $0); pwd -P)
 NXVERSION=${NXVERSION:-5.2}
