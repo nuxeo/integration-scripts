@@ -79,7 +79,8 @@ if [ $DISTRIBUTIONS = "ALL" ]; then
 
     nx-builder -d package-we || exit 1
 
-    nx-builder -d zip2jar $jboss_zip || exit 1
+#    Get rid of the unused jar version
+#    nx-builder -d zip2jar $jboss_zip || exit 1
 fi
 
 cp fallback* archives/
