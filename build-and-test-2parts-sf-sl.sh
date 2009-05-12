@@ -16,9 +16,9 @@ update_distribution_source
 setup_jboss "$JBOSS_HOME_SF"
 setup_jboss "$JBOSS_HOME_SL"
 
-(cd "$NXDISTRIBUTION"/nuxeo-platform-ear/ && ./package.sh nuxeo-2parts) || exit 1
-deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-platform-ear/target/nuxeo-platform-stateful.ear "$JBOSS_HOME_SF"/server/default/deploy/nuxeo.ear
-deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-platform-ear/target/nuxeo-web-stateless.ear "$JBOSS_HOME_SL"/server/default/deploy/nuxeo.ear
+(cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ && ./package.sh nuxeo-2parts) || exit 1
+deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/nuxeo-platform-stateful.ear "$JBOSS_HOME_SF"/server/default/deploy/nuxeo.ear
+deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/nuxeo-web-stateless.ear "$JBOSS_HOME_SL"/server/default/deploy/nuxeo.ear
 
 # Setup PostgreSQL
 if [ ! -z $PGPASSWORD ]; then
@@ -30,7 +30,7 @@ start_jboss "$JBOSS_HOME_SF" 127.0.1.1
 start_jboss "$JBOSS_HOME_SL" 127.0.1.2
 
 # Run selenium tests
-HIDE_FF=true URL=http://127.0.1.2/nuxeo "$NXDISTRIBUTION"/nuxeo-platform-ear/ftest/selenium/run.sh
+HIDE_FF=true URL=http://127.0.1.2/nuxeo/ "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
 ret1=$?
 
 # Stop Nuxeo

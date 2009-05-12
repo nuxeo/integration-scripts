@@ -41,7 +41,7 @@ start_jboss
 
 
 # Run simple rest, web and webengine tests
-(cd "$NXDIR"/nuxeo-distribution/nuxeo-platform-ear/ftest/funkload; make)
+(cd "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload; make)
 ret1=$?
 
 # TODO: test nuxeo shell
@@ -49,7 +49,7 @@ ret1=$?
 ret2=$?
 
 # Run selenium tests
-HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/run.sh
+HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/run.sh
 ret3=$?
 
 # Stop nuxeo

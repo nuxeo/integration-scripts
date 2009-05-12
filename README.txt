@@ -89,7 +89,7 @@ Output
 ~~~~~~~~
 
 * Selenium test results:
-  src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html
+  src-5.2/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/result-*.html
 
 * Jboss logs
   jboss/server/default/log/*
@@ -118,7 +118,7 @@ Output
 ~~~~~~~~
 
 * Selenium test results:
-  src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html
+  src-5.2/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/result-*.html
 
 * Jboss logs
   jboss/server/default/log/*
@@ -142,7 +142,7 @@ FT-nuxeo-5.2-selenium
 
 * Archive artifacts
 
-  trunk/src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html, trunk/jboss/server/default/log/*
+  trunk/src-5.2/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/result-*.html, trunk/jboss/server/default/log/*
 
 
 
@@ -181,7 +181,7 @@ IT-nuxeo-5.2-tests
 
 * Archive artifacts
 
-  trunk/src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html, trunk/jboss/server/default/log/*
+  trunk/src-5.2/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/result-*.html, trunk/jboss/server/default/log/*
 
 
 
@@ -223,7 +223,7 @@ When: After a successful release build
 * Schedule: After a successful Release_build
 
 * Archive artifacts
- trunk/src-5.2/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/result-*.html, trunk/jboss/server/default/log/*
+ trunk/src-5.2/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/result-*.html, trunk/jboss/server/default/log/*
 
 
 

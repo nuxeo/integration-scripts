@@ -25,10 +25,10 @@ start_jboss
 echo "Benching nuxeo ep ..."
 ret1=$?
 
-test_path=$NXDIR/nuxeo-distribution/nuxeo-platform-ear/ftest/funkload/
+test_path=$NXDIR/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload/
 (cd $test_path; make bench EXT="--no-color"; ret=$?; make stop; exit $ret)
 ret1=$?
-mv $NXDIR/nuxeo-distribution/nuxeo-platform-ear/target/ftest/funkload/report .
+mv $NXDIR/nuxeo-distribution/nuxeo-distribution-dm/target/ftest/funkload/report .
 
 
 # Stop nuxeo

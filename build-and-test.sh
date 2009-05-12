@@ -23,7 +23,7 @@ fi
 start_jboss
 
 # Run selenium tests
-HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-platform-ear/ftest/selenium/run.sh
+HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/run.sh
 ret1=$?
 
 

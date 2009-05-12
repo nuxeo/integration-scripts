@@ -32,7 +32,7 @@ setup_jboss() {
 }
 
 deploy_ear() {
-  deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-platform-ear/target/nuxeo.ear "$JBOSS_HOME"/server/default/deploy/nuxeo.ear
+  deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/nuxeo.ear "$JBOSS_HOME"/server/default/deploy/nuxeo.ear
 }
 
 deploySRCtoDST() {
