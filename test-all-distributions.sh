@@ -39,18 +39,19 @@ fi
 # Start jboss
 start_jboss
 
+# Run selenium tests first
+# it requires an empty db
+HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/run.sh
+ret1=$?
 
 # Run simple rest, web and webengine tests
 (cd "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload; make)
-ret1=$?
+ret2=$?
 
 # TODO: test nuxeo shell
 #(cd "$NXDIR"/nuxeo-distribution/nuxeo-distribution-shell/ftest/; make)
-ret2=$?
-
-# Run selenium tests
-HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/run.sh
 ret3=$?
+
 
 # Stop nuxeo
 stop_jboss
