@@ -30,7 +30,8 @@ start_jboss "$JBOSS_HOME_SF" 127.0.1.1
 start_jboss "$JBOSS_HOME_SL" 127.0.1.2
 
 # Run selenium tests
-HIDE_FF=true URL=http://127.0.1.2/nuxeo/ "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
+HIDE_FF=true URL=http://127.0.1.2:8080/nuxeo/ "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
+#URL=http://127.0.1.2:8080/nuxeo/ "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
 ret1=$?
 
 # Stop Nuxeo
