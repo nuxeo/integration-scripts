@@ -1,8 +1,7 @@
 #!/bin/bash
-# DEPRECATED : 
+# DEPRECATED :
 # - JBOSS_ARCHIVE: JBoss must be retrieved from Maven
 # - update_distribution_source: no need to download nuxeo sources, it's nuxeo-distribution job to patch a JBoss
-# - setup_database: should use nuxeo-distribution profiles
 
 
 HERE=$(cd $(dirname $0); pwd -P)
@@ -48,6 +47,9 @@ build_and_deploy() {
 
 
 start_jboss() {
+    if [ ! -e "$JBOSS_HOME"/bin/jbossctl.conf ]; then
+        cp "$HERE"/jbossctl.conf "$JBOSS_HOME"/bin/
+    fi
     echo "BINDHOST=0.0.0.0" > "$JBOSS_HOME"/bin/bind.conf
     "$JBOSS_HOME"/bin/jbossctl start || exit 1
 }
@@ -132,7 +134,7 @@ org.nuxeo.ecm.sql.jena.databaseType=PostgreSQL
 org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
 EOF
 
-    cp -u ~/.m2/repository/postgresql/postgresql/8.2-*.jdbc3/postgresql-8.2-*.jdbc3.jar "$JBOSS_HOME"/server/default/lib/
+    cp -u ~/.m2/repository/postgresql/postgresql/8.3-*.jdbc3/postgresql-8.3-*.jdbc3.jar "$JBOSS_HOME"/server/default/lib/
 
 }
 
