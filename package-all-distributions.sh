@@ -42,20 +42,20 @@ JBOSS_ARCH=$JBOSS_ARCHIVE
 JBOSS_PATCH=patch
 
 NXP_BRANCH=5.2
-NXP_SNAPSHOT=5.2-SNAPSHOT
-NXP_TAG=5.2.0$TAG
-NXP_NEXT_SNAPSHOT=5.2-SNAPSHOT
+NXP_SNAPSHOT=5.2.1-SNAPSHOT
+NXP_TAG=5.2.1$TAG
+NXP_NEXT_SNAPSHOT=5.2.1-SNAPSHOT
 
 NXC_BRANCH=1.5
-NXC_SNAPSHOT=1.5-SNAPSHOT
-NXC_TAG=1.5.0$TAG
-NXC_NEXT_SNAPSHOT=1.5-SNAPSHOT
+NXC_SNAPSHOT=1.5.1-SNAPSHOT
+NXC_TAG=1.5.1$TAG
+NXC_NEXT_SNAPSHOT=1.5.1-SNAPSHOT
 
 # Addons
 NXA_BRANCH=5.2
-NXA_SNAPSHOT=5.2-SNAPSHOT
-NXA_TAG=5.2.0$TAG
-NXA_NEXT_SNAPSHOT=5.2-SNAPSHOT
+NXA_SNAPSHOT=5.2.1-SNAPSHOT
+NXA_TAG=5.2.1$TAG
+NXA_NEXT_SNAPSHOT=5.2.1-SNAPSHOT
 
 NXP_BRANCH_NULL_MERGE=
 NXC_BRANCH_NULL_MERGE=
@@ -67,8 +67,8 @@ EOF
 
 # Remove existing artifacts
 # TODO fix hard coded versions
-find ~/.m2/repository/org/nuxeo/ -name "*5.2.0$TAG*" -exec rm -rf {} \; 2>/dev/null
-find ~/.m2/repository/org/nuxeo/ -name "*1.5.0$TAG*" -exec rm -rf {} \; 2>/dev/null
+find ~/.m2/repository/org/nuxeo/ -name "*5.2.1$TAG*" -exec rm -rf {} \; 2>/dev/null
+find ~/.m2/repository/org/nuxeo/ -name "*1.5.1$TAG*" -exec rm -rf {} \; 2>/dev/null
 
 nx-builder -d prepare || exit 1
 

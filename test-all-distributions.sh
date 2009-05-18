@@ -5,24 +5,29 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 BUILD_URL=${BUILD_URL:-http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastSuccessfulBuild/artifact/trunk/release/archives}
 UPLOAD_URL=${UPLOAD_URL:-}
-
+ZIP_FILE=${ZIP_FILE:-}
 
 # Cleaning
 rm -rf ./jboss ./results ./download
 mkdir ./results ./download || exit 1
 
-# extract list of links
-links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*.zip\(.md5\)*" | sort -u`
-
-# Download and unpack the lastest builds
 cd download
-for link in $links; do
-    wget -nv $link || exit 1
-done
+if [ -z $ZIP_FILE ]; then
+    # extract list of links
+    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*.zip\(.md5\)*" | sort -u`
+
+    # Download and unpack the lastest builds
+    for link in $links; do
+        wget -nv $link || exit 1
+    done
+
+    unzip -q nuxeo-*jboss*.zip
+else
+    unzip -q $ZIP_FILE || exit 1
+fi
+cd ..
 
 # JBOSS tests --------------------------------------------------------
-unzip -q nuxeo-*jboss*.zip
-cd ..
 
 build=$(find ./download -maxdepth 1 -name 'nuxeo-ep*'  -type d)
 mv $build ./jboss || exit 1
