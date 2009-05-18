@@ -29,7 +29,7 @@ cd ..
 
 # JBOSS tests --------------------------------------------------------
 
-build=$(find ./download -maxdepth 1 -name 'nuxeo-ep*'  -type d)
+build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
 mv $build ./jboss || exit 1
 
 
