@@ -84,3 +84,5 @@ if [ $DISTRIBUTIONS = "ALL" ]; then
 fi
 
 cp fallback* archives/
+
+exit 0
