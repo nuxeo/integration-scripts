@@ -14,7 +14,7 @@ update_distribution_source() {
         (cd "$NXDISTRIBUTION" && hg pull && hg up -C $NXVERSION) || exit 1
     fi
     # should detect when it's necessary to rebuild JBoss (libraries or source code changed)
-    (cd "$NXDISTRIBUTION" && mvn clean package -Pnuxeo-ep-jboss) || exit 1
+    (cd "$NXDISTRIBUTION" && mvn clean package -Pnuxeo-dm-jboss) || exit 1
 }
 
 setup_jboss() {
