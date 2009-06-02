@@ -7,8 +7,8 @@ BUILD_URL=${BUILD_URL:-http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_In
 ZIP_FILE=${ZIP_FILE:-}
 
 # Cleaning
-rm -rf ./jboss ./results ./download
-mkdir ./results ./download || exit 1
+rm -rf ./jboss ./report ./download
+mkdir ./download || exit 1
 
 cd download
 if [ -z $ZIP_FILE ]; then
