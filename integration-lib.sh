@@ -62,7 +62,7 @@ setup_monitoring() {
     <attribute name="MonitorPeriod">5000</attribute>
     <attribute name="MonitoredObjects">
       <configuration>
-        <monitoredmbean name="jboss.web:name=http-127.0.0.1-8080,type=ThreadPool" logger="jboss.thread">
+        <monitoredmbean name="jboss.web:name=http-0.0.0.0-8080,type=ThreadPool" logger="jboss.thread">
           <attribute>currentThreadCount</attribute>
           <attribute>currentThreadsBusy</attribute>
           <attribute>maxThreads</attribute>
