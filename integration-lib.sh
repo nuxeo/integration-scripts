@@ -44,9 +44,9 @@ setup_jboss() {
 setup_monitoring() {
     # Change log4j threshold from info to debug
     sed -i '/server.log/,/<\/appender>/ s,name="Threshold" value="INFO",name="Threshold" value="DEBUG",' "$JBOSS_HOME"/server/default/conf/jboss-log4j.xml
-    # Let sysstat sar record activity every 2s during 30min
+    # Let sysstat sar record activity every 5s during 60min
     mkdir -p "$JBOSS_HOME"/server/default/log
-    sar -d -o  "$JBOSS_HOME"/server/default/log/sysstat-sar.log 2 900 >/dev/null 2>&1 &
+    sar -d -o  "$JBOSS_HOME"/server/default/log/sysstat-sar.log 5 720 >/dev/null 2>&1 &
     # Activate logging monitor
     cp "$JBOSS_HOME"/docs/examples/jmx/logging-monitor/lib/logging-monitor.jar "$JBOSS_HOME"/server/default/lib/
     # Add mbean attributes to monitor
@@ -103,14 +103,14 @@ EOF
 <!DOCTYPE server PUBLIC "-//JBoss//DTD MBean Service 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss-service_4_0.dtd">
 <server>
   <mbean code="org.jboss.services.loggingmonitor.LoggingMonitor"
-         name="jboss.monitor:type=LoggingMonitor,name=DefaultDSMonitor">
-    <attribute name="Filename">\${jboss.server.log.dir}/default-ds.log</attribute>
+         name="jboss.monitor:type=LoggingMonitor,name=NuxeoDSMonitor">
+    <attribute name="Filename">\${jboss.server.log.dir}/nuxeo-ds.log</attribute>
     <attribute name="AppendToFile">false</attribute>
     <attribute name="RolloverPeriod">DAY</attribute>
     <attribute name="MonitorPeriod">5000</attribute>
     <attribute name="MonitoredObjects">
       <configuration>
-        <monitoredmbean name="jboss.jca:name=DefaultDS,service=ManagedConnectionPool" logger="jca.defaultds">
+        <monitoredmbean name="jboss.jca:name=NuxeoDS,service=ManagedConnectionPool" logger="jca">
           <attribute>InUseConnectionCount</attribute>
           <attribute>AvailableConnectionCount</attribute>
           <attribute>ConnectionCreatedCount</attribute>
