@@ -40,6 +40,93 @@ setup_jboss() {
     fi
 }
 
+
+setup_monitoring() {
+    # Change log4j threshold from info to debug
+    sed -i '/server.log/,/<\/appender>/ s,name="Threshold" value="INFO",name="Threshold" value="DEBUG",' "$JBOSS_HOME"/server/default/conf/jboss-log4j.xml
+    # Let sysstat sar record activity every 2s during 30min
+    mkdir -p "$JBOSS_HOME"/server/default/log
+    sar -d -o  "$JBOSS_HOME"/server/default/log/sysstat-sar.log 2 900 >/dev/null 2>&1 &
+    # Activate logging monitor
+    cp "$JBOSS_HOME"/docs/examples/jmx/logging-monitor/lib/logging-monitor.jar "$JBOSS_HOME"/server/default/lib/
+    # Add mbean attributes to monitor
+    cat >  "$JBOSS_HOME"/server/default/deploy/webthreads-monitor-service.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server PUBLIC "-//JBoss//DTD MBean Service 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss-service_4_0.dtd">
+<server>
+  <mbean code="org.jboss.services.loggingmonitor.LoggingMonitor"
+         name="jboss.monitor:type=LoggingMonitor,name=WebThreadMonitor">
+    <attribute name="Filename">\${jboss.server.log.dir}/webthreads.log</attribute>
+    <attribute name="AppendToFile">false</attribute>
+    <attribute name="RolloverPeriod">DAY</attribute>
+    <attribute name="MonitorPeriod">5000</attribute>
+    <attribute name="MonitoredObjects">
+      <configuration>
+        <monitoredmbean name="jboss.web:name=http-127.0.0.1-8080,type=ThreadPool" logger="jboss.thread">
+          <attribute>currentThreadCount</attribute>
+          <attribute>currentThreadsBusy</attribute>
+          <attribute>maxThreads</attribute>
+        </monitoredmbean>
+      </configuration>
+    </attribute>
+    <depends>jboss.web:service=WebServer</depends>
+  </mbean>
+</server>
+EOF
+
+    cat >  "$JBOSS_HOME"/server/default/deploy/jvm-monitor-service.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server PUBLIC "-//JBoss//DTD MBean Service 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss-service_4_0.dtd">
+<server>
+  <mbean code="org.jboss.services.loggingmonitor.LoggingMonitor"
+         name="jboss.monitor:type=LoggingMonitor,name=JVMMonitor">
+    <attribute name="Filename">\${jboss.server.log.dir}/jvm.log</attribute>
+    <attribute name="AppendToFile">false</attribute>
+    <attribute name="RolloverPeriod">DAY</attribute>
+    <attribute name="MonitorPeriod">5000</attribute>
+    <attribute name="MonitoredObjects">
+      <configuration>
+        <monitoredmbean name="jboss.system:type=ServerInfo" logger="jvm">
+          <attribute>ActiveThreadCount</attribute>
+          <attribute>FreeMemory</attribute>
+          <attribute>TotalMemory</attribute>
+          <attribute>MaxMemory</attribute>
+        </monitoredmbean>
+      </configuration>
+    </attribute>
+  </mbean>
+</server>
+EOF
+
+    cat >  "$JBOSS_HOME"/server/default/deploy/default-ds-monitor-service.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server PUBLIC "-//JBoss//DTD MBean Service 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss-service_4_0.dtd">
+<server>
+  <mbean code="org.jboss.services.loggingmonitor.LoggingMonitor"
+         name="jboss.monitor:type=LoggingMonitor,name=DefaultDSMonitor">
+    <attribute name="Filename">\${jboss.server.log.dir}/default-ds.log</attribute>
+    <attribute name="AppendToFile">false</attribute>
+    <attribute name="RolloverPeriod">DAY</attribute>
+    <attribute name="MonitorPeriod">5000</attribute>
+    <attribute name="MonitoredObjects">
+      <configuration>
+        <monitoredmbean name="jboss.jca:name=DefaultDS,service=ManagedConnectionPool" logger="jca.defaultds">
+          <attribute>InUseConnectionCount</attribute>
+          <attribute>AvailableConnectionCount</attribute>
+          <attribute>ConnectionCreatedCount</attribute>
+          <attribute>ConnectionDestroyedCount</attribute>
+          <attribute>MaxConnectionsInUseCount</attribute>
+        </monitoredmbean>
+      </configuration>
+    </attribute>
+    <depends>jboss.jca:name=DefaultDS,service=ManagedConnectionPool</depends>
+  </mbean>
+</server>
+EOF
+
+}
+
+
 build_and_deploy() {
     (cd "$NXDIR" && ant patch -Djboss.dir="$JBOSS_HOME") || exit 1
     (cd "$NXDIR" && ant copy-lib package copy -Djboss.dir="$JBOSS_HOME") || exit 1
@@ -51,6 +138,7 @@ start_jboss() {
         cp "$HERE"/jbossctl.conf "$JBOSS_HOME"/bin/
     fi
     echo "BINDHOST=0.0.0.0" > "$JBOSS_HOME"/bin/bind.conf
+    setup_monitoring
     "$JBOSS_HOME"/bin/jbossctl start || exit 1
 }
 
