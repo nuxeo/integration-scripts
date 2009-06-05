@@ -144,9 +144,9 @@ start_jboss() {
 
 stop_jboss() {
     "$JBOSS_HOME"/bin/jbossctl stop
+    [ -r "$JBOSS_HOME"/log/gc.log ] && mv "$JBOSS_HOME"/log/gc.log "$JBOSS_HOME"/server/default/log/
     gzip "$JBOSS_HOME"/server/default/log/*.log
 }
-
 
 
 setup_database() {
