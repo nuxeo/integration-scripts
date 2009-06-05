@@ -52,7 +52,7 @@ ret1=$?
 java -version  2>&1 | grep 1.5.0
 if [ $? == 0 ]; then
     # FunkLoad tests works only with java 1.5.0 (j_ids are changed by java6)
-    (cd "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload; make)
+    (cd "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload; make EXT="--no-color")
     ret2=$?
 else
     ret2=0
