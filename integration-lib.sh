@@ -188,14 +188,16 @@ EOF
     cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml <<EOF || exit 1
 <?xml version="1.0" encoding="UTF-8"?>
 <datasources>
-  <local-tx-datasource>
-  <jndi-name>NuxeoDS</jndi-name>
-  <connection-url>jdbc:postgresql://localhost:$DBPORT/$dbname</connection-url>
-  <driver-class>org.postgresql.Driver</driver-class>
-  <user-name>qualiscope</user-name>
-  <password>$PGPASSWORD</password>
-  <check-valid-connection-sql>;</check-valid-connection-sql>
-  </local-tx-datasource>
+   <xa-datasource>
+     <jndi-name>NuxeoDS</jndi-name>
+     <track-connection-by-tx/>
+     <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>
+     <xa-datasource-property name="ServerName">localhost</xa-datasource-property>
+     <xa-datasource-property name="PortNumber">$DBPORT</xa-datasource-property>
+     <xa-datasource-property name="DatabaseName">$dbname</xa-datasource-property>
+     <xa-datasource-property name="User">qualiscope</xa-datasource-property>
+     <xa-datasource-property name="Password">$PGPASSWORD</xa-datasource-property>
+   </xa-datasource>
 </datasources>
 EOF
 
