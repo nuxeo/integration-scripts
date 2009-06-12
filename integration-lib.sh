@@ -46,6 +46,7 @@ setup_jboss() {
 setup_monitoring() {
     # Change log4j threshold from info to debug
     sed -i '/server.log/,/<\/appender>/ s,name="Threshold" value="INFO",name="Threshold" value="DEBUG",' "$JBOSS_HOME"/server/default/conf/jboss-log4j.xml
+    mkdir -p "$JBOSS_HOME"/server/default/log
     # postgres
     if [ ! -z $PGPASSWORD ]; then
         if [ -r $PGSQL_LOG ]; then
@@ -54,7 +55,6 @@ setup_monitoring() {
         fi
     fi
     # Let sysstat sar record activity every 5s during 60min
-    mkdir -p "$JBOSS_HOME"/server/default/log
     sar -d -o  "$JBOSS_HOME"/server/default/log/sysstat-sar.log 5 720 >/dev/null 2>&1 &
     # Activate logging monitor
     cp "$JBOSS_HOME"/docs/examples/jmx/logging-monitor/lib/logging-monitor.jar "$JBOSS_HOME"/server/default/lib/
