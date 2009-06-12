@@ -10,7 +10,9 @@ NXDIR="$HERE/src-$NXVERSION"
 JBOSS_ARCHIVE=${JBOSS_ARCHIVE:-~/jboss-4.2.3.GA.zip}
 JBOSS_HOME="$HERE/jboss"
 DBPORT=${DBPORT:-5432}
-
+PGSQL_LOG=${PGSQL_LOG:-/var/log/pgsql}
+PGSQL_OFFSET="$JBOSS_HOME"/log/pgsql.offset
+LOGTAIL=/usr/sbin/logtail
 
 update_distribution_source() {
     if [ ! -d "$NXDIR" ]; then
@@ -44,6 +46,13 @@ setup_jboss() {
 setup_monitoring() {
     # Change log4j threshold from info to debug
     sed -i '/server.log/,/<\/appender>/ s,name="Threshold" value="INFO",name="Threshold" value="DEBUG",' "$JBOSS_HOME"/server/default/conf/jboss-log4j.xml
+    # postgres
+    if [ ! -z $PGPASSWORD ]; then
+        if [ -r $PGSQL_LOG ]; then
+            rm -rf $PGSQL_OFFSET
+            $LOGTAIL -f $PGSQL_LOG -o $PGSQL_OFFSET > /dev/null
+        fi
+    fi
     # Let sysstat sar record activity every 5s during 60min
     mkdir -p "$JBOSS_HOME"/server/default/log
     sar -d -o  "$JBOSS_HOME"/server/default/log/sysstat-sar.log 5 720 >/dev/null 2>&1 &
@@ -145,6 +154,9 @@ start_jboss() {
 stop_jboss() {
     "$JBOSS_HOME"/bin/jbossctl stop
     [ -r "$JBOSS_HOME"/log/gc.log ] && mv "$JBOSS_HOME"/log/gc.log "$JBOSS_HOME"/server/default/log/
+    if [ -r $PGSQL_OFFSET ]; then
+        $LOGTAIL -f $PGSQL_LOG -o $PGSQL_OFFSET > "$JBOSS_HOME"/server/default/log/pgsql.log
+    fi
     gzip "$JBOSS_HOME"/server/default/log/*.log
 }
 

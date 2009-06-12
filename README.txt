@@ -22,6 +22,12 @@ Requirements
   sudo -u postgres createuser -SdRPe qualiscope
   sudo -u postgres createlang plpgsql template1
 
+* postgresql log for pgfouine report
+
+  - setup postgresql config  with log in /var/log/pgsql
+     http://pgfouine.projects.postgresql.org/tutorial.html
+
+  - aptitude install logtail
 
 
 Scripts
