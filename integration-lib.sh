@@ -11,7 +11,7 @@ JBOSS_ARCHIVE=${JBOSS_ARCHIVE:-~/jboss-4.2.3.GA.zip}
 JBOSS_HOME="$HERE/jboss"
 DBPORT=${DBPORT:-5432}
 PGSQL_LOG=${PGSQL_LOG:-/var/log/pgsql}
-PGSQL_OFFSET="$JBOSS_HOME"/log/pgsql.offset
+PGSQL_OFFSET="$JBOSS_HOME"/server/default/log/pgsql.offset
 LOGTAIL=/usr/sbin/logtail
 
 update_distribution_source() {
