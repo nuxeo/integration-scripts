@@ -44,6 +44,7 @@ setup_jboss() {
 
 
 setup_monitoring() {
+    IP=${1:-0.0.0.0}
     # Change log4j threshold from info to debug
     sed -i '/server.log/,/<\/appender>/ s,name="Threshold" value="INFO",name="Threshold" value="DEBUG",' "$JBOSS_HOME"/server/default/conf/jboss-log4j.xml
     mkdir -p "$JBOSS_HOME"/server/default/log
@@ -71,7 +72,7 @@ setup_monitoring() {
     <attribute name="MonitorPeriod">5000</attribute>
     <attribute name="MonitoredObjects">
       <configuration>
-        <monitoredmbean name="jboss.web:name=http-0.0.0.0-8080,type=ThreadPool" logger="jboss.thread">
+        <monitoredmbean name="jboss.web:name=http-$IP-8080,type=ThreadPool" logger="jboss.thread">
           <attribute>currentThreadCount</attribute>
           <attribute>currentThreadsBusy</attribute>
           <attribute>maxThreads</attribute>
@@ -146,8 +147,9 @@ start_jboss() {
     if [ ! -e "$JBOSS_HOME"/bin/jbossctl.conf ]; then
         cp "$HERE"/jbossctl.conf "$JBOSS_HOME"/bin/
     fi
-    echo "BINDHOST=0.0.0.0" > "$JBOSS_HOME"/bin/bind.conf
-    setup_monitoring
+    IP=${1:-0.0.0.0}
+    echo "BINDHOST=$IP" > "$JBOSS_HOME"/bin/bind.conf
+    setup_monitoring $IP
     "$JBOSS_HOME"/bin/jbossctl start || exit 1
 }
 
