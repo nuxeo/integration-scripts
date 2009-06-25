@@ -10,7 +10,7 @@ mkdir ./results ./download || exit 1
 # Build
 update_distribution_source
 
-setup_jboss"
+setup_jboss
 
 cd "$NXDISTRIBUTION"
 ant distrib -Ddistrib=nuxeo-dm -Dmvn.opts=-Djcr
