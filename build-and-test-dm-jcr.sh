@@ -30,3 +30,4 @@ stop_jboss
 
 # Exit if some tests failed
 [ $ret1 -eq 0 ] || exit 9
+
