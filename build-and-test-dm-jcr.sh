@@ -22,7 +22,6 @@ start_jboss
 
 # Run selenium tests
 HIDE_FF=true URL=http://127.0.1.2:8080/nuxeo/ "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
-#URL=http://127.0.1.2:8080/nuxeo/ "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
 ret1=$?
 
 # Stop Nuxeo
@@ -30,4 +29,3 @@ stop_jboss
 
 # Exit if some tests failed
 [ $ret1 -eq 0 ] || exit 9
-
