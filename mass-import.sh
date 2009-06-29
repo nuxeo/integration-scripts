@@ -65,7 +65,7 @@ start_jboss
 
 
 # create a document to init the database
-time curl -u Administrator:Administrator "http://localhost:8080/nuxeo/site/randomImporter/run?targetPath=/default-domain/workspaces&batchSize=10&nbThreads=1&interactive=true&nbNodes=5&fileSizeKB=$FILESIZEKB"
+time curl -u Administrator:Administrator "http://localhost:8080/nuxeo/site/randomImporter/run?targetPath=/default-domain/workspaces&batchSize=10&nbThreads=1&interactive=true&nbNodes=5&fileSizeKB=$FILESIZEKB&bulkMode=true&onlyText=false"
 
 # drop fulltext trigger and gin index
 psql $dbname -U qualiscope -h localhost -p $DBPORT <<EOF || exit 1
@@ -83,7 +83,7 @@ ret1=9
 for thread in $THREADS; do
     echo "### Import with $thread threads ----------------------------------"
     date --rfc-3339=seconds
-    time curl -s -v -u Administrator:Administrator "http://localhost:8080/nuxeo/site/randomImporter/run?targetPath=/default-domain/workspaces&batchSize=10&nbThreads=$thread&interactive=true&nbNodes=$NBNODES&fileSizeKB=$FILESIZEKB"
+    time curl -s -v -u Administrator:Administrator "http://localhost:8080/nuxeo/site/randomImporter/run?targetPath=/default-domain/workspaces&batchSize=10&nbThreads=$thread&interactive=true&nbNodes=$NBNODES&fileSizeKB=$FILESIZEKB&bulkMode=true&onlyText=false"
     ret1=$?
     sleep 30
 done
@@ -97,7 +97,7 @@ exit $ret1
 
 # --------------------- misc notes
 # test creation
-time curl -vu Administrator:Administrator "http://localhost:8080/nuxeo/site/randomImporter/run?targetPath=/default-domain/workspaces&batchSize=10&nbThreads=1$thread&interactive=true&nbNodes=100&fileSizeKB=50"
+time curl -vu Administrator:Administrator "http://localhost:8080/nuxeo/site/randomImporter/run?targetPath=/default-domain/workspaces&batchSize=10&nbThreads=1$thread&interactive=true&nbNodes=100&fileSizeKB=50&bulkMode=true&onlyText=false"
 
 # recreate fulltext trigger and idx
 CREATE TRIGGER nx_trig_ft_update
