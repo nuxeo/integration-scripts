@@ -10,6 +10,7 @@ NXDIR="$HERE/src-$NXVERSION"
 JBOSS_ARCHIVE=${JBOSS_ARCHIVE:-~/jboss-4.2.3.GA.zip}
 JBOSS_HOME="$HERE/jboss"
 DBPORT=${DBPORT:-5432}
+DBNAME=${DBNAME:-qualiscope-ci-$(( RANDOM%10 ))}
 PGSQL_LOG=${PGSQL_LOG:-/var/log/pgsql}
 PGSQL_OFFSET="$JBOSS_HOME"/server/default/log/pgsql.offset
 LOGTAIL=/usr/sbin/logtail
@@ -159,19 +160,19 @@ stop_jboss() {
     if [ -r $PGSQL_OFFSET ]; then
         $LOGTAIL -f $PGSQL_LOG -o $PGSQL_OFFSET > "$JBOSS_HOME"/server/default/log/pgsql.log
     fi
+    if [ ! -z $PGPASSWORD ]; then
+        vacuumdb -fzv $DBNAME -U qualiscope -h localhost -p $DBPORT &> "$JBOSS_HOME"/server/default/log/vacuum.log
+    fi
     gzip "$JBOSS_HOME"/server/default/log/*.log
 }
 
 
 setup_database() {
-    dbname=$1
-    if [ X$dbname = 'X' ]; then
-        dbname=qualiscope-ci-$(( RANDOM%10 ))
-    fi
-    echo "### Initializing PostgreSQL DATABASE: $dbname"
-    dropdb $dbname -U qualiscope -h localhost -p $DBPORT
-    createdb $dbname -U qualiscope -h localhost -p $DBPORT || exit 1
-    createlang plpgsql $dbname -U qualiscope -h localhost -p $DBPORT
+    DBNAME=${$1:-$DBNAME}
+    echo "### Initializing PostgreSQL DATABASE: $DBNAME"
+    dropdb $DBNAME -U qualiscope -h localhost -p $DBPORT
+    createdb $DBNAME -U qualiscope -h localhost -p $DBPORT || exit 1
+    createlang plpgsql $DBNAME -U qualiscope -h localhost -p $DBPORT
 
     NXC_VERSION=$(cd "$JBOSS_HOME"; ls server/default/deploy/nuxeo.ear/system/nuxeo-core-storage-sql-ra-*.rar |cut -d"-" -f6- )
 
@@ -191,7 +192,7 @@ setup_database() {
     <config-property name="xaDataSource" type="java.lang.String">org.postgresql.xa.PGXADataSource</config-property>
     <config-property name="property" type="java.lang.String">ServerName=localhost</config-property>
     <config-property name="property" type="java.lang.String">PortNumber/Integer=$DBPORT</config-property>
-    <config-property name="property" type="java.lang.String">DatabaseName=$dbname</config-property>
+    <config-property name="property" type="java.lang.String">DatabaseName=$DBNAME</config-property>
     <config-property name="property" type="java.lang.String">User=qualiscope</config-property>
     <config-property name="property" type="java.lang.String">Password=$PGPASSWORD</config-property>
   </tx-connection-factory>
@@ -208,7 +209,7 @@ EOF
      <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>
      <xa-datasource-property name="ServerName">localhost</xa-datasource-property>
      <xa-datasource-property name="PortNumber">$DBPORT</xa-datasource-property>
-     <xa-datasource-property name="DatabaseName">$dbname</xa-datasource-property>
+     <xa-datasource-property name="DatabaseName">$DBNAME</xa-datasource-property>
      <xa-datasource-property name="User">qualiscope</xa-datasource-property>
      <xa-datasource-property name="Password">$PGPASSWORD</xa-datasource-property>
    </xa-datasource>
