@@ -168,7 +168,7 @@ stop_jboss() {
 
 
 setup_database() {
-    DBNAME=${$1:-$DBNAME}
+    DBNAME=${1:-$DBNAME}
     echo "### Initializing PostgreSQL DATABASE: $DBNAME"
     dropdb $DBNAME -U qualiscope -h localhost -p $DBPORT
     createdb $DBNAME -U qualiscope -h localhost -p $DBPORT || exit 1
