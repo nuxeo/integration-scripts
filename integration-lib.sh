@@ -233,6 +233,16 @@ EOF
 </component>
 EOF
 
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/tagservice-db.properties <<EOF || exit 1
+hibernate.show_sql=false
+hibernate.connection.driver_class=org.postgresql.xa.PGXADataSource
+hibernate.connection.username=qualiscope
+hibernate.connection.password=$PGPASSWORD
+hibernate.connection.url=jdbc:postgres://localhost:$DBPORT/$DBNAME
+hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+EOF
+
+
     cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/sql.properties <<EOF || exit 1
 # Jena database type and transaction mode
 org.nuxeo.ecm.sql.jena.databaseType=PostgreSQL
