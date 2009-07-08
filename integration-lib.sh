@@ -234,12 +234,12 @@ EOF
 EOF
 
     cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/tagservice-db.properties <<EOF || exit 1
-hibernate.show_sql=false
-hibernate.connection.driver_class=org.postgresql.xa.PGXADataSource
-hibernate.connection.username=qualiscope
-hibernate.connection.password=$PGPASSWORD
-hibernate.connection.url=jdbc:postgres://localhost:$DBPORT/$DBNAME
-hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+org.nuxeo.ecm.platform.tagservice.hibernate.show_sql=false
+org.nuxeo.ecm.platform.tagservice.hibernate.connection.driver_class=org.postgresql.Driver
+org.nuxeo.ecm.platform.tagservice.hibernate.connection.username=qualiscope
+org.nuxeo.ecm.platform.tagservice.hibernate.connection.password=$PGPASSWORD
+org.nuxeo.ecm.platform.tagservice.hibernate.connection.url=jdbc:postgres://localhost:$DBPORT/$DBNAME
+org.nuxeo.ecm.platform.tagservice.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 EOF
 
 
