@@ -23,7 +23,8 @@ fi
 start_jboss
 
 # Run selenium tests
-HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/run.sh
+SELENIUM_PATH=${SELENIUM_PATH:-nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium}
+HIDE_FF=true "$NXDIR"/"$SELENIUM_PATH"/run.sh
 ret1=$?
 
 
