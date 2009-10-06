@@ -178,6 +178,18 @@ setup_database() {
 
     [ -z $NXC_VERSION ] && exit 1
 
+    # switch nxtags to unified ds
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/nxtags-ds.xml <<EOF || exit 1
+<?xml version="1.0"?>
+<datasources>
+  <mbean code="org.jboss.naming.NamingAlias"
+    name="jboss.jca:name=nxtags,service=DataSourceBinding">
+    <attribute name="ToName">java:/NuxeoDS</attribute>
+    <attribute name="FromName">java:/nxtags</attribute>
+  </mbean>
+</datasources>
+EOF
+
     cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/default-repository-ds.xml <<EOF || exit 1
 <?xml version="1.0"?>
 <connection-factories>
