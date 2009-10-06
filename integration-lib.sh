@@ -245,16 +245,6 @@ EOF
 </component>
 EOF
 
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/tagservice-db.properties <<EOF || exit 1
-org.nuxeo.ecm.platform.tagservice.hibernate.show_sql=false
-org.nuxeo.ecm.platform.tagservice.hibernate.connection.driver_class=org.postgresql.Driver
-org.nuxeo.ecm.platform.tagservice.hibernate.connection.username=qualiscope
-org.nuxeo.ecm.platform.tagservice.hibernate.connection.password=$PGPASSWORD
-org.nuxeo.ecm.platform.tagservice.hibernate.connection.url=jdbc:postgres://localhost:$DBPORT/$DBNAME
-org.nuxeo.ecm.platform.tagservice.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-EOF
-
-
     cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/sql.properties <<EOF || exit 1
 # Jena database type and transaction mode
 org.nuxeo.ecm.sql.jena.databaseType=PostgreSQL
@@ -265,3 +255,119 @@ EOF
 
 }
 
+setup_oracle_database() {
+    ORACLE_SID=${ORACLE_SID:-NUXEO}
+    ORACLE_HOST=${ORACLE_HOST:-ORACLE_HOST}
+    ORACLE_USER=${ORACLE_USER:-hudson}
+    ORACLE_PASSWORD=${ORACLE_PASSWORD:-ORACLE_USER}
+    ORACLE_PORT=${ORACLE_PORT:-1521}
+
+    echo "### Initializing Oracle DATABASE: $ORACLE_SID $ORACLE_USER"
+
+    ssh -l oracle $ORACLE_HOST sqlplus $ORACLE_USER/$ORACLE_PASSWORD@$ORACLE_SID << EOF || exit 1
+SET NEWPAGE 0
+SET SPACE 0
+SET LINESIZE 80
+SET PAGESIZE 0
+SET ECHO OFF
+SET FEEDBACK OFF
+SET HEADING OFF
+SET MARKUP HTML OFF
+DROP TABLE  HIERARCHY CASCADE CONSTRAINTS;
+SET ESCAPE \
+SPOOL DELETEME.SQL
+SELECT 'DROP TABLE  "'|| table_name|| '" CASCADE CONSTRAINTS ;' FROM user_tables;
+SPOOL OFF
+@DELETEME.SQL
+EOF
+
+    # TODO: use private nexus to get jdbc driver
+    scp oracle@$ORACLE_HOST:/opt/oracle/10g/jdbc/lib/ojdbc14.jar  "$JBOSS_HOME"/server/default/lib/ || exit 1
+
+    NXC_VERSION=$(cd "$JBOSS_HOME"; ls server/default/deploy/nuxeo.ear/system/nuxeo-core-storage-sql-ra-*.rar |cut -d"-" -f6- )
+
+    [ -z $NXC_VERSION ] && exit 1
+
+    # switch nxtags to unified ds
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/nxtags-ds.xml <<EOF || exit 1
+<?xml version="1.0"?>
+<datasources>
+  <mbean code="org.jboss.naming.NamingAlias"
+    name="jboss.jca:name=nxtags,service=DataSourceBinding">
+    <attribute name="ToName">java:/NuxeoDS</attribute>
+    <attribute name="FromName">java:/nxtags</attribute>
+  </mbean>
+</datasources>
+EOF
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/default-repository-ds.xml <<EOF || exit 1
+<?xml version="1.0"?>
+<connection-factories>
+  <tx-connection-factory>
+    <jndi-name>NXRepository/default</jndi-name>
+    <xa-transaction/>
+    <track-connection-by-tx/>
+    <adapter-display-name>Nuxeo SQL Repository DataSource</adapter-display-name>
+    <rar-name>nuxeo.ear#nuxeo-core-storage-sql-ra-$NXC_VERSION</rar-name>
+    <connection-definition>org.nuxeo.ecm.core.storage.sql.Repository</connection-definition>
+    <config-property name="name">default</config-property>
+    <config-property name="xaDataSource" type="java.lang.String">oracle.jdbc.xa.client.OracleXADataSource</config-property>
+    <config-property name="property" type="java.lang.String">URL=jdbc:oracle:thin:@$ORACLE_HOST:$ORACLE_PORT:$ORACLE_SID</config-property>
+    <config-property name="property" type="java.lang.String">User=$ORACLE_USER</config-property>
+    <config-property name="property" type="java.lang.String">Password=$ORACLE_PASSWORD</config-property>
+    <max-pool-size>20</max-pool-size>
+  </tx-connection-factory>
+</connection-factories>
+
+EOF
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml <<EOF || exit 1
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+     <jndi-name>NuxeoDS</jndi-name>
+     <connection-url>jdbc:oracle:thin:@$ORACLE_HOST:$ORACLE_PORT:$ORACLE_SID</connection-url>
+     <user-name>$ORACLE_USER</user-name>
+     <password>$ORACLE_PASSWORD</password>
+     <min-pool-size>5</min-pool-size>
+     <max-pool-size>20</max-pool-size>
+</datasources>
+EOF
+
+    # xa does not work at ddl time for oracle
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml-xa <<EOF || exit 1
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+   <xa-datasource>
+     <jndi-name>NuxeoDS</jndi-name>
+     <track-connection-by-tx/>
+     <xa-datasource-class>oracle.jdbc.xa.client.OracleXADataSource</xa-datasource-class>
+     <xa-datasource-property name="URL">jdbc:oracle:thin:@$ORACLE_HOST:$ORACLE_PORT:$ORACLE_SID</xa-datasource-property>
+     <xa-datasource-property name="User">$ORACLE_USER</xa-datasource-property>
+     <xa-datasource-property name="Password">$ORACLE_PASSWORD</xa-datasource-property>
+   </xa-datasource>
+</datasources>
+EOF
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/default-repository-config.xml <<EOF || exit 1
+<?xml version="1.0"?>
+<component name="default-repository-config">
+  <extension target="org.nuxeo.ecm.core.repository.RepositoryService"
+    point="repository">
+    <repository name="default"
+      factory="org.nuxeo.ecm.core.storage.sql.coremodel.SQLRepositoryFactory">
+      <repository name="default">
+      </repository>
+    </repository>
+  </extension>
+</component>
+EOF
+
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/sql.properties <<EOF || exit 1
+# Jena database type and transaction mode
+org.nuxeo.ecm.sql.jena.databaseType=Oracle
+org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
+EOF
+
+
+}
