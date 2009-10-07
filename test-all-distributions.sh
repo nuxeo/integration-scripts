@@ -41,6 +41,12 @@ if [ ! -z $PGPASSWORD ]; then
     setup_database
 fi
 
+# Use oracle
+if [ ! -z $ORACLE_SID ]; then
+    setup_oracle_database
+fi
+
+
 # Start jboss
 start_jboss
 
