@@ -265,19 +265,14 @@ setup_oracle_database() {
     echo "### Initializing Oracle DATABASE: $ORACLE_SID $ORACLE_USER"
 
     ssh -l oracle $ORACLE_HOST sqlplus $ORACLE_USER/$ORACLE_PASSWORD@$ORACLE_SID << EOF || exit 1
-SET NEWPAGE 0
-SET SPACE 0
-SET LINESIZE 80
-SET PAGESIZE 0
-SET ECHO OFF
-SET FEEDBACK OFF
-SET HEADING OFF
-SET MARKUP HTML OFF
-DROP TABLE  HIERARCHY CASCADE CONSTRAINTS;
-SET ESCAPE \
+SET ECHO OFF NEWP 0 SPA 0 PAGES 0 FEED OFF HEAD OFF TRIMS ON TAB OFF
+SET ESCAPE \\
+SET SQLPROMPT ' '
 SPOOL DELETEME.SQL
-SELECT 'DROP TABLE  "'|| table_name|| '" CASCADE CONSTRAINTS ;' FROM user_tables;
+SELECT 'DROP TABLE  "'|| table_name|| '" CASCADE CONSTRAINTS \;' FROM user_tables;
 SPOOL OFF
+SET SQLPROMPT 'SQL: '
+SET ECHO ON
 @DELETEME.SQL
 EOF
 
@@ -324,12 +319,15 @@ EOF
     cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml <<EOF || exit 1
 <?xml version="1.0" encoding="UTF-8"?>
 <datasources>
+   <local-tx-datasource>
      <jndi-name>NuxeoDS</jndi-name>
+     <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
      <connection-url>jdbc:oracle:thin:@$ORACLE_HOST:$ORACLE_PORT:$ORACLE_SID</connection-url>
      <user-name>$ORACLE_USER</user-name>
      <password>$ORACLE_PASSWORD</password>
      <min-pool-size>5</min-pool-size>
      <max-pool-size>20</max-pool-size>
+  </local-tx-datasource>
 </datasources>
 EOF
 
