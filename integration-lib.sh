@@ -236,6 +236,9 @@ EOF
     <repository name="default"
       factory="org.nuxeo.ecm.core.storage.sql.coremodel.SQLRepositoryFactory">
       <repository name="default">
+        <schema>
+          <field type="largetext">note</field>
+        </schema>
         <indexing>
           <fulltext analyzer="english"/>
         </indexing>
@@ -338,6 +341,8 @@ EOF
    <xa-datasource>
      <jndi-name>NuxeoDS</jndi-name>
      <track-connection-by-tx/>
+     <no-tx-separate-pools/> 
+     <isSameRM-override-value>false</isSameRM-override-value>
      <xa-datasource-class>oracle.jdbc.xa.client.OracleXADataSource</xa-datasource-class>
      <xa-datasource-property name="URL">jdbc:oracle:thin:@$ORACLE_HOST:$ORACLE_PORT:$ORACLE_SID</xa-datasource-property>
      <xa-datasource-property name="User">$ORACLE_USER</xa-datasource-property>
@@ -354,6 +359,14 @@ EOF
     <repository name="default"
       factory="org.nuxeo.ecm.core.storage.sql.coremodel.SQLRepositoryFactory">
       <repository name="default">
+      <schema>
+         <field type="largetext">note</field>
+       </schema>
+       <indexing>
+         <!-- for Oracle (Oracle Text indexing parmeters): 
+              http://download.oracle.com/docs/cd/B19306_01/text.102/b14218/cdatadic.htm
+         <fulltext analyzer="LEXER MY_LEXER"/>-->
+       </indexing>
       </repository>
     </repository>
   </extension>
