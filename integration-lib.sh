@@ -167,7 +167,7 @@ stop_jboss() {
 }
 
 
-setup_database() {
+setup_postgresql_database() {
     DBNAME=${1:-$DBNAME}
     echo "### Initializing PostgreSQL DATABASE: $DBNAME"
     dropdb $DBNAME -U qualiscope -h localhost -p $DBPORT
@@ -256,6 +256,11 @@ EOF
 
     cp -u ~/.m2/repository/postgresql/postgresql/8.3-*.jdbc3/postgresql-8.3-*.jdbc3.jar "$JBOSS_HOME"/server/default/lib/
 
+}
+
+setup_database() {
+    # default db
+    setup_postgresql_database
 }
 
 setup_oracle_database() {
@@ -377,6 +382,120 @@ EOF
     cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/sql.properties <<EOF || exit 1
 # Jena database type and transaction mode
 org.nuxeo.ecm.sql.jena.databaseType=Oracle
+org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
+EOF
+
+
+}
+
+
+setup_mysql_database() {
+    MYSQL_HOST=${MYSQL_HOST:-localhost}
+    MYSQL_PORT=${MYSQL_PORT:-3306}
+    MYSQL_DB=${MYSQL_DB:-qualiscope_ci}
+    MYSQL_USER=${MYSQL_USER:-qualiscope}
+    MYSQL_PASSWORD=${MYSQL_PASSWORD:-secret}
+    MYSQL_JDBC_VERSION=${MYSQL_JDBC_VERSION:-5.1.6}
+    MYSQL_JDBC=mysql-connector-java-$MYSQL_JDBC_VERSION.jar
+
+    if [ ! -r $MYSQL_JDBC  ]; then
+        wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=nuxeo-central&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" || exit
+    fi
+    cp $MYSQL_JDBC  "$JBOSS_HOME"/server/default/lib/ || exit 1
+    echo "### Initializing MySQL DATABASE: $MYSQL_DB"
+    mysql -u $MYSQL_USER --password=$MYSQL_PASSWORD <<EOF || exit 1
+DROP DATABASE $MYSQL_DB;
+CREATE DATABASE $MYSQL_DB;
+EOF
+
+    NXC_VERSION=$(cd "$JBOSS_HOME"; ls server/default/deploy/nuxeo.ear/system/nuxeo-core-storage-sql-ra-*.rar |cut -d"-" -f6- )
+
+    [ -z $NXC_VERSION ] && exit 1
+
+    # switch nxtags to unified ds
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/nxtags-ds.xml <<EOF || exit 1
+<?xml version="1.0"?>
+<datasources>
+  <mbean code="org.jboss.naming.NamingAlias"
+    name="jboss.jca:name=nxtags,service=DataSourceBinding">
+    <attribute name="ToName">java:/NuxeoDS</attribute>
+    <attribute name="FromName">java:/nxtags</attribute>
+  </mbean>
+</datasources>
+EOF
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/default-repository-ds.xml <<EOF || exit 1
+<?xml version="1.0"?>
+<connection-factories>
+  <tx-connection-factory>
+    <jndi-name>NXRepository/default</jndi-name>
+    <xa-transaction/>
+    <track-connection-by-tx/>
+    <adapter-display-name>Nuxeo SQL Repository DataSource</adapter-display-name>
+    <rar-name>nuxeo.ear#nuxeo-core-storage-sql-ra-$NXC_VERSION</rar-name>
+    <connection-definition>org.nuxeo.ecm.core.storage.sql.Repository</connection-definition>
+    <config-property name="name">default</config-property>
+
+    <config-property name="xaDataSource" type="java.lang.String">com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</config-property>
+    <config-property name="property" type="java.lang.String">URL=jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/$MYSQL_DB?relaxAutoCommit=true</config-property>
+    <config-property name="property" type="java.lang.String">User=$MYSQL_USER</config-property>
+    <config-property name="property" type="java.lang.String">Password=$MYSQL_PASSWORD</config-property>
+
+  </tx-connection-factory>
+</connection-factories>
+EOF
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml <<EOF || exit 1
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+   <local-tx-datasource>
+     <jndi-name>NuxeoDS</jndi-name>
+     <driver-class>com.mysql.jdbc.Driver</driver-class> 
+     <connection-url>jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/$MYSQL_DB?relaxAutoCommit=true</connection-url>
+     <user-name>$MYSQL_USER</user-name>
+     <password>$MYSQL_PASSWORD</password>
+     <min-pool-size>5</min-pool-size>
+     <max-pool-size>20</max-pool-size>
+  </local-tx-datasource>
+</datasources>
+EOF
+
+    # XA raise XAER_RMFAIL  on table creation
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml-xa <<EOF || exit 1
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+   <xa-datasource>
+     <jndi-name>NuxeoDS</jndi-name>
+     <track-connection-by-tx/>
+     <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
+     <xa-datasource-property name="URL">jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/$MYSQL_DB?relaxAutoCommit=true</xa-datasource-property>
+     <xa-datasource-property name="User">$MYSQL_USER</xa-datasource-property>
+     <xa-datasource-property name="Password">$MYSQL_PASSWORD</xa-datasource-property>
+   </xa-datasource>
+</datasources>
+EOF
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/default-repository-config.xml <<EOF || exit 1
+<?xml version="1.0"?>
+<component name="default-repository-config">
+  <extension target="org.nuxeo.ecm.core.repository.RepositoryService"
+    point="repository">
+    <repository name="default"
+      factory="org.nuxeo.ecm.core.storage.sql.coremodel.SQLRepositoryFactory">
+      <repository name="default">
+        <schema>
+          <field type="largetext">note</field>
+        </schema>
+      </repository>
+    </repository>
+  </extension>
+</component>
+EOF
+
+
+    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/sql.properties <<EOF || exit 1
+# Jena database type and transaction mode
+org.nuxeo.ecm.sql.jena.databaseType=MySQL
 org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
 EOF
 

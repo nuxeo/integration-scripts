@@ -38,7 +38,11 @@ update_distribution_source
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
-    setup_database
+    setup_postgresql_database
+fi
+
+if [ ! -z $MYSQL_HOST ]; then
+    setup_mysql_database
 fi
 
 # Use oracle
