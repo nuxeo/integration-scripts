@@ -29,6 +29,26 @@ Requirements
 
   - aptitude install logtail
 
+* oracle 10
+
+  Make this work:
+  ssh -l oracle $ORACLE_HOST sqlplus $ORACLE_USER/$ORACLE_PASSWORD@$ORACLE_SID
+  scp oracle@$ORACLE_HOST:/opt/oracle/10g/jdbc/lib/ojdbc14.jar .
+
+  WARNING the script will remove all objects in the $ORACLE_USER schema.
+
+* mysql
+
+  aptitude install mysql-server mysql-client
+  mysql -u root -p
+  CREATE DATABASE qualiscope_ci;
+  CREATE USER 'qualiscope'@'localhost' IDENTIFIED BY 'secret';
+  GRANT ALL PRIVILEGES ON *.* TO 'qualiscope'@'localhost' WITH GRANT OPTION;
+  quit
+
+  Add to /etc/mysql/my.cnf in [mysqld]  lower_case_table_names=1
+
+
 
 Scripts
 ========
