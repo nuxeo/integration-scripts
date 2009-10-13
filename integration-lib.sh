@@ -1,16 +1,15 @@
 #!/bin/bash
-# DEPRECATED :
-# - JBOSS_ARCHIVE: JBoss must be retrieved from Maven
-# - update_distribution_source: no need to download nuxeo sources, it's nuxeo-distribution job to patch a JBoss
-
+# TODO: replace DEPRECATED JBOSS_ARCHIVE: JBoss must be retrieved from Maven
 
 HERE=$(cd $(dirname $0); pwd -P)
-NXVERSION=${NXVERSION:-5.2}
+NXVERSION=${NXVERSION:-5.3}
 NXDIR="$HERE/src-$NXVERSION"
 JBOSS_ARCHIVE=${JBOSS_ARCHIVE:-~/jboss-4.2.3.GA.zip}
 JBOSS_HOME="$HERE/jboss"
 DBPORT=${DBPORT:-5432}
-DBNAME=${DBNAME:-qualiscope-ci-$(( RANDOM%10 ))}
+if [ ! -z $PGPASSWORD ]; then
+    DBNAME=${DBNAME:-qualiscope-ci-$(( RANDOM%10 ))}
+fi
 PGSQL_LOG=${PGSQL_LOG:-/var/log/pgsql}
 PGSQL_OFFSET="$JBOSS_HOME"/server/default/log/pgsql.offset
 LOGTAIL=/usr/sbin/logtail

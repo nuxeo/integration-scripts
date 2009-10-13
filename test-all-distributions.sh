@@ -3,7 +3,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 . $HERE/integration-lib.sh
 
-BUILD_URL=${BUILD_URL:-http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastSuccessfulBuild/artifact/trunk/release/archives}
+BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 UPLOAD_URL=${UPLOAD_URL:-}
 ZIP_FILE=${ZIP_FILE:-}
 
