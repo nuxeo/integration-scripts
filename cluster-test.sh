@@ -9,7 +9,7 @@ ZIP_FILE=${ZIP_FILE:-}
 
 
 # Cleaning
-rm -rf ./jboss ./jboss1 ./jboss2 ./results ./download ./report
+rm -rf ./jboss ./jboss2 ./results ./download ./report
 mkdir ./results ./download || exit 1
 
 cd download
@@ -30,7 +30,7 @@ cd ..
 
 
 build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
-mv $build ./jboss1 || exit 1
+mv $build ./jboss || exit 1
 
 
 # Update selenium tests
@@ -48,14 +48,14 @@ cp ./ooo-config.xml $JBOSS_HOME/server/default/deploy/nuxeo.ear/config/
 cp ./default-repository-config.xml $JBOSS_HOME/server/default/deploy/nuxeo.ear/config/default-repository-config.xml
 
 # setup jboss2
-cp -r ./jboss1 ./jboss2
+cp -r ./jboss ./jboss2
 
 # Start --------------------------------------------------
 # start pound
 pound -f ./pound.cfg -p ./pound.pid || exit 1
 
-# Start jboss1 & 2
-JBOSS_HOME="$HERE/jboss1"
+# Start jbosses
+JBOSS_HOME="$HERE/jboss"
 start_jboss 127.0.1.1
 
 JBOSS_HOME="$HERE/jboss2"
@@ -65,28 +65,28 @@ start_jboss 127.0.1.2
 # Run selenium tests first
 # it requires an empty db
 
-#URL=http://127.0.0.1:8000/nuxeo/ HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/run.sh
-#ret1=$?
+URL=http://127.0.0.1:8000/nuxeo/ HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/run.sh
+ret1=$?
 
 # FunkLoad bench
-test_path=$NXDIR/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload/
-(cd $test_path; make bench EXT="--no-color" URL=http://127.0.0.1:8000/nuxeo; ret=$?; make stop; exit $ret)
-ret1=$?
-mv $NXDIR/nuxeo-distribution/nuxeo-distribution-dm/target/ftest/funkload/report .
+#test_path=$NXDIR/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload/
+#(cd $test_path; make bench EXT="--no-color" URL=http://127.0.0.1:8000/nuxeo; ret=$?; make stop; exit $ret)
+#ret1=$?
+#mv $NXDIR/nuxeo-distribution/nuxeo-distribution-dm/target/ftest/funkload/report .
 
 
 
 # Stop --------------------------------------------------
 
 kill `cat ./pound.pid`
-JBOSS_HOME="$HERE/jboss1"
+JBOSS_HOME="$HERE/jboss"
 stop_jboss
 JBOSS_HOME="$HERE/jboss2"
 stop_jboss
 
 cd "$HERE/jboss2/server/default/log"
 for log in *.log.gz; do
-    cp  $log "$HERE/jboss1/server/default/log/"${log%.log.gz}2.log.gz
+    cp  $log "$HERE/jboss/server/default/log/"${log%.log.gz}2.log.gz
 done
 
 exit $ret1
