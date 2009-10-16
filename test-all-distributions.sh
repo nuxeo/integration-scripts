@@ -4,7 +4,6 @@ HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
 BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/archives}
-UPLOAD_URL=${UPLOAD_URL:-}
 ZIP_FILE=${ZIP_FILE:-}
 
 # Cleaning
@@ -86,8 +85,10 @@ stop_jboss
 
 
 # Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
+UPLOAD_URL=${UPLOAD_URL:-}
+SRC_URL=${SRC_URL:download/*jboss*}
 if [ ! -z $UPLOAD_URL ]; then
     date
-    scp download/*jboss* $UPLOAD_URL || exit 1
+    scp SRC_URL $UPLOAD_URL || exit 1
     date
 fi
