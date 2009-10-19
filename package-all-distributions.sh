@@ -38,7 +38,6 @@ NX_HG=$DWS/nuxeo
 NXA_HG=$DWS/addons
 MVNOPTS=
 MAVEN_PROFILES=local-deployment,timestamp-rev-in-mf
-JBOSS_ARCH=$JBOSS_ARCHIVE
 JBOSS_PATCH=patch
 
 NXP_BRANCH=5.3
