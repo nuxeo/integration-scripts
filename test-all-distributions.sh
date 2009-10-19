@@ -89,6 +89,6 @@ UPLOAD_URL=${UPLOAD_URL:-}
 SRC_URL=${SRC_URL:download/*jboss*}
 if [ ! -z $UPLOAD_URL ]; then
     date
-    scp SRC_URL $UPLOAD_URL || exit 1
+    scp $SRC_URL $UPLOAD_URL || exit 1
     date
 fi
