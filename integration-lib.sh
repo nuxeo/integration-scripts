@@ -345,7 +345,7 @@ EOF
    <xa-datasource>
      <jndi-name>NuxeoDS</jndi-name>
      <track-connection-by-tx/>
-     <no-tx-separate-pools/> 
+     <no-tx-separate-pools/>
      <isSameRM-override-value>false</isSameRM-override-value>
      <xa-datasource-class>oracle.jdbc.xa.client.OracleXADataSource</xa-datasource-class>
      <xa-datasource-property name="URL">jdbc:oracle:thin:@$ORACLE_HOST:$ORACLE_PORT:$ORACLE_SID</xa-datasource-property>
@@ -367,7 +367,7 @@ EOF
          <field type="largetext">note</field>
        </schema>
        <indexing>
-         <!-- for Oracle (Oracle Text indexing parmeters): 
+         <!-- for Oracle (Oracle Text indexing parmeters):
               http://download.oracle.com/docs/cd/B19306_01/text.102/b14218/cdatadic.htm
          <fulltext analyzer="LEXER MY_LEXER"/>-->
        </indexing>
@@ -449,7 +449,7 @@ EOF
 <datasources>
    <local-tx-datasource>
      <jndi-name>NuxeoDS</jndi-name>
-     <driver-class>com.mysql.jdbc.Driver</driver-class> 
+     <driver-class>com.mysql.jdbc.Driver</driver-class>
      <connection-url>jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/$MYSQL_DB?relaxAutoCommit=true</connection-url>
      <user-name>$MYSQL_USER</user-name>
      <password>$MYSQL_PASSWORD</password>
@@ -500,3 +500,40 @@ EOF
 
 
 }
+
+
+# Mercurial function that recurses all sub-directories containing a .hg directory and runs on them hg with given parameters
+hgf() {
+  for dir in . nuxeo-*; do
+    if [ -d "$dir"/.hg ]; then
+      echo "[$dir]"
+      (cd "$dir" && hg "$@")
+    fi
+  done
+}
+
+hgx() {
+  NXP=$1
+  NXC=$2
+  shift 2;
+  if [ -d .hg ]; then
+    echo $PWD
+    hg $@ $NXP
+    # NXC
+    (echo nuxeo-common ; cd nuxeo-common; hg $@ $NXC || true)
+    (echo nuxeo-runtime ; cd nuxeo-runtime; hg $@ $NXC || true)
+    (echo nuxeo-core ; cd nuxeo-core; hg $@ $NXC || true)
+    # NXP
+    (echo nuxeo-theme ; cd nuxeo-theme; hg $@ $NXP || true)
+    [ -d nuxeo-shell ] && (echo nuxeo-shell ; cd nuxeo-shell; hg $@ $NXP || true) || (echo ignore nuxeo-shell)
+    [ -d nuxeo-platform ] && (echo nuxeo-platform ; cd nuxeo-platform && hg $@ $NXP || true) || (echo ignore nuxeo-platform)
+    [ -d nuxeo-services ] && (echo nuxeo-services ; cd nuxeo-services && hg $@ $NXP || true) || (echo ignore nuxeo-services)
+    [ -d nuxeo-jsf ] && (echo nuxeo-jsf ; cd nuxeo-jsf && hg $@ $NXP || true) || (echo ignore nuxeo-jsf)
+    [ -d nuxeo-features ] && (echo nuxeo-features ; cd nuxeo-features && hg $@ $NXP || true) || (echo ignore nuxeo-features)
+    [ -d nuxeo-dm ] && (echo nuxeo-dm ; cd nuxeo-dm && hg $@ $NXP || true) || (echo ignore nuxeo-dm)
+    [ -d nuxeo-webengine ] && (echo nuxeo-webengine ; cd nuxeo-webengine; hg $@ $NXP || true) || (echo ignore nuxeo-webengine)
+    [ -d nuxeo-gwt ] && (echo nuxeo-gwt ; cd nuxeo-gwt; hg $@ $NXP || true) || (echo ignore nuxeo-gwt)
+    (echo nuxeo-distribution ; cd nuxeo-distribution; hg $@ $NXP || true)
+  fi
+}
+
