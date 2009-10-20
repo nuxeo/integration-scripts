@@ -12,7 +12,7 @@ if [ $TAG = "final" ]; then
 fi
 # label for the zip package
 LABEL=${LABEL:-}
-DISTRIBUTIONS=${DISTRIBUTIONS:-"ALL"}
+DISTRIBUTIONS=${DISTRIBUTIONS:-"DEFAULT"}
 
 # dev workspace
 DWS="$HERE"/dev
