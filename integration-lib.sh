@@ -58,7 +58,7 @@ setup_monitoring() {
     # Let sysstat sar record activity every 5s during 60min
     sar -d -o  "$JBOSS_HOME"/server/default/log/sysstat-sar.log 5 720 >/dev/null 2>&1 &
     # Activate logging monitor
-    cp "$JBOSS_HOME"/docs/examples/jmx/logging-monitor/lib/logging-monitor.jar "$JBOSS_HOME"/server/default/lib/
+    [ -r "$JBOSS_HOME"/server/default/lib/logging-monitor*.jar ] || cp "$JBOSS_HOME"/docs/examples/jmx/logging-monitor/lib/logging-monitor.jar "$JBOSS_HOME"/server/default/lib/
     # Add mbean attributes to monitor
     cat >  "$JBOSS_HOME"/server/default/deploy/webthreads-monitor-service.xml <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
