@@ -7,6 +7,8 @@ HERE=$(cd $(dirname $0); pwd -P)
 DWS="$HERE"/src
 NXP=${NXP:-5.3}
 NXC=${NXC:-1.6}
+MAVEN_OPTS="-Xmx1536m -Xms512m -XX:MaxPermSize=128m"
+export MAVEN_OPTS
 
 if [ ! -e $DWS ]; then
     mkdir -p $DWS || exit 1
