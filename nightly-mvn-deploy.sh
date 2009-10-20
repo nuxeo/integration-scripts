@@ -21,9 +21,9 @@ fi
 find ~/.m2/repository/org/nuxeo/ -name "*$NXP*SNAPSHOT*" -delete 2>/dev/null
 find ~/.m2/repository/org/nuxeo/ -name "*$NXC*SNAPSHOT*" -delete 2>/dev/null
 
-hgx $NXP $NXC up -C
-
 cd $DWS/nuxeo || exit 1
+
+hgx $NXP $NXC up -C
 
 mvn -Dmaven.test.skip=true -DupdateReleaseInfo=true install deploy -Pall-distributions || exit 1
 
