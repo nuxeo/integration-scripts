@@ -253,7 +253,7 @@ org.nuxeo.ecm.sql.jena.databaseType=PostgreSQL
 org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
 EOF
 
-    cp -u ~/.m2/repository/postgresql/postgresql/8.3-*.jdbc3/postgresql-8.3-*.jdbc3.jar "$JBOSS_HOME"/server/default/lib/
+    [ -r "$JBOSS_HOME"/server/default/lib/postgresql*.jar ] || cp -u ~/.m2/repository/postgresql/postgresql/8.3-*.jdbc3/postgresql-8.3-*.jdbc3.jar "$JBOSS_HOME"/server/default/lib/
 
 }
 
@@ -397,10 +397,10 @@ setup_mysql_database() {
     MYSQL_JDBC_VERSION=${MYSQL_JDBC_VERSION:-5.1.6}
     MYSQL_JDBC=mysql-connector-java-$MYSQL_JDBC_VERSION.jar
 
-    if [ ! -r $MYSQL_JDBC  ]; then
+    if [ ! -r "$JBOSS_HOME"/server/default/lib/mysql-connector-java-*.jar  ]; then
         wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=nuxeo-central&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" || exit
+        cp $MYSQL_JDBC  "$JBOSS_HOME"/server/default/lib/ || exit 1
     fi
-    cp $MYSQL_JDBC  "$JBOSS_HOME"/server/default/lib/ || exit 1
     echo "### Initializing MySQL DATABASE: $MYSQL_DB"
     mysql -u $MYSQL_USER --password=$MYSQL_PASSWORD <<EOF || exit 1
 DROP DATABASE $MYSQL_DB;
