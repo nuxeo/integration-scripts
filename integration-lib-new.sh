@@ -5,7 +5,7 @@ NXVERSION=${NXVERSION:-5.3}
 NXDISTRIBUTION="$HERE/nuxeo-distribution-$NXVERSION"
 JBOSS_HOME="$HERE/jboss"
 DBPORT=${DBPORT:-5432}
-
+TOMCAT_HOME="$HERE/tomcat"
 
 update_distribution_source() {
     if [ ! -d "$NXDISTRIBUTION" ]; then
@@ -13,6 +13,9 @@ update_distribution_source() {
     else
         (cd "$NXDISTRIBUTION" && hg pull && hg up -C $NXVERSION) || exit 1
     fi
+}
+
+build_jboss() {
     # should detect when it's necessary to rebuild JBoss (libraries or source code changed)
     (cd "$NXDISTRIBUTION" && mvn clean package -Pnuxeo-dm-jboss) || exit 1
 }
@@ -29,6 +32,24 @@ setup_jboss() {
         rm -rf "$JBOSS"/server/default/data/*
         rm -rf "$JBOSS"/server/default/log/*
     fi
+    chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/jbossctl
+}
+
+build_tomcat() {
+    (cd "$NXDISTRIBUTION/nuxeo-distribution-tomcat/build" && ./build.sh) || exit 1
+}
+
+setup_tomcat() {
+    TOMCAT=${1:-$TOMCAT_HOME}
+    if [ ! -d "$TOMCAT" ] || [ ! -z $NEW_TOMCAT ] ; then
+        [ -d "$TOMCAT" ] && rm -rf "$TOMCAT"
+        unzip "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/nuxeo-dm-tomcat-*.zip  -d ../ && mv ../nuxeo-dm-tomcat "$TOMCAT" || exit 1
+    else
+        echo "Using previously installed Tomcat. Set NEW_TOMCAT variable to force new TOMCAT deployment"
+        rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/*
+        rm -rf "$TOMCAT"/logs/*
+    fi
+    chmod u+x "$TOMCAT"/bin/*.sh
 }
 
 deploy_ear() {
@@ -55,3 +76,13 @@ stop_jboss() {
     gzip "$JBOSS"/server/default/log/*.log
 }
 
+start_tomcat() {
+    TOMCAT=${1:-$TOMCAT_HOME}
+    "$TOMCAT"/bin/startup.sh || exit 1
+}
+
+stop_tomcat() {
+    TOMCAT=${1:-$TOMCAT_HOME}
+    "$TOMCAT"/bin/shutdown.sh
+    gzip "$TOMCAT"/logs/*.log
+}

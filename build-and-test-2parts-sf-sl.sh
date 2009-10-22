@@ -13,6 +13,8 @@ mkdir ./results ./download || exit 1
 # Build
 update_distribution_source
 
+build_jboss
+
 setup_jboss "$JBOSS_HOME_SF"
 setup_jboss "$JBOSS_HOME_SL"
 
@@ -31,7 +33,6 @@ start_jboss "$JBOSS_HOME_SL" 127.0.1.2
 
 # Run selenium tests (not the webengine suite)
 HIDE_FF=true URL=http://127.0.1.2:8080/nuxeo/ SUITES="suite1 suite2" "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
-#URL=http://127.0.1.2:8080/nuxeo/ "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
 ret1=$?
 
 # Stop Nuxeo
