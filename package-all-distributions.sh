@@ -76,7 +76,7 @@ nx-builder -d package || exit 1
 if [ $DISTRIBUTIONS = "ALL" ]; then
     jboss_zip=`find $RWS/archives/ -name "nuxeo*jboss*.zip"`
 
-    nx-builder -d package-we || exit 1
+    nx-builder -d package-other || exit 1
 
 #    Get rid of the unused jar version
 #    nx-builder -d zip2jar $jboss_zip || exit 1
