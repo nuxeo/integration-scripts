@@ -7,37 +7,37 @@ BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuc
 ZIP_FILE=${ZIP_FILE:-}
 
 # Cleaning
-rm -rf ./jetty ./results ./download
+rm -rf ./tomcat ./results ./download
 mkdir ./results ./download || exit 1
 
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*jetty\.zip\(.md5\)*" | sort -u`
+    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*tomcat\.zip\(.md5\)*" | sort -u`
 
     # Download and unpack the lastest builds
     for link in $links; do
         wget -nv $link || exit 1
     done
 
-    unzip -q nuxeo-*jetty*.zip
+    unzip -q nuxeo-*tomcat*.zip
 else
     unzip -q $ZIP_FILE || exit 1
 fi
 cd ..
 
-# Jetty tests --------------------------------------------------------
+# Tomcat tests --------------------------------------------------------
 
 build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
-mv $build ./jetty || exit 1
+mv $build ./tomcat || exit 1
 
 
 # Update selenium tests
 update_distribution_source
 
 
-# Start jetty
-(cd jetty; chmod +x *.sh;  ./nxserverctl.sh start) || exit 1
+# Start tomcat
+(cd tomcat/bin; chmod +x *.sh;  ./startup.sh) || exit 1
 
 # TODO: replace hard coded sleep by updating the ctl script
 sleep 60
@@ -56,8 +56,8 @@ else
     ret2=0
 fi
 
-# Stop jetty
-(cd jetty; ./nxserverctl.sh stop)
+# Stop tomcat
+(cd tomcat/bin; ./shutdown.sh)
 
 # Exit if some tests failed
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
@@ -65,7 +65,7 @@ fi
 
 # Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
 UPLOAD_URL=${UPLOAD_URL:-}
-SRC_URL=${SRC_URL:download/*jetty*}
+SRC_URL=${SRC_URL:download/*tomcat*}
 if [ ! -z $UPLOAD_URL ]; then
     date
     scp $SRC_URL $UPLOAD_URL || exit 1
