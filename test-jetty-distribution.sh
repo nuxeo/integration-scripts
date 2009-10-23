@@ -7,7 +7,7 @@ BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuc
 ZIP_FILE=${ZIP_FILE:-}
 
 # Cleaning
-rm -rf ./jboss ./results ./download
+rm -rf ./jetty ./results ./download
 mkdir ./results ./download || exit 1
 
 cd download
@@ -63,7 +63,7 @@ fi
 
 # Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
 UPLOAD_URL=${UPLOAD_URL:-}
-SRC_URL=${SRC_URL:download/*jboss*}
+SRC_URL=${SRC_URL:download/*jetty*}
 if [ ! -z $UPLOAD_URL ]; then
     date
     scp $SRC_URL $UPLOAD_URL || exit 1
