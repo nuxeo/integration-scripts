@@ -52,7 +52,7 @@ cp -r ./jboss ./jboss2
 
 # Start --------------------------------------------------
 # start pound
-pound -f ./pound.cfg -p ./pound.pid || exit 1
+/usr/sbin/pound -f ./pound.cfg -p ./pound.pid || exit 1
 
 # Start jbosses
 JBOSS_HOME="$HERE/jboss"
