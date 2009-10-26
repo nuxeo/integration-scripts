@@ -36,7 +36,7 @@ setup_jboss() {
 }
 
 build_tomcat() {
-    (cd "$NXDISTRIBUTION" && mvn clean package -Ptomcat) || exit 1
+    (cd "$NXDISTRIBUTION" && mvn clean install -Ptomcat) || exit 1
 }
 
 setup_tomcat() {
