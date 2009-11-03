@@ -9,7 +9,8 @@ mkdir ./results ./download || exit 1
 
 # Build
 update_distribution_source
-
+build_jboss
+NEW_JBOSS=true
 setup_jboss
 
 # Start Nuxeo

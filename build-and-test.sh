@@ -1,5 +1,6 @@
 #!/bin/bash -x
 
+HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib-new.sh
 
 # Cleaning
@@ -8,7 +9,8 @@ mkdir ./results ./download || exit 1
 
 # Build
 update_distribution_source
-
+build_jboss
+NEW_JBOSS=true
 setup_jboss
 
 # Start Nuxeo
