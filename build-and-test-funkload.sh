@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 HERE=$(cd $(dirname $0); pwd -P)
-. $HERE/integration-lib.sh
+. $HERE/integration-lib-new.sh
 
 # Cleaning
 rm -rf ./jboss ./results ./download
@@ -12,14 +12,7 @@ update_distribution_source
 
 setup_jboss
 
-build_and_deploy
-
-# Setup PostgreSQL
-if [ ! -z $PGPASSWORD ]; then
-    setup_database
-fi
-
-# Start
+# Start Nuxeo
 start_jboss
 
 java -version  2>&1 | grep 1.6.0
