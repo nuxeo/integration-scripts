@@ -18,7 +18,7 @@ start_jboss
 
 # Run selenium tests
 SELENIUM_PATH=${SELENIUM_PATH:-nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium}
-HIDE_FF=true "$NXDIR"/"$SELENIUM_PATH"/run.sh
+HIDE_FF=true "$NXDISTRIBUTION"/"$SELENIUM_PATH"/run.sh
 ret1=$?
 
 # Stop nuxeo
