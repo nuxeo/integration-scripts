@@ -18,7 +18,7 @@ deploy_ear
 start_jboss
 
 # Run selenium tests
-SELENIUM_PATH=${SELENIUM_PATH:-nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium}
+SELENIUM_PATH=${SELENIUM_PATH:-nuxeo-distribution-dm/ftest/selenium}
 HIDE_FF=true "$NXDISTRIBUTION"/"$SELENIUM_PATH"/run.sh
 ret1=$?
 
