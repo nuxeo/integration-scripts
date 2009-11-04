@@ -12,6 +12,7 @@ update_distribution_source
 build_jboss
 NEW_JBOSS=true
 setup_jboss
+deploy_ear
 
 # Start Nuxeo
 start_jboss

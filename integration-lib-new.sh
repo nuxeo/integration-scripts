@@ -25,7 +25,8 @@ setup_jboss() {
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
         cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/jboss "$JBOSS" || exit 1
-        svn export --force https://svn.nuxeo.org/nuxeo/tools/jboss/bin "$JBOSS"/bin/ || exit 1
+        chmod +x "$JBOSS"/bin/*.sh
+        chmod +x "$JBOSS"/bin/jbossctl
         cp "$HERE"/jbossctl.conf "$JBOSS"/bin/
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
