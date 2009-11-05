@@ -1,5 +1,4 @@
 #!/bin/bash
-# TODO: replace DEPRECATED JBOSS_ARCHIVE: JBoss must be retrieved from Maven
 
 HERE=$(cd $(dirname $0); pwd -P)
 NXVERSION=${NXVERSION:-5.3}
@@ -27,7 +26,8 @@ update_distribution_source() {
     fi
 }
 
-setup_jboss() {
+# DEPRECATED: setup a pristine jboss
+setup_jboss_from_archive() {
     if [ ! -d "$JBOSS_HOME" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS_HOME" ] && rm -rf "$JBOSS_HOME"
         unzip -q "$JBOSS_ARCHIVE" -d jboss.tmp || exit 1
@@ -40,6 +40,12 @@ setup_jboss() {
         rm -rf "$JBOSS_HOME"/server/default/data/*
         rm -rf "$JBOSS_HOME"/server/default/log/*
     fi
+}
+
+# DEPRECATED: deploy into an existing jboss
+build_and_deploy() {
+    (cd "$NXDIR" && ant patch -Djboss.dir="$JBOSS_HOME") || exit 1
+    (cd "$NXDIR" && ant copy-lib package copy -Djboss.dir="$JBOSS_HOME") || exit 1
 }
 
 
@@ -136,11 +142,6 @@ EOF
 
 }
 
-
-build_and_deploy() {
-    (cd "$NXDIR" && ant patch -Djboss.dir="$JBOSS_HOME") || exit 1
-    (cd "$NXDIR" && ant copy-lib package copy -Djboss.dir="$JBOSS_HOME") || exit 1
-}
 
 
 start_jboss() {
