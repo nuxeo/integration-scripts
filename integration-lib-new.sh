@@ -17,7 +17,7 @@ update_distribution_source() {
 
 build_jboss() {
     # should detect when it's necessary to rebuild JBoss (libraries or source code changed)
-    (cd "$NXDISTRIBUTION" && mvn clean package -Pnuxeo-dm-jboss) || exit 1
+    (cd "$NXDISTRIBUTION" && mvn clean install -Pnuxeo-dm-jboss) || exit 1
 }
 
 setup_jboss() {
