@@ -405,7 +405,10 @@ setup_mysql_database() {
     echo "### Initializing MySQL DATABASE: $MYSQL_DB"
     mysql -u $MYSQL_USER --password=$MYSQL_PASSWORD <<EOF || exit 1
 DROP DATABASE $MYSQL_DB;
-CREATE DATABASE $MYSQL_DB;
+CREATE DATABASE $MYSQL_DB
+CHARACTER SET utf8
+COLLATE utf8_bin;
+
 EOF
 
     NXC_VERSION=$(cd "$JBOSS_HOME"; ls server/default/deploy/nuxeo.ear/system/nuxeo-core-storage-sql-ra-*.rar |cut -d"-" -f6- )
