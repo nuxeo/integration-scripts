@@ -9,7 +9,7 @@ mkdir ./results ./download || exit 1
 
 # Build
 update_distribution_source
-
+build_jboss
 setup_jboss
 
 cd "$NXDISTRIBUTION"
