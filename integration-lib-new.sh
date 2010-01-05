@@ -24,7 +24,7 @@ setup_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
-        cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/jboss "$JBOSS" || exit 1
+        cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/nuxeo-dm-jboss "$JBOSS" || exit 1
         chmod +x "$JBOSS"/bin/*.sh
         chmod +x "$JBOSS"/bin/jbossctl
         cp "$HERE"/jbossctl.conf "$JBOSS"/bin/
@@ -62,7 +62,7 @@ deploySRCtoDST() {
   SRC=$1
   DST=$2
   [ -d "$DST" ] && rm -rf "$DST"
-  cp -r $SRC $DST 
+  cp -r $SRC $DST
 }
 
 start_jboss() {
