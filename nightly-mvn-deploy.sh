@@ -29,8 +29,4 @@ hgx $NXP $NXC up -C
 
 mvn -Dmaven.test.skip=true -DupdateReleaseInfo=true clean install deploy -Pall-distributions || exit 1
 
-echo Deploy Nuxeo EP JBoss...
-cd nuxeo-distribution/nuxeo-distribution-jboss/
-mvn -Dmaven.test.skip=true -DupdateReleaseInfo=true clean install deploy -Pnuxeo-ep-jboss || exit 1
-
 exit 0
