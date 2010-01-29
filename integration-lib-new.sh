@@ -17,14 +17,14 @@ update_distribution_source() {
 
 build_jboss() {
     # should detect when it's necessary to rebuild JBoss (libraries or source code changed)
-    (cd "$NXDISTRIBUTION" && mvn clean install -Pnuxeo-dm-jboss) || exit 1
+    (cd "$NXDISTRIBUTION" && mvn clean install -Pnuxeo-dm,jboss,nuxeo-dm-jboss) || exit 1
 }
 
 setup_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
-        cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/nuxeo-dm-jboss "$JBOSS" || exit 1
+        cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/*jboss "$JBOSS" || exit 1
         chmod +x "$JBOSS"/bin/*.sh
         chmod +x "$JBOSS"/bin/jbossctl
         cp "$HERE"/jbossctl.conf "$JBOSS"/bin/
