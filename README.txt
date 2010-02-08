@@ -105,7 +105,7 @@ Options
 
 BUILD_URL   Where to get the builds, permalinks to hudson artifacts (lastSuccessfulBuild)
 UPLOAD_URL  Where to upload the builds if all tests pass
-            zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots
+            zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/static/snapshots
 JAVA6_HOME  Java 6 path for glassfish tests
 PGPASSWORD  Use PostgreSQL 8.3 for unified data source and VCS using qualiscope
             account with the $PGPASSWORD password.
@@ -199,7 +199,7 @@ IT-nuxeo-5.2-tests
 
 * Execute shell
 
-  UPLOAD_URL="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/snapshots" \
+  UPLOAD_URL="zope@gironde.nuxeo.com:/home/zope/static/nuxeo.org/static/snapshots" \
     BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastBuild/ \
     ./test-all-distributions.sh
 
