@@ -4,7 +4,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib-new.sh
 
 # Cleaning
-rm -rf ./jboss ./results ./download
+rm -rf ./jboss ./report ./results ./download
 mkdir ./results ./download || exit 1
 
 # Build
