@@ -164,6 +164,7 @@ stop_jboss() {
         vacuumdb -fzv $DBNAME -U qualiscope -h localhost -p $DBPORT &> "$JBOSS_HOME"/server/default/log/vacuum.log
     fi
     gzip "$JBOSS_HOME"/server/default/log/*.log
+    gzip -cd  "$JBOSS"/server/default/log/server.log.gz > "$JBOSS"/server/default/log/server.log
 }
 
 

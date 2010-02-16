@@ -76,6 +76,7 @@ stop_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
     "$JBOSS"/bin/jbossctl stop
     gzip "$JBOSS"/server/default/log/*.log
+    gzip -cd  "$JBOSS"/server/default/log/server.log.gz > "$JBOSS"/server/default/log/server.log
 }
 
 start_tomcat() {
