@@ -60,26 +60,22 @@ NXP_BRANCH_NULL_MERGE=${NXP_BRANCH_NULL_MERGE}
 NXC_BRANCH_NULL_MERGE=${NXC_BRANCH_NULL_MERGE}
 NXA_BRANCH_NULL_MERGE=${NXA_BRANCH_NULL_MERGE}
 
-NXA_MODULES="$ADDONS"
+NXA_MODULES="nuxeo-chemistry $ADDONS"
 
 EOF
 
 # Remove existing artifacts
 # TODO fix hard coded versions
-find ~/.m2/repository/org/nuxeo/ -name "*5.[23].[01]$TAG*" -exec rm -rf {} \; 2>/dev/null
-find ~/.m2/repository/org/nuxeo/ -name "*1.[56].[01]$TAG*" -exec rm -rf {} \; 2>/dev/null
+find ~/.m2/repository/org/nuxeo/ -name "*5.[23].[0-9]$TAG*" -exec rm -rf {} \; 2>/dev/null
+find ~/.m2/repository/org/nuxeo/ -name "*1.[56].[0-9]$TAG*" -exec rm -rf {} \; 2>/dev/null
 
 nx-builder -d prepare || exit 1
-
+nx-builder -d install || exit 1
 nx-builder -d package || exit 1
 
 if [ $DISTRIBUTIONS = "ALL" ]; then
     jboss_zip=`find $RWS/archives/ -name "nuxeo*jboss*.zip"`
-
     nx-builder -d package-other || exit 1
-
-#    Get rid of the unused jar version
-#    nx-builder -d zip2jar $jboss_zip || exit 1
 fi
 
 cp fallback* archives/
