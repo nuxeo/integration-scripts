@@ -75,7 +75,8 @@ nx-builder -d package || exit 1
 
 if [ $DISTRIBUTIONS = "ALL" ]; then
     jboss_zip=`find $RWS/archives/ -name "nuxeo*jboss*.zip"`
-    nx-builder -d package-other || exit 1
+# Comment until NXBT-132 is fixed
+#    nx-builder -d package-other || exit 1
 fi
 
 cp fallback* archives/
