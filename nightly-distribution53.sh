@@ -19,13 +19,9 @@ else
     nx-builder pull || exit 2
 fi
 
-# Remove existing artifacts
-find ~/.m2/repository/org/nuxeo/ -name "*$NXP*SNAPSHOT*" -delete 2>/dev/null
-find ~/.m2/repository/org/nuxeo/ -name "*$NXC*SNAPSHOT*" -delete 2>/dev/null
+cd $DWS/nuxeo/nuxeo-distribution || exit 1
 
-cd $DWS/nuxeo || exit 1
-
-hgx $NXP $NXC up -C
+hg up -C $NXP
 
 mvn -Dmaven.test.skip=true clean deploy -Pall-distributions || exit 1
 
