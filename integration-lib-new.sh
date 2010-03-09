@@ -55,7 +55,11 @@ setup_tomcat() {
 }
 
 deploy_ear() {
-  deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/nuxeo.ear "$JBOSS_HOME"/server/default/deploy/nuxeo.ear
+  if [ ! -d "$JBOSS"/server/default/deploy/nuxeo.ear ] || [ -z $NEW_JBOSS ] ; then
+    deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/nuxeo-dm-jboss/server/default/deploy/nuxeo.ear "$JBOSS_HOME"/server/default/deploy/nuxeo.ear
+  else
+    echo "Using EAR already present in JBoss assuming it's a fresh build."
+  fi
 }
 
 deploySRCtoDST() {
