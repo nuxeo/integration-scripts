@@ -21,7 +21,7 @@ if [ -z $ZIP_FILE ]; then
         wget -nv $link || exit 1
     done
 
-    unzip -q nuxeo-*jboss*.zip
+    unzip -q nuxeo-dm*jboss*.zip
 else
     unzip -q $ZIP_FILE || exit 1
 fi
