@@ -89,7 +89,7 @@ stop_jboss
 # TODO process jetty and glassfish
 
 
-# Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
+# Upload successfully tested package on http://www.nuxeo.org/static/snapshots/
 UPLOAD_URL=${UPLOAD_URL:-}
 SRC_URL=${SRC_URL:download/*jboss*}
 if [ ! -z $UPLOAD_URL ]; then

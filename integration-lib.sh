@@ -142,8 +142,6 @@ EOF
 
 }
 
-
-
 start_jboss() {
     if [ ! -e "$JBOSS_HOME"/bin/jbossctl.conf ]; then
         cp "$HERE"/jbossctl.conf "$JBOSS_HOME"/bin/
@@ -164,9 +162,8 @@ stop_jboss() {
         vacuumdb -fzv $DBNAME -U qualiscope -h localhost -p $DBPORT &> "$JBOSS_HOME"/server/default/log/vacuum.log
     fi
     gzip "$JBOSS_HOME"/server/default/log/*.log
-    gzip -cd  "$JBOSS"/server/default/log/server.log.gz > "$JBOSS"/server/default/log/server.log
+    gzip -cd  "$JBOSS_HOME"/server/default/log/server.log.gz > "$JBOSS_HOME"/server/default/log/server.log
 }
-
 
 setup_postgresql_database() {
     DBNAME=${1:-$DBNAME}
