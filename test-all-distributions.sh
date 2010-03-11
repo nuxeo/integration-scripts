@@ -14,9 +14,9 @@ mkdir ./results ./download || exit 1
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*.zip\(.md5\)*" | sort -u`
+    links=`lynx --dump $BUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u`
 
-    # Download and unpack the lastest builds
+    # Download and unpack the latest builds
     for link in $links; do
         wget -nv $link || exit 1
     done
@@ -51,7 +51,7 @@ if [ ! -z $ORACLE_SID ]; then
 fi
 
 
-# Start jboss
+# Start JBoss
 start_jboss
 
 # Run selenium tests first
