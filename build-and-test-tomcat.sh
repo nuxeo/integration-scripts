@@ -3,18 +3,15 @@
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib-new.sh
 
-# create new Tomcat distribution each time as we don't have a build for nuxeo Tomcat webapp only
-NEW_TOMCAT=true
-
 # Cleaning
 rm -rf ./tomcat ./results ./download
 mkdir ./results ./download || exit 1
 
 # Build
 update_distribution_source
-
 build_tomcat
-
+# create new Tomcat distribution each time as we don't have a build for nuxeo Tomcat webapp only
+NEW_TOMCAT=true
 setup_tomcat
 
 # Setup PostgreSQL
@@ -26,7 +23,8 @@ fi
 start_tomcat
 
 # Run selenium tests (not the webengine suite)
-HIDE_FF=true URL=http://127.0.0.1:8080/nuxeo/ SUITES="suite1 suite2" "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
+SELENIUM_PATH=${SELENIUM_PATH:-nuxeo-distribution-dm/ftest/selenium}
+HIDE_FF=true URL=http://127.0.0.1:8080/nuxeo/ SUITES="suite1 suite2" "$NXDISTRIBUTION"/"$SELENIUM_PATH"/run.sh
 ret1=$?
 
 # Stop Nuxeo

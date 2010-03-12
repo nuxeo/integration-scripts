@@ -25,8 +25,6 @@ setup_jboss() {
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
         cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/*jboss "$JBOSS" || exit 1
-        chmod +x "$JBOSS"/bin/*.sh
-        chmod +x "$JBOSS"/bin/jbossctl
         cp "$HERE"/jbossctl.conf "$JBOSS"/bin/
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
@@ -44,8 +42,9 @@ setup_tomcat() {
     TOMCAT=${1:-$TOMCAT_HOME}
     if [ ! -d "$TOMCAT" ] || [ ! -z $NEW_TOMCAT ] ; then
         [ -d "$TOMCAT" ] && rm -rf "$TOMCAT"
-        mv "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/stage/nuxeo-distribution-tomcat "$TOMCAT" || exit 1
-        #unzip "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/nuxeo-distribution-tomcat-*.zip && mv nuxeo-distribution-tomcat "$TOMCAT" || exit 1
+        # cp -r "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/stage/nuxeo-distribution-tomcat "$TOMCAT" || exit 1
+        unzip "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/nuxeo-distribution-tomcat-*nuxeo-dm-jtajca.zip -d /tmp/ \
+        && mv /tmp/nuxeo-distribution-tomcat "$TOMCAT" || exit 1
     else
         echo "Using previously installed Tomcat. Set NEW_TOMCAT variable to force new TOMCAT deployment"
         rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/*
@@ -92,4 +91,5 @@ stop_tomcat() {
     TOMCAT=${1:-$TOMCAT_HOME}
     "$TOMCAT"/bin/shutdown.sh
     gzip "$TOMCAT"/logs/*.log
+    gzip -cd  "$TOMCAT"/logs/nxserver.log.gz > "$TOMCAT"/logs/nxserver.log
 }
