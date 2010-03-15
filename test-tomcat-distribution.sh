@@ -3,7 +3,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 . $HERE/integration-lib.sh
 
-BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/archives}
+BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/src/nuxeo/nuxeo-distribution/nuxeo-distribution-tomcat/target/}
 ZIP_FILE=${ZIP_FILE:-}
 
 # Cleaning
@@ -15,12 +15,12 @@ if [ -z $ZIP_FILE ]; then
     # extract list of links
     links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*tomcat\.zip\(.md5\)*" | sort -u`
 
-    # Download and unpack the lastest builds
+    # Download and unpack the latest builds
     for link in $links; do
         wget -nv $link || exit 1
     done
 
-    unzip -q nuxeo-*tomcat*.zip
+    unzip -q nuxeo-*tomcat*jtajca.zip
 else
     unzip -q $ZIP_FILE || exit 1
 fi
@@ -35,16 +35,16 @@ mv $build ./tomcat || exit 1
 # Update selenium tests
 update_distribution_source
 
-
 # Start tomcat
 (cd tomcat/bin; chmod +x *.sh;  ./startup.sh) || exit 1
 
-# TODO: replace hard coded sleep by updating the ctl script
+# TODO: Should replace hard coded sleep by adding a ctl script
 sleep 60
 
 # Run selenium tests first
 # it requires an empty db
-HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/run.sh
+SELENIUM_PATH=${SELENIUM_PATH:-nuxeo-distribution-dm/ftest/selenium}
+HIDE_FF=true "$NXDISTRIBUTION"/"$SELENIUM_PATH"/run.sh
 ret1=$?
 
 java -version  2>&1 | grep 1.6.0
@@ -63,7 +63,7 @@ fi
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
 
 
-# Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
+# Upload successfully tested package on http://www.nuxeo.org/static/snapshots/
 UPLOAD_URL=${UPLOAD_URL:-}
 SRC_URL=${SRC_URL:download/*tomcat*}
 if [ ! -z $UPLOAD_URL ]; then
