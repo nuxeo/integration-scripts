@@ -13,7 +13,7 @@ mkdir ./results ./download || exit 1
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*tomcat\.zip\(.md5\)*" | sort -u`
+    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*tomcat.*\.zip\(.md5\)*" | sort -u`
 
     # Download and unpack the latest builds
     for link in $links; do
