@@ -21,7 +21,7 @@ sed -i "s/<application-policy name = \"other\">/<application-policy name = \"oth
 start_jboss
 
 # Run selenium tests
-SUITES="suite1 suite2 suite-webengine-jcr" HIDE_FF=true URL=http://127.0.1.2:8080/nuxeo/ "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
+SUITES="suite1 suite2 suite-webengine suite-webengine-websites" HIDE_FF=true URL=http://127.0.1.2:8080/nuxeo/ "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/run.sh
 ret1=$?
 
 # Stop Nuxeo
