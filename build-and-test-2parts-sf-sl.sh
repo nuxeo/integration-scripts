@@ -33,7 +33,7 @@ start_jboss "$JBOSS_HOME_SL" 127.0.1.2
 
 # Run selenium tests (not the webengine suite)
 SELENIUM_PATH=${SELENIUM_PATH:-nuxeo-distribution-dm/ftest/selenium}
-HIDE_FF=true URL=http://127.0.1.2:8080/nuxeo/ SUITES="suite1 suite2" "$NXDISTRIBUTION"/"$SELENIUM_PATH"/run.sh
+HIDE_FF=true URL=http://127.0.1.2:8080/nuxeo/ SUITES="suite1 suite2 suite-dm" "$NXDISTRIBUTION"/"$SELENIUM_PATH"/run.sh
 ret1=$?
 
 # Stop Nuxeo
