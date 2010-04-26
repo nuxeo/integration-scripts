@@ -30,13 +30,13 @@ setup_jboss() {
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
         cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/*jboss "$JBOSS" || exit 1
-        cp "$HERE"/jbossctl.conf "$JBOSS"/bin/
+        cp "$HERE"/nuxeo.conf "$JBOSS"/bin/
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
         rm -rf "$JBOSS"/server/default/data/*
         rm -rf "$JBOSS"/server/default/log/*
     fi
-    chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/jbossctl
+    chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl
 }
 
 build_tomcat() {
@@ -77,24 +77,24 @@ start_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
     IP=${2:-0.0.0.0}
     echo "BINDHOST=$IP" > "$JBOSS"/bin/bind.conf
-    "$JBOSS"/bin/jbossctl start || exit 1
+    "$JBOSS"/bin/nuxeoctl start || exit 1
 }
 
 stop_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
-    "$JBOSS"/bin/jbossctl stop
+    "$JBOSS"/bin/nuxeoctl stop
     gzip "$JBOSS"/server/default/log/*.log
     gzip -cd  "$JBOSS"/server/default/log/server.log.gz > "$JBOSS"/server/default/log/server.log
 }
 
 start_tomcat() {
     TOMCAT=${1:-$TOMCAT_HOME}
-    "$TOMCAT"/bin/startup.sh || exit 1
+    "$TOMCAT"/bin/nuxeoctl start || exit 1
 }
 
 stop_tomcat() {
     TOMCAT=${1:-$TOMCAT_HOME}
-    "$TOMCAT"/bin/shutdown.sh
+    "$TOMCAT"/bin/nuxeoctl stop
     gzip "$TOMCAT"/logs/*.log
     gzip -cd  "$TOMCAT"/logs/nxserver.log.gz > "$TOMCAT"/logs/nxserver.log
 }

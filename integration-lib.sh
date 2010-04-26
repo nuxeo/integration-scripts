@@ -34,7 +34,7 @@ setup_jboss_from_archive() {
         mv  jboss.tmp/* "$JBOSS_HOME" || exit 1
         rm -rf jboss.tmp
         svn export --force https://svn.nuxeo.org/nuxeo/tools/jboss/bin "$JBOSS_HOME"/bin/ || exit 1
-        cp "$HERE"/jbossctl.conf "$JBOSS_HOME"/bin/
+        cp "$HERE"/nuxeo.conf "$JBOSS_HOME"/bin/
     else
         echo "Using previously installed JBOSS. Set NEW_JBOSS variable to force new JBOSS deployment"
         rm -rf "$JBOSS_HOME"/server/default/data/*
@@ -169,17 +169,17 @@ EOF
 }
 
 start_jboss() {
-    if [ ! -e "$JBOSS_HOME"/bin/jbossctl.conf ]; then
-        cp "$HERE"/jbossctl.conf "$JBOSS_HOME"/bin/
+    if [ ! -e "$JBOSS_HOME"/bin/nuxeo.conf ]; then
+        cp "$HERE"/nuxeo.conf "$JBOSS_HOME"/bin/
     fi
     IP=${1:-0.0.0.0}
     echo "BINDHOST=$IP" > "$JBOSS_HOME"/bin/bind.conf
     setup_monitoring $IP
-    "$JBOSS_HOME"/bin/jbossctl start || exit 1
+    "$JBOSS_HOME"/bin/nuxeoctl start || exit 1
 }
 
 stop_jboss() {
-    "$JBOSS_HOME"/bin/jbossctl stop
+    "$JBOSS_HOME"/bin/nuxeoctl stop
     [ -r "$JBOSS_HOME"/log/gc.log ] && mv "$JBOSS_HOME"/log/gc.log "$JBOSS_HOME"/server/default/log/
     if [ -r $PGSQL_OFFSET ]; then
         $LOGTAIL -f $PGSQL_LOG -o $PGSQL_OFFSET > "$JBOSS_HOME"/server/default/log/pgsql.log
