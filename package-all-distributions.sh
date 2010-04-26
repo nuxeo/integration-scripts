@@ -37,7 +37,7 @@ cat > nx-builder.conf <<EOF
 NX_HG=$DWS/nuxeo
 NXA_HG=$DWS/addons
 MVNOPTS=
-MAVEN_PROFILES=local-deployment,timestamp-rev-in-mf
+MAVEN_PROFILES=all-distributions
 JBOSS_PATCH=patch
 
 NXP_BRANCH=${NXP_BRANCH:-5.3}
@@ -60,7 +60,7 @@ NXP_BRANCH_NULL_MERGE=${NXP_BRANCH_NULL_MERGE}
 NXC_BRANCH_NULL_MERGE=${NXC_BRANCH_NULL_MERGE}
 NXA_BRANCH_NULL_MERGE=${NXA_BRANCH_NULL_MERGE}
 
-NXA_MODULES="nuxeo-chemistry $ADDONS"
+NXA_MODULES="nuxeo-chemistry nuxeo-http-client $ADDONS"
 
 EOF
 
