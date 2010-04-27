@@ -55,7 +55,7 @@ setup_tomcat() {
         rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/*
         rm -rf "$TOMCAT"/logs/*
     fi
-    chmod u+x "$TOMCAT"/bin/*.sh
+    chmod u+x "$TOMCAT"/bin/*.sh "$TOMCAT"/bin/*ctl
 }
 
 deploy_ear() {
