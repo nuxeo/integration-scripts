@@ -35,7 +35,7 @@ setup_jboss_from_archive() {
         rm -rf jboss.tmp
         svn export --force https://svn.nuxeo.org/nuxeo/tools/jboss/bin "$JBOSS_HOME"/bin/ || exit 1
         cp "$HERE"/nuxeo.conf "$JBOSS_HOME"/bin/
-        chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl
+        chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2&>/dev/null
     else
         echo "Using previously installed JBOSS. Set NEW_JBOSS variable to force new JBOSS deployment"
         rm -rf "$JBOSS_HOME"/server/default/data/*
@@ -176,7 +176,7 @@ start_jboss() {
     IP=${1:-0.0.0.0}
     echo "BINDHOST=$IP" > "$JBOSS_HOME"/bin/bind.conf
     setup_monitoring $IP
-    chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl
+    chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2&>/dev/null
     "$JBOSS_HOME"/bin/nuxeoctl start || exit 1
 }
 

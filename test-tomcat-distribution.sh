@@ -36,7 +36,7 @@ mv $build ./tomcat || exit 1
 update_distribution_source
 
 # Start tomcat
-(cd tomcat/bin; chmod +x *.sh *ctl;  ./startup.sh) || exit 1
+(cd tomcat/bin; chmod +x *.sh *ctl 2&>/dev/null;  ./startup.sh) || exit 1
 
 # TODO: Should replace hard coded sleep by adding a ctl script
 sleep 60

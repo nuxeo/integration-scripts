@@ -37,7 +37,7 @@ update_distribution_source
 
 
 # Start jetty
-(cd jetty; chmod +x *.sh *ctl;  ./nxserverctl.sh start) || exit 1
+(cd jetty; chmod +x *.sh *ctl 2&>/dev/null;  ./nxserverctl.sh start) || exit 1
 
 # TODO: replace hard coded sleep by updating the ctl script
 sleep 60

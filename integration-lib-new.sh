@@ -36,7 +36,7 @@ setup_jboss() {
         rm -rf "$JBOSS"/server/default/data/*
         rm -rf "$JBOSS"/server/default/log/*
     fi
-    chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl
+    chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl 2&>/dev/null
 }
 
 build_tomcat() {
@@ -55,7 +55,7 @@ setup_tomcat() {
         rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/*
         rm -rf "$TOMCAT"/logs/*
     fi
-    chmod u+x "$TOMCAT"/bin/*.sh "$TOMCAT"/bin/*ctl
+    chmod u+x "$TOMCAT"/bin/*.sh "$TOMCAT"/bin/*ctl 2&>/dev/null
 }
 
 deploy_ear() {
