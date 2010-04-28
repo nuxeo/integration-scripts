@@ -54,7 +54,6 @@ setup_monitoring() {
     IP=${1:-0.0.0.0}
     # Change log4j threshold from info to debug
     sed -i '/server.log/,/<\/appender>/ s,name="Threshold" value="INFO",name="Threshold" value="DEBUG",' "$JBOSS_HOME"/server/default/conf/jboss-log4j.xml
-    mkdir -p "$JBOSS_HOME"/server/default/log
     # postgres
     if [ ! -z $PGPASSWORD ]; then
         if [ -r $PGSQL_LOG ]; then
@@ -63,7 +62,7 @@ setup_monitoring() {
         fi
     fi
     # Let sysstat sar record activity every 5s during 60min
-    sar -d -o  "$JBOSS_HOME"/server/default/log/sysstat-sar.log 5 720 >/dev/null 2>&1 &
+    sar -d -o "$JBOSS_HOME"/log/sysstat-sar.log 5 720 >/dev/null 2>&1 &
     # Activate logging monitor
     [ -r "$JBOSS_HOME"/server/default/lib/logging-monitor*.jar ] || cp "$JBOSS_HOME"/docs/examples/jmx/logging-monitor/lib/logging-monitor.jar "$JBOSS_HOME"/server/default/lib/
     # Add mbean attributes to monitor
@@ -182,15 +181,14 @@ start_jboss() {
 
 stop_jboss() {
     "$JBOSS_HOME"/bin/nuxeoctl stop
-    [ -r "$JBOSS_HOME"/log/gc.log ] && mv "$JBOSS_HOME"/log/gc.log "$JBOSS_HOME"/server/default/log/
     if [ -r $PGSQL_OFFSET ]; then
-        $LOGTAIL -f $PGSQL_LOG -o $PGSQL_OFFSET > "$JBOSS_HOME"/server/default/log/pgsql.log
+        $LOGTAIL -f $PGSQL_LOG -o $PGSQL_OFFSET > "$JBOSS_HOME"/log/pgsql.log
     fi
     if [ ! -z $PGPASSWORD ]; then
-        vacuumdb -fzv $DBNAME -U qualiscope -h localhost -p $DBPORT &> "$JBOSS_HOME"/server/default/log/vacuum.log
+        vacuumdb -fzv $DBNAME -U qualiscope -h localhost -p $DBPORT &> "$JBOSS_HOME"/log/vacuum.log
     fi
-    gzip "$JBOSS_HOME"/server/default/log/*.log
-    gzip -cd  "$JBOSS_HOME"/server/default/log/server.log.gz > "$JBOSS_HOME"/server/default/log/server.log
+    gzip "$JBOSS_HOME"/log/*.log
+    gzip -cd  "$JBOSS_HOME"/log/server.log.gz > "$JBOSS_HOME"/log/server.log
 }
 
 setup_postgresql_database() {

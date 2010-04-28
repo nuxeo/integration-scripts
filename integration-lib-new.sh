@@ -33,8 +33,7 @@ setup_jboss() {
         cp "$HERE"/nuxeo.conf "$JBOSS"/bin/
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
-        rm -rf "$JBOSS"/server/default/data/*
-        rm -rf "$JBOSS"/server/default/log/*
+        rm -rf "$JBOSS"/server/default/data/* "$JBOSS"/server/default/log/* "$JBOSS"/log/*
     fi
     chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl 2&>/dev/null
 }
@@ -52,8 +51,7 @@ setup_tomcat() {
         && mv /tmp/nuxeo-distribution-tomcat "$TOMCAT" || exit 1
     else
         echo "Using previously installed Tomcat. Set NEW_TOMCAT variable to force new TOMCAT deployment"
-        rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/*
-        rm -rf "$TOMCAT"/logs/*
+        rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/* "$TOMCAT"/logs/* "$TOMCAT"/log/*
     fi
     chmod u+x "$TOMCAT"/bin/*.sh "$TOMCAT"/bin/*ctl 2&>/dev/null
 }
@@ -83,8 +81,9 @@ start_jboss() {
 stop_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
     "$JBOSS"/bin/nuxeoctl stop
-    gzip "$JBOSS"/server/default/log/*.log
-    gzip -cd  "$JBOSS"/server/default/log/server.log.gz > "$JBOSS"/server/default/log/server.log
+    gzip "$JBOSS"/server/default/log/*.log "$JBOSS"/log/*.log
+    gzip -cd  "$JBOSS"/server/default/log/server.log.gz 2&>/dev/null > "$JBOSS"/server/default/log/server.log
+    gzip -cd  "$JBOSS"/log/server.log.gz 2&>/dev/null > "$JBOSS"/log/server.log
 }
 
 start_tomcat() {
@@ -95,6 +94,7 @@ start_tomcat() {
 stop_tomcat() {
     TOMCAT=${1:-$TOMCAT_HOME}
     "$TOMCAT"/bin/nuxeoctl stop
-    gzip "$TOMCAT"/logs/*.log
-    gzip -cd  "$TOMCAT"/logs/nxserver.log.gz > "$TOMCAT"/logs/nxserver.log
+    gzip "$TOMCAT"/logs/*.log "$TOMCAT"/log/*.log
+    gzip -cd  "$TOMCAT"/logs/nxserver.log.gz 2&>/dev/null > "$TOMCAT"/logs/nxserver.log
+    gzip -cd  "$TOMCAT"/log/server.log.gz 2&>/dev/null > "$TOMCAT"/log/server.log
 }
