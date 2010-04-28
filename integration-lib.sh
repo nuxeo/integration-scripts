@@ -10,7 +10,7 @@ if [ ! -z $PGPASSWORD ]; then
     DBNAME=${DBNAME:-qualiscope-ci-$(( RANDOM%10 ))}
 fi
 PGSQL_LOG=${PGSQL_LOG:-/var/log/pgsql}
-PGSQL_OFFSET="$JBOSS_HOME"/server/default/log/pgsql.offset
+PGSQL_OFFSET="$JBOSS_HOME"/log/pgsql.offset
 LOGTAIL=/usr/sbin/logtail
 
 update_distribution_source() {
@@ -38,8 +38,7 @@ setup_jboss_from_archive() {
         chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2&>/dev/null
     else
         echo "Using previously installed JBOSS. Set NEW_JBOSS variable to force new JBOSS deployment"
-        rm -rf "$JBOSS_HOME"/server/default/data/*
-        rm -rf "$JBOSS_HOME"/server/default/log/*
+        rm -rf "$JBOSS_HOME"/server/default/data/* "$JBOSS_HOME"/log/*
     fi
 }
 
@@ -197,13 +196,17 @@ setup_postgresql_database() {
     dropdb $DBNAME -U qualiscope -h localhost -p $DBPORT
     createdb $DBNAME -U qualiscope -h localhost -p $DBPORT || exit 1
     createlang plpgsql $DBNAME -U qualiscope -h localhost -p $DBPORT
-
-    NXC_VERSION=$(cd "$JBOSS_HOME"; ls server/default/deploy/nuxeo.ear/system/nuxeo-core-storage-sql-ra-*.rar |cut -d"-" -f6- )
-
-    [ -z $NXC_VERSION ] && exit 1
+    
+    cat >> bin/nuxeo.conf <<EOF || exit 1
+nuxeo.template=postgresql
+nuxeo.db.port=$DBPORT
+nuxeo.db.name=$DBNAME
+nuxeo.db.user=qualiscope
+nuxeo.db.password=$PGPASSWORD
+EOF
 
     # switch nxtags to unified ds
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/nxtags-ds.xml <<EOF || exit 1
+    cat > "$JBOSS_HOME"/templates/postgresql/datasources/nxtags-ds.xml <<EOF || exit 1
 <?xml version="1.0"?>
 <datasources>
   <mbean code="org.jboss.naming.NamingAlias"
@@ -214,45 +217,9 @@ setup_postgresql_database() {
 </datasources>
 EOF
 
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/default-repository-ds.xml <<EOF || exit 1
-<?xml version="1.0"?>
-<connection-factories>
-  <tx-connection-factory>
-    <jndi-name>NXRepository/default</jndi-name>
-    <xa-transaction/>
-    <track-connection-by-tx/>
-    <adapter-display-name>Nuxeo SQL Repository DataSource</adapter-display-name>
-    <rar-name>nuxeo.ear#nuxeo-core-storage-sql-ra-$NXC_VERSION</rar-name>
-    <connection-definition>org.nuxeo.ecm.core.storage.sql.Repository</connection-definition>
-    <config-property name="name">default</config-property>
-    <config-property name="xaDataSource" type="java.lang.String">org.postgresql.xa.PGXADataSource</config-property>
-    <config-property name="property" type="java.lang.String">ServerName=localhost</config-property>
-    <config-property name="property" type="java.lang.String">PortNumber/Integer=$DBPORT</config-property>
-    <config-property name="property" type="java.lang.String">DatabaseName=$DBNAME</config-property>
-    <config-property name="property" type="java.lang.String">User=qualiscope</config-property>
-    <config-property name="property" type="java.lang.String">Password=$PGPASSWORD</config-property>
-  </tx-connection-factory>
-</connection-factories>
+## should remove max-pool-size from "$JBOSS_HOME"/templates/postgresql/datasources/default-repository-ds.xml ?
 
-EOF
-
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml <<EOF || exit 1
-<?xml version="1.0" encoding="UTF-8"?>
-<datasources>
-   <xa-datasource>
-     <jndi-name>NuxeoDS</jndi-name>
-     <track-connection-by-tx/>
-     <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>
-     <xa-datasource-property name="ServerName">localhost</xa-datasource-property>
-     <xa-datasource-property name="PortNumber">$DBPORT</xa-datasource-property>
-     <xa-datasource-property name="DatabaseName">$DBNAME</xa-datasource-property>
-     <xa-datasource-property name="User">qualiscope</xa-datasource-property>
-     <xa-datasource-property name="Password">$PGPASSWORD</xa-datasource-property>
-   </xa-datasource>
-</datasources>
-EOF
-
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/default-repository-config.xml <<EOF || exit 1
+    cat > "$JBOSS_HOME"/templates/postgresql/config/default-repository-config.xml <<EOF || exit 1
 <?xml version="1.0"?>
 <component name="default-repository-config">
   <extension target="org.nuxeo.ecm.core.repository.RepositoryService"
@@ -272,7 +239,7 @@ EOF
 </component>
 EOF
 
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/sql.properties <<EOF || exit 1
+    cat > "$JBOSS_HOME"/templates/postgresql/config/sql.properties <<EOF || exit 1
 # Jena database type and transaction mode
 org.nuxeo.ecm.sql.jena.databaseType=PostgreSQL
 org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
@@ -294,6 +261,15 @@ setup_oracle_database() {
     ORACLE_PASSWORD=${ORACLE_PASSWORD:-ORACLE_USER}
     ORACLE_PORT=${ORACLE_PORT:-1521}
 
+    cat >> bin/nuxeo.conf <<EOF || exit 1
+nuxeo.template=oracle
+nuxeo.db.host=$ORACLE_HOST
+nuxeo.db.port=$ORACLE_PORT
+nuxeo.db.name=$ORACLE_SID
+nuxeo.db.user=$ORACLE_USER
+nuxeo.db.password=$ORACLE_PASSWORD
+EOF
+
     echo "### Initializing Oracle DATABASE: $ORACLE_SID $ORACLE_USER"
 
     ssh -l oracle $ORACLE_HOST sqlplus $ORACLE_USER/$ORACLE_PASSWORD@$ORACLE_SID << EOF || exit 1
@@ -309,62 +285,10 @@ SET ECHO ON
 EOF
 
     # TODO: use private nexus to get jdbc driver
-    scp oracle@$ORACLE_HOST:/opt/oracle/10g/jdbc/lib/ojdbc14.jar  "$JBOSS_HOME"/server/default/lib/ || exit 1
-
-    NXC_VERSION=$(cd "$JBOSS_HOME"; ls server/default/deploy/nuxeo.ear/system/nuxeo-core-storage-sql-ra-*.rar |cut -d"-" -f6- )
-
-    [ -z $NXC_VERSION ] && exit 1
-
-    # switch nxtags to unified ds
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/nxtags-ds.xml <<EOF || exit 1
-<?xml version="1.0"?>
-<datasources>
-  <mbean code="org.jboss.naming.NamingAlias"
-    name="jboss.jca:name=nxtags,service=DataSourceBinding">
-    <attribute name="ToName">java:/NuxeoDS</attribute>
-    <attribute name="FromName">java:/nxtags</attribute>
-  </mbean>
-</datasources>
-EOF
-
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/default-repository-ds.xml <<EOF || exit 1
-<?xml version="1.0"?>
-<connection-factories>
-  <tx-connection-factory>
-    <jndi-name>NXRepository/default</jndi-name>
-    <xa-transaction/>
-    <track-connection-by-tx/>
-    <adapter-display-name>Nuxeo SQL Repository DataSource</adapter-display-name>
-    <rar-name>nuxeo.ear#nuxeo-core-storage-sql-ra-$NXC_VERSION</rar-name>
-    <connection-definition>org.nuxeo.ecm.core.storage.sql.Repository</connection-definition>
-    <config-property name="name">default</config-property>
-    <config-property name="xaDataSource" type="java.lang.String">oracle.jdbc.xa.client.OracleXADataSource</config-property>
-    <config-property name="property" type="java.lang.String">URL=jdbc:oracle:thin:@$ORACLE_HOST:$ORACLE_PORT:$ORACLE_SID</config-property>
-    <config-property name="property" type="java.lang.String">User=$ORACLE_USER</config-property>
-    <config-property name="property" type="java.lang.String">Password=$ORACLE_PASSWORD</config-property>
-    <max-pool-size>20</max-pool-size>
-  </tx-connection-factory>
-</connection-factories>
-
-EOF
-
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml <<EOF || exit 1
-<?xml version="1.0" encoding="UTF-8"?>
-<datasources>
-   <local-tx-datasource>
-     <jndi-name>NuxeoDS</jndi-name>
-     <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
-     <connection-url>jdbc:oracle:thin:@$ORACLE_HOST:$ORACLE_PORT:$ORACLE_SID</connection-url>
-     <user-name>$ORACLE_USER</user-name>
-     <password>$ORACLE_PASSWORD</password>
-     <min-pool-size>5</min-pool-size>
-     <max-pool-size>20</max-pool-size>
-  </local-tx-datasource>
-</datasources>
-EOF
+    scp oracle@$ORACLE_HOST:/opt/oracle/10g/jdbc/lib/ojdbc14.jar "$JBOSS_HOME"/server/default/lib/ || exit 1
 
     # xa does not work at ddl time for oracle
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml-xa <<EOF || exit 1
+    cat > "$JBOSS_HOME"/templates/oracle/datasources/unified-nuxeo-ds.xml-xa <<EOF || exit 1
 <?xml version="1.0" encoding="UTF-8"?>
 <datasources>
    <xa-datasource>
@@ -373,14 +297,14 @@ EOF
      <no-tx-separate-pools/>
      <isSameRM-override-value>false</isSameRM-override-value>
      <xa-datasource-class>oracle.jdbc.xa.client.OracleXADataSource</xa-datasource-class>
-     <xa-datasource-property name="URL">jdbc:oracle:thin:@$ORACLE_HOST:$ORACLE_PORT:$ORACLE_SID</xa-datasource-property>
-     <xa-datasource-property name="User">$ORACLE_USER</xa-datasource-property>
-     <xa-datasource-property name="Password">$ORACLE_PASSWORD</xa-datasource-property>
+     <xa-datasource-property name="URL">jdbc:oracle:thin:@${nuxeo.db.host}:${nuxeo.db.port}:${nuxeo.db.name}</xa-datasource-property>
+     <xa-datasource-property name="User">${nuxeo.db.user}</xa-datasource-property>
+     <xa-datasource-property name="Password">${nuxeo.db.password}</xa-datasource-property>
    </xa-datasource>
 </datasources>
 EOF
 
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/default-repository-config.xml <<EOF || exit 1
+    cat > "$JBOSS_HOME"/templates/oracle/config/default-repository-config.xml <<EOF || exit 1
 <?xml version="1.0"?>
 <component name="default-repository-config">
   <extension target="org.nuxeo.ecm.core.repository.RepositoryService"
@@ -402,16 +326,12 @@ EOF
 </component>
 EOF
 
-
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/sql.properties <<EOF || exit 1
+    cat > "$JBOSS_HOME"/templates/oracle/config/sql.properties <<EOF || exit 1
 # Jena database type and transaction mode
 org.nuxeo.ecm.sql.jena.databaseType=Oracle
 org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
 EOF
-
-
 }
-
 
 setup_mysql_database() {
     MYSQL_HOST=${MYSQL_HOST:-localhost}
@@ -421,6 +341,16 @@ setup_mysql_database() {
     MYSQL_PASSWORD=${MYSQL_PASSWORD:-secret}
     MYSQL_JDBC_VERSION=${MYSQL_JDBC_VERSION:-5.1.6}
     MYSQL_JDBC=mysql-connector-java-$MYSQL_JDBC_VERSION.jar
+
+    cat >> bin/nuxeo.conf <<EOF || exit 1
+nuxeo.template=mysql
+nuxeo.db.host=$MYSQL_HOST
+nuxeo.db.port=$MYSQL_PORT
+nuxeo.db.name=$MYSQL_DB
+nuxeo.db.user=$MYSQL_USER
+nuxeo.db.password=$MYSQL_PASSWORD
+EOF
+
 
     if [ ! -r "$JBOSS_HOME"/server/default/lib/mysql-connector-java-*.jar  ]; then
         wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=nuxeo-central&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" || exit
@@ -435,74 +365,22 @@ COLLATE utf8_bin;
 
 EOF
 
-    NXC_VERSION=$(cd "$JBOSS_HOME"; ls server/default/deploy/nuxeo.ear/system/nuxeo-core-storage-sql-ra-*.rar |cut -d"-" -f6- )
-
-    [ -z $NXC_VERSION ] && exit 1
-
-    # switch nxtags to unified ds
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/nxtags-ds.xml <<EOF || exit 1
-<?xml version="1.0"?>
-<datasources>
-  <mbean code="org.jboss.naming.NamingAlias"
-    name="jboss.jca:name=nxtags,service=DataSourceBinding">
-    <attribute name="ToName">java:/NuxeoDS</attribute>
-    <attribute name="FromName">java:/nxtags</attribute>
-  </mbean>
-</datasources>
-EOF
-
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/default-repository-ds.xml <<EOF || exit 1
-<?xml version="1.0"?>
-<connection-factories>
-  <tx-connection-factory>
-    <jndi-name>NXRepository/default</jndi-name>
-    <xa-transaction/>
-    <track-connection-by-tx/>
-    <adapter-display-name>Nuxeo SQL Repository DataSource</adapter-display-name>
-    <rar-name>nuxeo.ear#nuxeo-core-storage-sql-ra-$NXC_VERSION</rar-name>
-    <connection-definition>org.nuxeo.ecm.core.storage.sql.Repository</connection-definition>
-    <config-property name="name">default</config-property>
-
-    <config-property name="xaDataSource" type="java.lang.String">com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</config-property>
-    <config-property name="property" type="java.lang.String">URL=jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/$MYSQL_DB?relaxAutoCommit=true</config-property>
-    <config-property name="property" type="java.lang.String">User=$MYSQL_USER</config-property>
-    <config-property name="property" type="java.lang.String">Password=$MYSQL_PASSWORD</config-property>
-
-  </tx-connection-factory>
-</connection-factories>
-EOF
-
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml <<EOF || exit 1
-<?xml version="1.0" encoding="UTF-8"?>
-<datasources>
-   <local-tx-datasource>
-     <jndi-name>NuxeoDS</jndi-name>
-     <driver-class>com.mysql.jdbc.Driver</driver-class>
-     <connection-url>jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/$MYSQL_DB?relaxAutoCommit=true</connection-url>
-     <user-name>$MYSQL_USER</user-name>
-     <password>$MYSQL_PASSWORD</password>
-     <min-pool-size>5</min-pool-size>
-     <max-pool-size>20</max-pool-size>
-  </local-tx-datasource>
-</datasources>
-EOF
-
     # XA raise XAER_RMFAIL  on table creation
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/datasources/unified-nuxeo-ds.xml-xa <<EOF || exit 1
+    cat > "$JBOSS_HOME"/templates/mysql/datasources/unified-nuxeo-ds.xml-xa <<EOF || exit 1
 <?xml version="1.0" encoding="UTF-8"?>
 <datasources>
    <xa-datasource>
      <jndi-name>NuxeoDS</jndi-name>
      <track-connection-by-tx/>
      <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
-     <xa-datasource-property name="URL">jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/$MYSQL_DB?relaxAutoCommit=true</xa-datasource-property>
-     <xa-datasource-property name="User">$MYSQL_USER</xa-datasource-property>
-     <xa-datasource-property name="Password">$MYSQL_PASSWORD</xa-datasource-property>
+     <xa-datasource-property name="URL">jdbc:mysql://${nuxeo.db.host}:${nuxeo.db.port}/${nuxeo.db.name}?relaxAutoCommit=true</xa-datasource-property>
+     <xa-datasource-property name="User">${nuxeo.db.user}</xa-datasource-property>
+     <xa-datasource-property name="Password">${nuxeo.db.password}</xa-datasource-property>
    </xa-datasource>
 </datasources>
 EOF
 
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/default-repository-config.xml <<EOF || exit 1
+    cat > "$JBOSS_HOME"/templates/mysql/config/default-repository-config.xml <<EOF || exit 1
 <?xml version="1.0"?>
 <component name="default-repository-config">
   <extension target="org.nuxeo.ecm.core.repository.RepositoryService"
@@ -519,16 +397,12 @@ EOF
 </component>
 EOF
 
-
-    cat > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/sql.properties <<EOF || exit 1
+    cat > "$JBOSS_HOME"/templates/mysql/config/sql.properties <<EOF || exit 1
 # Jena database type and transaction mode
 org.nuxeo.ecm.sql.jena.databaseType=MySQL
 org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
 EOF
-
-
 }
-
 
 # Mercurial function that recurses all sub-directories containing a .hg directory and runs on them hg with given parameters
 hgf() {
