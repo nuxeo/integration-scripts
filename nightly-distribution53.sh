@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/bash -x
 # 5.3 nightly artifacts snapshot deploy
 HERE=$(cd $(dirname $0); pwd -P)
 

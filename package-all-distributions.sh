@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/bash -x
 # default on 5.3 integration build
 HERE=$(cd $(dirname $0); pwd -P)
 
