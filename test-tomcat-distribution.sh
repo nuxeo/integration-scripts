@@ -3,7 +3,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 . $HERE/integration-lib.sh
 
-BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/src/nuxeo/nuxeo-distribution/nuxeo-distribution-tomcat/target/}
+BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 ZIP_FILE=${ZIP_FILE:-}
 
 # Cleaning
@@ -13,14 +13,14 @@ mkdir ./results ./download || exit 1
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*tomcat.*\.zip\(.md5\)*" | sort -u`
+    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-dm\-.*tomcat\.zip\(.md5\)*" | sort -u`
 
     # Download and unpack the latest builds
     for link in $links; do
         wget -nv $link || exit 1
     done
 
-    unzip -q nuxeo-*tomcat*jtajca.zip
+    unzip -q nuxeo-dm*tomcat.zip
 else
     unzip -q $ZIP_FILE || exit 1
 fi
@@ -36,10 +36,7 @@ mv $build ./tomcat || exit 1
 update_distribution_source
 
 # Start tomcat
-(cd tomcat/bin; chmod +x *.sh *ctl 2&>/dev/null;  ./startup.sh) || exit 1
-
-# TODO: Should replace hard coded sleep by adding a ctl script
-sleep 60
+(cd tomcat/bin; chmod +x *.sh *ctl 2&>/dev/null;  ./nuxeoctl start) || exit 1
 
 # Run selenium tests first
 # it requires an empty db
@@ -57,7 +54,7 @@ else
 fi
 
 # Stop tomcat
-(cd tomcat/bin; ./shutdown.sh)
+(cd tomcat/bin; ./nuxeoctl stop)
 
 # Exit if some tests failed
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9

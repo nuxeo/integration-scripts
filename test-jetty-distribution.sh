@@ -13,14 +13,14 @@ mkdir ./results ./download || exit 1
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-.*jetty\.zip\(.md5\)*" | sort -u`
+    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-dm\-.*jetty\.zip\(.md5\)*" | sort -u`
 
-    # Download and unpack the lastest builds
+    # Download and unpack the latest builds
     for link in $links; do
         wget -nv $link || exit 1
     done
 
-    unzip -q nuxeo-*jetty*.zip
+    unzip -q nuxeo-dm*jetty.zip
 else
     unzip -q $ZIP_FILE || exit 1
 fi
@@ -37,10 +37,7 @@ update_distribution_source
 
 
 # Start jetty
-(cd jetty; chmod +x *.sh *ctl 2&>/dev/null;  ./nxserverctl.sh start) || exit 1
-
-# TODO: replace hard coded sleep by updating the ctl script
-sleep 60
+(cd jetty/bin; chmod +x *.sh *ctl 2&>/dev/null;  ./nuxeoctl start) || exit 1
 
 # Run selenium tests first
 # it requires an empty db
@@ -57,13 +54,13 @@ else
 fi
 
 # Stop jetty
-(cd jetty; ./nxserverctl.sh stop)
+(cd jetty/bin; ./nuxeoctl stop)
 
 # Exit if some tests failed
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
 
 
-# Upload succesfully tested package on http://www.nuxeo.org/static/snapshots/
+# Upload successfully tested package on http://www.nuxeo.org/static/snapshots/
 UPLOAD_URL=${UPLOAD_URL:-}
 SRC_URL=${SRC_URL:download/*jetty*}
 if [ ! -z $UPLOAD_URL ]; then
