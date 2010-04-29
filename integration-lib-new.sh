@@ -46,9 +46,8 @@ setup_tomcat() {
     TOMCAT=${1:-$TOMCAT_HOME}
     if [ ! -d "$TOMCAT" ] || [ ! -z $NEW_TOMCAT ] ; then
         [ -d "$TOMCAT" ] && rm -rf "$TOMCAT"
-        # cp -r "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/stage/nuxeo-distribution-tomcat "$TOMCAT" || exit 1
-        unzip "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/nuxeo-distribution-tomcat-*nuxeo-dm-jtajca.zip -d /tmp/ \
-        && mv /tmp/nuxeo-distribution-tomcat "$TOMCAT" || exit 1
+        unzip "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/nuxeo-distribution-tomcat-*-nuxeo-dm.zip -d /tmp/ \
+        && mv /tmp/nuxeo-dm-*-tomcat "$TOMCAT" || exit 1
     else
         echo "Using previously installed Tomcat. Set NEW_TOMCAT variable to force new TOMCAT deployment"
         rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/* "$TOMCAT"/log/*
