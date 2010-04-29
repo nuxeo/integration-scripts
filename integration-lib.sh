@@ -197,7 +197,7 @@ setup_postgresql_database() {
     createdb $DBNAME -U qualiscope -h localhost -p $DBPORT || exit 1
     createlang plpgsql $DBNAME -U qualiscope -h localhost -p $DBPORT
     
-    cat >> bin/nuxeo.conf <<EOF || exit 1
+    cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.template=postgresql
 nuxeo.db.port=$DBPORT
 nuxeo.db.name=$DBNAME
@@ -261,7 +261,7 @@ setup_oracle_database() {
     ORACLE_PASSWORD=${ORACLE_PASSWORD:-ORACLE_USER}
     ORACLE_PORT=${ORACLE_PORT:-1521}
 
-    cat >> bin/nuxeo.conf <<EOF || exit 1
+    cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.template=oracle
 nuxeo.db.host=$ORACLE_HOST
 nuxeo.db.port=$ORACLE_PORT
@@ -342,7 +342,7 @@ setup_mysql_database() {
     MYSQL_JDBC_VERSION=${MYSQL_JDBC_VERSION:-5.1.6}
     MYSQL_JDBC=mysql-connector-java-$MYSQL_JDBC_VERSION.jar
 
-    cat >> bin/nuxeo.conf <<EOF || exit 1
+    cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.template=mysql
 nuxeo.db.host=$MYSQL_HOST
 nuxeo.db.port=$MYSQL_PORT
