@@ -18,13 +18,13 @@ Requirements
 
 * wget
 
-* postgresql with a qualiscope account:
+* PostgreSQL with a qualiscope account:
   sudo -u postgres createuser -SdRPe qualiscope
   sudo -u postgres createlang plpgsql template1
 
-* postgresql log for pgfouine report
+* PostgreSQL log for pgfouine report
 
-  - setup postgresql config  with log in /var/log/pgsql
+  - setup PostgreSQL config  with log in /var/log/pgsql
      http://pgfouine.projects.postgresql.org/tutorial.html
 
   - aptitude install logtail
@@ -63,32 +63,24 @@ Options
 ~~~~~~~~
 
 JBOSS_ARCHIVE   Path of the jboss 4.2.3 zip
-ADDONS          List of nuxeo ep addons to deploy with the nuxeo ep ear
+ADDONS          List of nuxeo addons to release after nuxeo source code and before
+                nuxeo-distribution
 TAG             The 5.2.x release tag like "-b" for beta or "-RC1" for
                 release candidate, default is integration build tag
                 "-I20090316_1200", to release the final 5.2.x use "TAG=final".
-LABEL           The jboss zip label can be "all" to produce
+LABEL           (DEPRECATED) The jboss zip label can be "all" to produce
                 nuxeo-ep-5.2.0-jboss-all.zip fo instance.
-DISTRIBUTIONS   ZIP -> Build only the jboss zip
-                ALL -> Build jboss zip, jar, jetty and glassfish
+DISTRIBUTIONS   DEFAULT -> Archive only the jboss zip
+                ALL -> Archive all distributions
 
 Outputs
 ~~~~~~~~
 
  * Packages: release/archives/*
-   - nuxeo-ep-5.2.0$TAG-jboss-$LABEL.zip
-   - nuxeo-ep-5.2.0$TAG-jboss-$LABEL.jar
-   - nuxeo-ep-5.2.0$TAG-jboss-$LABEL-win32-x86_64.exe (TODO)
-   - nuxeo-we-5.2.0$TAG-jetty.zip
-   - nuxeo-we-5.2.0$TAG-glassfish.zip
+   - nuxeo-*-5.3.2-$TAG-jboss.zip
+   - nuxeo-*-5.3.2-$TAG-tomcat.zip
    - all md5 files
-
-exemples:
-   - nuxeo-ep-5.2.0-RC1-jboss-all.zip
-   - nuxeo-ep-5.2.0-RC1-jboss-all.zip.md5
-   - nuxeo-ep-5.2.0-I20090315_1200-jboss.zip
-
-
+   
 
 test-all-distributions.sh
 ------------------------------
@@ -138,7 +130,7 @@ Options
 
 JBOSS_ARCHIVE The 4.2.3 zip archive
 NEW_JBOSS     If set full reset of the jboss
-PGPASSWORD Use postgresql for unified data source and VCS using qualiscope
+PGPASSWORD Use PostgreSQL for unified data source and VCS using qualiscope
            account with the $PGPASSWORD password.
 Output
 ~~~~~~~~

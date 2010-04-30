@@ -13,6 +13,7 @@ fi
 # label for the zip package
 LABEL=${LABEL:-}
 DISTRIBUTIONS=${DISTRIBUTIONS:-"DEFAULT"}
+DEFAULT_ADDONS=${DEFAULT_ADDONS:-"nuxeo-chemistry nuxeo-http-client"}
 
 # dev workspace
 DWS="$HERE"/dev
@@ -60,7 +61,7 @@ NXP_BRANCH_NULL_MERGE=${NXP_BRANCH_NULL_MERGE}
 NXC_BRANCH_NULL_MERGE=${NXC_BRANCH_NULL_MERGE}
 NXA_BRANCH_NULL_MERGE=${NXA_BRANCH_NULL_MERGE}
 
-NXA_MODULES="nuxeo-chemistry nuxeo-http-client $ADDONS"
+NXA_MODULES="$DEFAULT_ADDONS $ADDONS"
 
 EOF
 
@@ -74,7 +75,6 @@ nx-builder -d install || exit 1
 nx-builder -d package || exit 1
 
 if [ $DISTRIBUTIONS = "ALL" ]; then
-    jboss_zip=`find $RWS/archives/ -name "nuxeo*jboss*.zip"`
     nx-builder -d package-other || exit 1
 fi
 
