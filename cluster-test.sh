@@ -42,10 +42,10 @@ if [ ! -z $PGPASSWORD ]; then
 fi
 
 # remove ooo daemon
-cp ./ooo-config.xml $JBOSS_HOME/server/default/deploy/nuxeo.ear/config/
+cp ./ooo-config.xml $JBOSS_HOME/templates/common/config/
 
 # setup cluster mode
-cp ./default-repository-config.xml $JBOSS_HOME/server/default/deploy/nuxeo.ear/config/default-repository-config.xml
+cp ./default-repository-config.xml $JBOSS_HOME/templates/postgresql/config/default-repository-config.xml
 
 # setup jboss2
 cp -r ./jboss ./jboss2
