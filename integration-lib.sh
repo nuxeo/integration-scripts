@@ -297,9 +297,9 @@ EOF
      <no-tx-separate-pools/>
      <isSameRM-override-value>false</isSameRM-override-value>
      <xa-datasource-class>oracle.jdbc.xa.client.OracleXADataSource</xa-datasource-class>
-     <xa-datasource-property name="URL">jdbc:oracle:thin:@${nuxeo.db.host}:${nuxeo.db.port}:${nuxeo.db.name}</xa-datasource-property>
-     <xa-datasource-property name="User">${nuxeo.db.user}</xa-datasource-property>
-     <xa-datasource-property name="Password">${nuxeo.db.password}</xa-datasource-property>
+     <xa-datasource-property name="URL">jdbc:oracle:thin:@\${nuxeo.db.host}:\${nuxeo.db.port}:\${nuxeo.db.name}</xa-datasource-property>
+     <xa-datasource-property name="User">\${nuxeo.db.user}</xa-datasource-property>
+     <xa-datasource-property name="Password">\${nuxeo.db.password}</xa-datasource-property>
    </xa-datasource>
 </datasources>
 EOF
@@ -373,9 +373,9 @@ EOF
      <jndi-name>NuxeoDS</jndi-name>
      <track-connection-by-tx/>
      <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
-     <xa-datasource-property name="URL">jdbc:mysql://${nuxeo.db.host}:${nuxeo.db.port}/${nuxeo.db.name}?relaxAutoCommit=true</xa-datasource-property>
-     <xa-datasource-property name="User">${nuxeo.db.user}</xa-datasource-property>
-     <xa-datasource-property name="Password">${nuxeo.db.password}</xa-datasource-property>
+     <xa-datasource-property name="URL">jdbc:mysql://\${nuxeo.db.host}:\${nuxeo.db.port}/\${nuxeo.db.name}?relaxAutoCommit=true</xa-datasource-property>
+     <xa-datasource-property name="User">\${nuxeo.db.user}</xa-datasource-property>
+     <xa-datasource-property name="Password">\${nuxeo.db.password}</xa-datasource-property>
    </xa-datasource>
 </datasources>
 EOF
