@@ -3,7 +3,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 . $HERE/integration-lib.sh
 
-BUILD_URL=${BUILD_URL:-http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastSuccessfulBuild/artifact/trunk/release/archives}
+BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 UPLOAD_URL=${UPLOAD_URL:-}
 ZIP_FILE=${ZIP_FILE:-}
 
@@ -54,7 +54,7 @@ cp -r ./jboss ./jboss2
 # start pound
 /usr/sbin/pound -f ./pound.cfg -p ./pound.pid || exit 1
 
-# Start jbosses
+# Start two JBoss
 JBOSS_HOME="$HERE/jboss"
 start_jboss 127.0.1.1
 
@@ -84,9 +84,9 @@ stop_jboss
 JBOSS_HOME="$HERE/jboss2"
 stop_jboss
 
-cd "$HERE/jboss2/server/default/log"
+cd "$HERE/jboss2/log"
 for log in *.log.gz; do
-    cp  $log "$HERE/jboss/server/default/log/"${log%.log.gz}2.log.gz
+    cp  $log "$HERE/jboss/log/"${log%.log.gz}2.log.gz
 done
 
 exit $ret1

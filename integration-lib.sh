@@ -172,7 +172,7 @@ start_jboss() {
         cp "$HERE"/nuxeo.conf "$JBOSS_HOME"/bin/
     fi
     IP=${1:-0.0.0.0}
-    echo "BINDHOST=$IP" > "$JBOSS_HOME"/bin/bind.conf
+    echo "nuxeo.bind.address=$IP" >> "$JBOSS_HOME"/bin/nuxeo.conf
     setup_monitoring $IP
     chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2&>/dev/null
     "$JBOSS_HOME"/bin/nuxeoctl start || exit 1
