@@ -52,6 +52,7 @@ cp -r ./jboss ./jboss2
 
 # Start --------------------------------------------------
 # start pound
+/usr/sbin/pound -f ./pound.cfg -p ./pound.pid || kill `cat ./pound.pid` && \
 /usr/sbin/pound -f ./pound.cfg -p ./pound.pid || exit 1
 
 # Start two JBoss
