@@ -41,13 +41,14 @@ update_distribution_source
 
 # Run selenium tests first
 # it requires an empty db
-HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/run.sh
+SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
+HIDE_FF=true "$SELENIUM_PATH"/run.sh
 ret1=$?
 
 java -version  2>&1 | grep 1.6.0
 if [ $? == 0 ]; then
     # FunkLoad tests works only with java 1.6.0 (j_ids are changed by java6)
-    (cd "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload; make EXT="--no-color")
+    (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload; make EXT="--no-color")
     ret2=$?
 else
     ret2=0

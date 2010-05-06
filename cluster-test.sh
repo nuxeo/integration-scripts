@@ -65,8 +65,8 @@ start_jboss 127.0.1.2
 # Test --------------------------------------------------
 # Run selenium tests first
 # it requires an empty db
-
-URL=http://127.0.0.1:8000/nuxeo/ HIDE_FF=true "$NXDIR"/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/run.sh
+SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
+URL=http://127.0.0.1:8000/nuxeo/ HIDE_FF=true "$SELENIUM_PATH"/run.sh
 ret1=$?
 
 # FunkLoad bench

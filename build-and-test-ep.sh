@@ -18,8 +18,8 @@ deploy_ear
 start_jboss
 
 # Run selenium tests
-SELENIUM_PATH=${SELENIUM_PATH:-nuxeo-distribution-dm/ftest/selenium}
-SUITES="suite1 suite2 suite-webengine" HIDE_FF=true "$NXDISTRIBUTION"/"$SELENIUM_PATH"/run.sh
+SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
+SUITES="suite1 suite2 suite-webengine" HIDE_FF=true "$SELENIUM_PATH"/run.sh
 ret1=$?
 
 # Stop nuxeo
