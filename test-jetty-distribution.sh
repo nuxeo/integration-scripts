@@ -37,7 +37,7 @@ update_distribution_source
 
 
 # Start jetty
-(cd jetty/bin; chmod +x *.sh *ctl 2&>/dev/null;  ./nuxeoctl start) || exit 1
+(cd jetty/bin; chmod +x *.sh *ctl 2>/dev/null;  ./nuxeoctl start) || exit 1
 
 # Run selenium tests first
 # it requires an empty db

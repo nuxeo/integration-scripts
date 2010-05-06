@@ -35,7 +35,7 @@ setup_jboss() {
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
         rm -rf "$JBOSS"/server/default/data/* "$JBOSS"/log/*
     fi
-    chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl 2&>/dev/null
+    chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl 2>/dev/null
 }
 
 build_tomcat() {
@@ -52,7 +52,7 @@ setup_tomcat() {
         echo "Using previously installed Tomcat. Set NEW_TOMCAT variable to force new TOMCAT deployment"
         rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/* "$TOMCAT"/log/*
     fi
-    chmod u+x "$TOMCAT"/bin/*.sh "$TOMCAT"/bin/*ctl 2&>/dev/null
+    chmod u+x "$TOMCAT"/bin/*.sh "$TOMCAT"/bin/*ctl 2>/dev/null
 }
 
 deploy_ear() {
@@ -81,7 +81,7 @@ stop_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
     "$JBOSS"/bin/nuxeoctl stop
     gzip "$JBOSS"/log/*.log
-    gzip -cd  "$JBOSS"/log/server.log.gz 2&>/dev/null > "$JBOSS"/log/server.log
+    gzip -cd  "$JBOSS"/log/server.log.gz 2>/dev/null > "$JBOSS"/log/server.log
 }
 
 start_tomcat() {
@@ -93,5 +93,5 @@ stop_tomcat() {
     TOMCAT=${1:-$TOMCAT_HOME}
     "$TOMCAT"/bin/nuxeoctl stop
     gzip "$TOMCAT"/log/*.log
-    gzip -cd  "$TOMCAT"/log/server.log.gz 2&>/dev/null > "$TOMCAT"/log/server.log
+    gzip -cd  "$TOMCAT"/log/server.log.gz 2>/dev/null > "$TOMCAT"/log/server.log
 }

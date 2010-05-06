@@ -36,7 +36,7 @@ mv $build ./tomcat || exit 1
 update_distribution_source
 
 # Start tomcat
-(cd tomcat/bin; chmod +x *.sh *ctl 2&>/dev/null;  ./nuxeoctl start) || exit 1
+(cd tomcat/bin; chmod +x *.sh *ctl 2>/dev/null;  ./nuxeoctl start) || exit 1
 
 # Run selenium tests first
 # it requires an empty db
