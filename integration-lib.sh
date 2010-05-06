@@ -405,6 +405,26 @@ org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
 EOF
 }
 
+package_sources() {
+  NXP=$1
+  NXC=$2
+  wget -nv http://hg.nuxeo.org/nuxeo/archive/$NXP.zip -O nuxeo-$NXP.zip
+  [ -d nuxeo-$NXP ] && rm -rf nuxeo-$NXP
+  mkdir nuxeo-$NXP
+  for mod in nuxeo-common nuxeo-runtime nuxeo-core; do
+    wget -nv http://hg.nuxeo.org/nuxeo/$mod/archive/$NXC.zip -O nuxeo-$NXP/$mod.zip
+    unzip nuxeo-$NXP/$mod.zip -d nuxeo-$NXP && rm nuxeo-$NXP/$mod.zip
+    mv nuxeo-$NXP/$mod-$NXC nuxeo-$NXP/$mod
+  done
+  for mod in nuxeo-theme nuxeo-services nuxeo-jsf nuxeo-features nuxeo-dm nuxeo-webengine \
+    nuxeo-gwt nuxeo-distribution; do
+    wget -nv http://hg.nuxeo.org/nuxeo/$mod/archive/$NXP.zip -O nuxeo-$NXP/$mod.zip
+    unzip nuxeo-$NXP/$mod.zip -d nuxeo-$NXP && rm nuxeo-$NXP/$mod.zip
+    mv nuxeo-$NXP/$mod-$NXP nuxeo-$NXP/$mod
+  done
+  zip -r nuxeo-$NXP.zip nuxeo-$NXP/nuxeo-* && rm -rf nuxeo-$NXP
+}
+
 # Mercurial function that recurses all sub-directories containing a .hg directory and runs on them hg with given parameters
 hgf() {
   for dir in . nuxeo-*; do

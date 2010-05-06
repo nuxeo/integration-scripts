@@ -85,10 +85,12 @@ stop_jboss
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
 [ $ret3 -eq 0 ] || exit 9
 
-# JBOSS tests --------------------------------------------------------
-
 # TODO process jetty and glassfish
 
+# Package snapshot sources
+cd download
+package_sources 5.3 1.6
+cd ..
 
 # Upload successfully tested package on http://www.nuxeo.org/static/snapshots/
 UPLOAD_URL=${UPLOAD_URL:-}
@@ -96,5 +98,6 @@ SRC_URL=${SRC_URL:download/*jboss*}
 if [ ! -z $UPLOAD_URL ]; then
     date
     scp $SRC_URL $UPLOAD_URL || exit 1
+    scp download/nuxeo-*.zip $UPLOAD_URL || exit 1
     date
 fi
