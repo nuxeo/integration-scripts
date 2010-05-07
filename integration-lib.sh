@@ -3,7 +3,7 @@
 HERE=$(cd $(dirname $0); pwd -P)
 NXVERSION=${NXVERSION:-5.3}
 NXDIR="$HERE/src-$NXVERSION"
-NXDISTRIBUTION="$NXDIR"/nuxeo-distribution
+NXDISTRIBUTION=${NXDISTRIBUTION:-"$NXDIR"/nuxeo-distribution}
 JBOSS_ARCHIVE=${JBOSS_ARCHIVE:-~/jboss-4.2.3.GA.zip}
 JBOSS_HOME="$HERE/jboss"
 DBPORT=${DBPORT:-5432}
