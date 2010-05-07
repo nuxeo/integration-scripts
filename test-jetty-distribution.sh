@@ -60,12 +60,11 @@ fi
 # Exit if some tests failed
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
 
-
 # Upload successfully tested package on http://www.nuxeo.org/static/snapshots/
 UPLOAD_URL=${UPLOAD_URL:-}
-SRC_URL=${SRC_URL:download/*jetty*}
+SRC_URL=${SRC_URL:-download}
 if [ ! -z $UPLOAD_URL ]; then
     date
-    scp $SRC_URL $UPLOAD_URL || exit 1
+    scp -C $SRC_URL/*jetty*.zip* $UPLOAD_URL || exit 1
     date
 fi

@@ -405,6 +405,7 @@ org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
 EOF
 }
 
+# DEPRECATED: included in nx-builder
 package_sources() {
   NXP=$1
   NXC=$2

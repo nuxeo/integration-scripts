@@ -3,7 +3,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 . $HERE/integration-lib.sh
 
-BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/archives}
+BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastBuild/artifact/trunk/release/archives}
 ZIP_FILE=${ZIP_FILE:-}
 SKIP_FUNKLOAD=${SKIP_FUNKLOAD:-}
 
@@ -77,7 +77,6 @@ fi
 #(cd "$NXDISTRIBUTION"/nuxeo-distribution-shell/ftest/; make)
 ret3=0
 
-
 # Stop nuxeo
 stop_jboss
 
@@ -85,19 +84,11 @@ stop_jboss
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
 [ $ret3 -eq 0 ] || exit 9
 
-# TODO process jetty and glassfish
-
-# Package snapshot sources
-cd download
-package_sources 5.3 1.6
-cd ..
-
-# Upload successfully tested package on http://www.nuxeo.org/static/snapshots/
+# Upload successfully tested package and sources on http://www.nuxeo.org/static/snapshots/
 UPLOAD_URL=${UPLOAD_URL:-}
-SRC_URL=${SRC_URL:-"download/*jboss*"}
+SRC_URL=${SRC_URL:-download}
 if [ ! -z $UPLOAD_URL ]; then
     date
-    scp $SRC_URL $UPLOAD_URL || exit 1
-    scp download/nuxeo-*.zip $UPLOAD_URL || exit 1
+    scp -C $SRC_URL/*jboss*.zip* $SRC_URL/*sources*.zip $UPLOAD_URL || exit 1
     date
 fi

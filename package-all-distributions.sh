@@ -73,6 +73,7 @@ find ~/.m2/repository/org/nuxeo/ -name "*1.[56].[0-9]$TAG*" -exec rm -rf {} \; 2
 nx-builder -d prepare || exit 1
 nx-builder -d install || exit 1
 nx-builder -d package || exit 1
+nx-builder -d package-sources || exit 1
 
 if [ $DISTRIBUTIONS = "ALL" ]; then
     nx-builder -d package-other || exit 1
