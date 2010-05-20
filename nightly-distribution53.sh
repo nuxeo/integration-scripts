@@ -7,7 +7,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 DWS="$HERE"/src
 NXP=${NXP:-5.3}
 NXC=${NXC:-1.6}
-MAVEN_OPTS="-Xmx2048m -Xms512m -XX:MaxPermSize=256m"
+MAVEN_OPTS=${MAVEN_OPTS:-"-Xmx2048m -Xms512m -XX:MaxPermSize=256m"}
 export MAVEN_OPTS
 
 if [ ! -e $DWS ]; then
