@@ -8,7 +8,7 @@ find ./org/nuxeo/ -mtime 1 \( -name "*.jar" -o -name "*.pom" -o -name "*.zip" \)
     EXTENSION=${BASE##*.}
     ARTIFACT=${BASE%.*}
     CLASSIFIER=$(echo $ARTIFACT|sed -e "s/.*[0-9]//"|sed -e "s/^-//")
-    ARTIFACT=$(echo $ARTIFACT|sed -e "s/-5.*//" |sed -e "s/-1.*//")
+    ARTIFACT=$(echo $ARTIFACT|sed -e "s/-[0-9].*//")
     DIR=`dirname $artifact`
     VERSION=`basename $DIR`
     GROUP=`dirname $DIR`
@@ -18,5 +18,5 @@ find ./org/nuxeo/ -mtime 1 \( -name "*.jar" -o -name "*.pom" -o -name "*.zip" \)
     URL="https://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=public-snapshots&g=$GROUP&a=$ARTIFACT&v=$VERSION&e=$EXTENSION"
     [ -z $CLASSIFIER ] || URL="$URL&c=$CLASSIFIER"
     
-    wget -O/dev/null --timeout 1 "$URL"
+    echo wget -O/dev/null --timeout 1 --no-check-certificate \"$URL\"
   done 
