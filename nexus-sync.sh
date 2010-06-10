@@ -1,5 +1,8 @@
 #!/bin/bash
 
+TIMEOUT=${TIMEOUT:-1}
+REPO=${REPO:-public-snapshots}
+
 cd $1
 
 find ./org/nuxeo/ -mtime 1 \( -name "*.jar" -o -name "*.pom" -o -name "*.zip" \) | \
@@ -15,8 +18,8 @@ find ./org/nuxeo/ -mtime 1 \( -name "*.jar" -o -name "*.pom" -o -name "*.zip" \)
     GROUP=`dirname $GROUP`
     GROUP=`echo $GROUP |tr -s '/' '.'|cut -c 2-` 
     
-    URL="https://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=public-snapshots&g=$GROUP&a=$ARTIFACT&v=$VERSION&e=$EXTENSION"
+    URL="https://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=$REPO&g=$GROUP&a=$ARTIFACT&v=$VERSION&e=$EXTENSION"
     [ -z $CLASSIFIER ] || URL="$URL&c=$CLASSIFIER"
     
-    echo wget -O/dev/null --timeout 1 --no-check-certificate \"$URL\"
+    echo wget -O/dev/null --timeout $TIMEOUT --no-check-certificate \"$URL\"
   done 
