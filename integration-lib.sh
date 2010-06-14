@@ -54,6 +54,7 @@ setup_monitoring() {
     IP=${1:-0.0.0.0}
     # Change log4j threshold from info to debug
     sed -i '/server.log/,/<\/appender>/ s,name="Threshold" value="INFO",name="Threshold" value="DEBUG",' "$JBOSS_HOME"/server/default/conf/jboss-log4j.xml
+    mkdir -p "$JBOSS_HOME"/log
     # postgres
     if [ ! -z $PGPASSWORD ]; then
         if [ -r $PGSQL_LOG ]; then
