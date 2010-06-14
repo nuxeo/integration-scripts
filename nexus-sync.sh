@@ -5,7 +5,7 @@ REPO=${REPO:-public-snapshots}
 
 cd $1
 
-find ./org/nuxeo/ -mtime 1 \( -name "*.jar" -o -name "*.pom" -o -name "*.zip" \) | \
+find ./org/nuxeo/ -mtime -1 \( -name "*.jar" -o -name "*.pom" -o -name "*.zip" \) | \
   while read artifact; do
     BASE=`basename $artifact`
     EXTENSION=${BASE##*.}
