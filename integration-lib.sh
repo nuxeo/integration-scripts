@@ -63,7 +63,8 @@ setup_monitoring() {
         fi
     fi
     # Let sysstat sar record activity every 5s during 60min
-    sar -d -o "$JBOSS_HOME"/log/sysstat-sar.log 5 720 >/dev/null 2>&1 &
+    killall sar
+    sar -d -o "$JBOSS_HOME"/log/sysstat-sar.log 5 1440 >/dev/null 2>&1 &
     # Activate logging monitor
     [ -r "$JBOSS_HOME"/server/default/lib/logging-monitor*.jar ] || cp "$JBOSS_HOME"/docs/examples/jmx/logging-monitor/lib/logging-monitor.jar "$JBOSS_HOME"/server/default/lib/
     # Add mbean attributes to monitor
@@ -188,6 +189,7 @@ stop_jboss() {
     if [ ! -z $PGPASSWORD ]; then
         vacuumdb -fzv $DBNAME -U qualiscope -h localhost -p $DBPORT &> "$JBOSS_HOME"/log/vacuum.log
     fi
+    killall sar
     gzip "$JBOSS_HOME"/log/*.log
     gzip -cd  "$JBOSS_HOME"/log/server.log.gz > "$JBOSS_HOME"/log/server.log
 }

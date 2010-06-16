@@ -28,7 +28,7 @@ if [ $? == 0 ]; then
     echo "Benching nuxeo ep ..."
     # FunkLoad tests works only with java 1.6.0 (j_ids are changed by java6)
     test_path="$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload/
-    (cd $test_path; make bench EXT="--no-color"; ret=$?; make stop; exit $ret)
+    (cd $test_path; make bench-long EXT="--no-color"; ret=$?; make stop; exit $ret)
     ret1=$?
     mv "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/ftest/funkload/report .
 else
