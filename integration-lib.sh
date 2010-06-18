@@ -175,7 +175,13 @@ start_jboss() {
         cp "$HERE"/nuxeo.conf "$JBOSS_HOME"/bin/
     fi
     IP=${1:-0.0.0.0}
-    echo "nuxeo.bind.address=$IP" >> "$JBOSS_HOME"/bin/nuxeo.conf
+    MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`@$HOSTNAME}
+    cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
+nuxeo.bind.address=$IP
+mail.smtp.host=merguez.in.nuxeo.com
+mail.smtp.port=2500
+mail.from=$MAIL_FROM
+EOF
     setup_monitoring $IP
     chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2>/dev/null
     "$JBOSS_HOME"/bin/nuxeoctl start || exit 1

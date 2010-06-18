@@ -30,7 +30,17 @@ setup_jboss() {
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
         cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/*jboss "$JBOSS" || exit 1
-        cp "$HERE"/nuxeo.conf "$JBOSS"/bin/
+        if [ ! -e "$JBOSS"/bin/nuxeo.conf ]; then
+            cp "$HERE"/nuxeo.conf "$JBOSS"/bin/
+        fi
+        IP=${1:-0.0.0.0}
+        MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`@$HOSTNAME}
+        cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
+nuxeo.bind.address=$IP
+mail.smtp.host=merguez.in.nuxeo.com
+mail.smtp.port=2500
+mail.from=$MAIL_FROM
+EOF
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
         rm -rf "$JBOSS"/server/default/data/* "$JBOSS"/log/*
