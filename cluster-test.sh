@@ -90,6 +90,6 @@ for log in *.log.gz; do
     cp  $log "$HERE/jboss/log/"${log%.log.gz}2.log.gz
 done
 # use sysstat log of jboss 2
-cp "$HERE"/jboss2/log/log/sysstat-sar.log* "$HERE"/jboss/log/
+cp "$HERE"/jboss2/log/sysstat-sar.log.gz "$HERE"/jboss/log/
 
 exit $ret1
