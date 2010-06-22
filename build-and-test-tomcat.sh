@@ -24,7 +24,7 @@ start_tomcat
 
 # Run selenium tests (not the webengine suite)
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
-HIDE_FF=true URL=http://127.0.0.1:8080/nuxeo/ SUITES="suite1 suite2 suite-dm" "$SELENIUM_PATH"/run.sh
+HIDE_FF=true URL=http://127.0.0.1:8080/nuxeo/ "$SELENIUM_PATH"/run.sh
 ret1=$?
 
 # Stop Nuxeo
