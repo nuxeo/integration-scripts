@@ -42,7 +42,7 @@ if [ ! -z $PGPASSWORD ]; then
 fi
 
 # remove ooo daemon, set opensocial port
-cat >> "JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
+cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
 org.nuxeo.ecm.platform.transform.ooo.enableDaemon=false
 opensocial.gadgets.port=8000
 EOF
