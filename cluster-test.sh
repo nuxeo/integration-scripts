@@ -41,8 +41,11 @@ if [ ! -z $PGPASSWORD ]; then
     setup_database
 fi
 
-# remove ooo daemon
-#cp ./ooo-config.xml $JBOSS_HOME/templates/common/config/
+# remove ooo daemon, set opensocial port
+cat >> "JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
+org.nuxeo.ecm.platform.transform.ooo.enableDaemon=false
+opensocial.gadgets.port=8000
+EOF
 
 # setup cluster mode
 cp ./default-repository-config.xml $JBOSS_HOME/templates/postgresql/config/default-repository-config.xml
