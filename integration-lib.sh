@@ -282,7 +282,7 @@ EOF
 
     echo "### Initializing Oracle DATABASE: $ORACLE_SID $ORACLE_USER"
 
-    ssh -l oracle $ORACLE_HOST sqlplus $ORACLE_USER/$ORACLE_PASSWORD@$ORACLE_SID << EOF || exit 1
+    ssh -o "ConnectTimeout 0" -l oracle $ORACLE_HOST sqlplus $ORACLE_USER/$ORACLE_PASSWORD@$ORACLE_SID << EOF || exit 1
 SET ECHO OFF NEWP 0 SPA 0 PAGES 0 FEED OFF HEAD OFF TRIMS ON TAB OFF
 SET ESCAPE \\
 SET SQLPROMPT ' '
