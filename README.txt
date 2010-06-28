@@ -18,6 +18,9 @@ Requirements
 
 * wget
 
+* cluster mode is tested using pound
+  sudo aptitude install pound
+
 * PostgreSQL with a qualiscope account:
   sudo -u postgres createuser -SdRPe qualiscope
   sudo -u postgres createlang plpgsql template1
