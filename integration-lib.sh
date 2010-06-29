@@ -204,6 +204,21 @@ setup_postgresql_database() {
     DBNAME=${1:-$DBNAME}
     echo "### Initializing PostgreSQL DATABASE: $DBNAME"
     dropdb $DBNAME -U qualiscope -h localhost -p $DBPORT
+    if [ $? != 0 ]; then
+	# try to remove pending transactions
+	psql $DBNAME -U qualiscope -h localhost -p $DBPORT <<EOF
+\t
+\a
+\o /tmp/hudson-remove-transactions.sql
+SELECT 'ROLLBACK PREPARED ''' || gid || ''';'  AS cmd 
+  FROM pg_prepared_xacts 
+  WHERE database=current_database();
+\o
+\i /tmp/hudson-remove-transactions.sql
+\q
+EOF
+	dropdb $DBNAME -U qualiscope -h localhost -p $DBPORT
+    fi
     createdb $DBNAME -U qualiscope -h localhost -p $DBPORT || exit 1
     createlang plpgsql $DBNAME -U qualiscope -h localhost -p $DBPORT
     
