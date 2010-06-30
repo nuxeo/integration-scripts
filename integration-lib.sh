@@ -181,6 +181,10 @@ nuxeo.bind.address=$IP
 mail.smtp.host=merguez.in.nuxeo.com
 mail.smtp.port=2500
 mail.from=$MAIL_FROM
+JAVA_OPTS=-server -Xms1g -Xmx1g -XX:MaxPermSize=512m \
+  -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 \
+  -Xloggc:\$DIRNAME/../log/gc.log  -verbose:gc -XX:+PrintGCDetails \
+  -XX:+PrintGCTimeStamps
 EOF
     setup_monitoring $IP
     chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2>/dev/null
