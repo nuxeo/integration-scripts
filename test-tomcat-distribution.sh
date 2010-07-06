@@ -36,6 +36,7 @@ mv $build ./tomcat || exit 1
 update_distribution_source
 
 # Start tomcat
+echo "org.nuxeo.systemlog.token=dolog" > tomcat/nxerver/config/selenium.properties
 (cd tomcat/bin; chmod +x *.sh *ctl 2>/dev/null;  ./nuxeoctl start) || exit 1
 
 # Run selenium tests first

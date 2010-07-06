@@ -46,6 +46,7 @@ EOF
         rm -rf "$JBOSS"/server/default/data/* "$JBOSS"/log/*
     fi
     chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl 2>/dev/null
+    echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS"/server/default/deploy/nuxeo.ear/config/selenium.properties
 }
 
 build_tomcat() {
@@ -63,6 +64,7 @@ setup_tomcat() {
         rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/* "$TOMCAT"/log/*
     fi
     chmod u+x "$TOMCAT"/bin/*.sh "$TOMCAT"/bin/*ctl 2>/dev/null
+    echo "org.nuxeo.systemlog.token=dolog" > "$TOMCAT"/nxserver/selenium.properties
 }
 
 deploy_ear() {

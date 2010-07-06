@@ -37,6 +37,7 @@ update_distribution_source
 
 
 # Start jetty
+echo "org.nuxeo.systemlog.token=dolog" > jetty/config/selenium.properties
 (cd jetty/bin; chmod +x *.sh *ctl 2>/dev/null;  ./nuxeoctl start) || exit 1
 
 # Run selenium tests first
