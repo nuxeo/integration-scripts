@@ -21,6 +21,9 @@ Requirements
 * cluster mode is tested using pound
   sudo aptitude install pound
 
+* system monitoring sysstat sar
+  sudo aptitude install sysstat
+
 * PostgreSQL with a qualiscope account:
   sudo -u postgres createuser -SdRPe qualiscope
   sudo -u postgres createlang plpgsql template1
