@@ -7,6 +7,18 @@ JBOSS_HOME="$HERE/jboss"
 DBPORT=${DBPORT:-5432}
 TOMCAT_HOME="$HERE/tomcat"
 
+check_ports_and_kill_ghost_process() {
+    hostname=${1:-0.0.0.0}
+    port=${2:-8080}
+    RUNNING_PID=`lsof -i@$hostname:$port -sTCP:LISTEN -n -t`
+    if [ ! -z $RUNNING_PID ]; then 
+        echo [WARN] A process is already using port $port: $RUNNING_PID
+        echo [WARN] Storing jstack in $PWD/$RUNNING_PID.jstack then killing process
+        [ -e /usr/lib/jvm/java-6-sun/bin/jstack ] && /usr/lib/jvm/java-6-sun/bin/jstack $RUNNING_PID >$PWD/$RUNNING_PID.jstack
+        kill $RUNNING_PID || kill -9 $RUNNING_PID
+    fi
+}
+
 update_distribution_source() {
     if [ ! -d "$NXDISTRIBUTION" ]; then
         hg clone -r $NXVERSION http://hg.nuxeo.org/nuxeo/nuxeo-distribution "$NXDISTRIBUTION" 2>/dev/null || exit 1
@@ -85,6 +97,7 @@ deploySRCtoDST() {
 start_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
     IP=${2:-0.0.0.0}
+    check_ports_and_kill_ghost_process $IP
     echo "BINDHOST=$IP" > "$JBOSS"/bin/bind.conf
     "$JBOSS"/bin/nuxeoctl start || exit 1
 }
@@ -98,6 +111,7 @@ stop_jboss() {
 
 start_tomcat() {
     TOMCAT=${1:-$TOMCAT_HOME}
+    check_ports_and_kill_ghost_process
     "$TOMCAT"/bin/nuxeoctl start || exit 1
 }
 

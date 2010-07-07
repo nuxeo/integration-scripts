@@ -14,6 +14,18 @@ PGSQL_LOG=${PGSQL_LOG:-/var/log/pgsql}
 PGSQL_OFFSET="$JBOSS_HOME"/log/pgsql.offset
 LOGTAIL=/usr/sbin/logtail
 
+check_ports_and_kill_ghost_process() {
+    hostname=${1:-0.0.0.0}
+    port=${2:-8080}
+    RUNNING_PID=`lsof -i@$hostname:$port -sTCP:LISTEN -n -t`
+    if [ ! -z $RUNNING_PID ]; then 
+        echo [WARN] A process is already using port $port: $RUNNING_PID
+        echo [WARN] Storing jstack in $PWD/$RUNNING_PID.jstack then killing process
+        [ -e /usr/lib/jvm/java-6-sun/bin/jstack ] && /usr/lib/jvm/java-6-sun/bin/jstack $RUNNING_PID >$PWD/$RUNNING_PID.jstack
+        kill $RUNNING_PID || kill -9 $RUNNING_PID
+    fi
+}
+
 update_distribution_source() {
     if [ ! -d "$NXDIR" ]; then
         hg clone -r $NXVERSION http://hg.nuxeo.org/nuxeo/ $NXDIR 2>/dev/null || exit 1
@@ -176,6 +188,7 @@ start_jboss() {
         cp "$HERE"/nuxeo.conf "$JBOSS_HOME"/bin/
     fi
     IP=${1:-0.0.0.0}
+    check_ports_and_kill_ghost_process $IP
     MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`@$HOSTNAME}
     cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.bind.address=$IP
