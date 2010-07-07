@@ -13,7 +13,7 @@ fi
 # label for the zip package
 LABEL=${LABEL:-}
 DISTRIBUTIONS=${DISTRIBUTIONS:-"DEFAULT"}
-DEFAULT_ADDONS=${DEFAULT_ADDONS:-"nuxeo-chemistry nuxeo-http-client"}
+DEFAULT_ADDONS=${DEFAULT_ADDONS:-"nuxeo-chemistry nuxeo-http-client nuxeo-platform-classification nuxeo-platform-importer"}
 
 # dev workspace
 DWS="$HERE"/dev
