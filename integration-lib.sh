@@ -49,7 +49,6 @@ setup_jboss_from_archive() {
         svn export --force https://svn.nuxeo.org/nuxeo/tools/jboss/bin "$JBOSS_HOME"/bin/ || exit 1
         cp "$HERE"/nuxeo.conf "$JBOSS_HOME"/bin/
         chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2>/dev/null
-        echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/selenium.properties
     else
         echo "Using previously installed JBOSS. Set NEW_JBOSS variable to force new JBOSS deployment"
         rm -rf "$JBOSS_HOME"/server/default/data/* "$JBOSS_HOME"/log/*
@@ -216,6 +215,7 @@ nuxeo.db.max-pool-size=40
 nuxeo.vcs.max-pool-size=40
 EOF
     setup_monitoring $IP
+    echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/selenium.properties
     chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2>/dev/null
     "$JBOSS_HOME"/bin/nuxeoctl start || exit 1
 }
