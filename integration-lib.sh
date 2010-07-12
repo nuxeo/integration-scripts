@@ -63,10 +63,23 @@ build_and_deploy() {
 }
 
 
+change_root_level() {
+    LEVEL=$1
+    shift
+    sed -i '/<root>/,/root>/ s,<level value=.*$,<level value="INFO"/>,' /tmp/a.xml 
+}
+
+set_jboss_log4j_level() {
+    LEVEL=$1
+    shift
+    sed -i "/<root>/,/root>/ s,<level value=.*\$,<level value=\"$LEVEL\"/>," "$JBOSS_HOME"/server/default/conf/jboss-log4j.xml
+}
+
+
 setup_monitoring() {
     IP=${1:-0.0.0.0}
     # Change log4j threshold from info to debug
-    sed -i '/server.log/,/<\/appender>/ s,name="Threshold" value="INFO",name="Threshold" value="DEBUG",' "$JBOSS_HOME"/server/default/conf/jboss-log4j.xml
+    set_jboss_log4j_level INFO
     mkdir -p "$JBOSS_HOME"/log
     # postgres
     if [ ! -z $PGPASSWORD ]; then

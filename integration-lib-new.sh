@@ -37,6 +37,13 @@ build_jboss_ep() {
     (cd "$NXDISTRIBUTION" && mvn clean install -Pnuxeo-ep,jboss) || exit 1
 }
 
+set_jboss_log4j_level() {
+    LEVEL=$1
+    shift
+    sed -i "/<root>/,/root>/ s,<level value=.*\$,<level value=\"$LEVEL\"/>," "$JBOSS_HOME"/server/default/conf/jboss-log4j.xml
+}
+
+
 setup_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
@@ -59,6 +66,7 @@ EOF
     fi
     chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl 2>/dev/null
     echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS"/server/default/deploy/nuxeo.ear/config/selenium.properties
+    set_jboss_log4j_level INFO
 }
 
 build_tomcat() {

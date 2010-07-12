@@ -42,6 +42,8 @@ Requirements
   scp oracle@$ORACLE_HOST:/opt/oracle/10g/jdbc/lib/ojdbc14.jar .
 
   WARNING the script will remove all objects in the $ORACLE_USER schema.
+  To enable read acl optim:
+  GRANT EXECUTE ON DBMS_CRYPTO TO nuxeo;
 
 * mysql
 
