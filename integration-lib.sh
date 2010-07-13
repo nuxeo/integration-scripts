@@ -61,13 +61,6 @@ build_and_deploy() {
     (cd "$NXDIR" && ant copy-lib package copy -Djboss.dir="$JBOSS_HOME") || exit 1
 }
 
-
-change_root_level() {
-    LEVEL=$1
-    shift
-    sed -i '/<root>/,/root>/ s,<level value=.*$,<level value="INFO"/>,' /tmp/a.xml 
-}
-
 set_jboss_log4j_level() {
     LEVEL=$1
     shift
@@ -211,11 +204,9 @@ JAVA_OPTS=-server -Xms1g -Xmx1g -XX:MaxPermSize=512m \
   -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 \
   -Xloggc:\$DIRNAME/../log/gc.log  -verbose:gc -XX:+PrintGCDetails \
   -XX:+PrintGCTimeStamps
-nuxeo.db.max-pool-size=40
-nuxeo.vcs.max-pool-size=40
 EOF
     setup_monitoring $IP
-    echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS_HOME"/server/default/deploy/nuxeo.ear/config/selenium.properties
+    echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS_HOME"/templates/common/config/selenium.properties
     chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2>/dev/null
     "$JBOSS_HOME"/bin/nuxeoctl start || exit 1
 }
@@ -250,6 +241,7 @@ SELECT 'ROLLBACK PREPARED ''' || gid || ''';'  AS cmd
 \i /tmp/hudson-remove-transactions.sql
 \q
 EOF
+	sleep 5
 	dropdb $DBNAME -U qualiscope -h localhost -p $DBPORT
     fi
     createdb $DBNAME -U qualiscope -h localhost -p $DBPORT || exit 1
@@ -261,49 +253,10 @@ nuxeo.db.port=$DBPORT
 nuxeo.db.name=$DBNAME
 nuxeo.db.user=qualiscope
 nuxeo.db.password=$PGPASSWORD
+nuxeo.db.max-pool-size=40
+nuxeo.vcs.max-pool-size=40
 EOF
 
-    # switch nxtags to unified ds
-    cat > "$JBOSS_HOME"/templates/postgresql/datasources/nxtags-ds.xml <<EOF || exit 1
-<?xml version="1.0"?>
-<datasources>
-  <mbean code="org.jboss.naming.NamingAlias"
-    name="jboss.jca:name=nxtags,service=DataSourceBinding">
-    <attribute name="ToName">java:/NuxeoDS</attribute>
-    <attribute name="FromName">java:/nxtags</attribute>
-  </mbean>
-</datasources>
-EOF
-
-## should remove max-pool-size from "$JBOSS_HOME"/templates/postgresql/datasources/default-repository-ds.xml ?
-
-    cat > "$JBOSS_HOME"/templates/postgresql/config/default-repository-config.xml <<EOF || exit 1
-<?xml version="1.0"?>
-<component name="default-repository-config">
-  <extension target="org.nuxeo.ecm.core.repository.RepositoryService"
-    point="repository">
-    <repository name="default"
-      factory="org.nuxeo.ecm.core.storage.sql.coremodel.SQLRepositoryFactory">
-      <repository name="default">
-        <schema>
-          <field type="largetext">note</field>
-        </schema>
-        <indexing>
-          <fulltext analyzer="english"/>
-        </indexing>
-      </repository>
-    </repository>
-  </extension>
-</component>
-EOF
-
-    cat > "$JBOSS_HOME"/templates/postgresql/config/sql.properties <<EOF || exit 1
-# Jena database type and transaction mode
-org.nuxeo.ecm.sql.jena.databaseType=PostgreSQL
-org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
-EOF
-
-    [ -r "$JBOSS_HOME"/server/default/lib/postgresql*.jar ] || cp -u ~/.m2/repository/postgresql/postgresql/8.3-*.jdbc3/postgresql-8.3-*.jdbc3.jar "$JBOSS_HOME"/server/default/lib/
 
 }
 

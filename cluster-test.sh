@@ -79,7 +79,6 @@ ret1=$?
 #mv $NXDIR/nuxeo-distribution/nuxeo-distribution-dm/target/ftest/funkload/report .
 
 
-
 # Stop --------------------------------------------------
 
 kill `cat ./pound.pid`

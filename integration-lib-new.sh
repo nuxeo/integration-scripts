@@ -65,7 +65,7 @@ EOF
         rm -rf "$JBOSS"/server/default/data/* "$JBOSS"/log/*
     fi
     chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl 2>/dev/null
-    echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS"/server/default/deploy/nuxeo.ear/config/selenium.properties
+    echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS"/templates/common/config/selenium.properties
     set_jboss_log4j_level INFO
 }
 
