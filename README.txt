@@ -103,7 +103,7 @@ Run test on all available distribution including:
 Options
 ~~~~~~~~
 
-BUILD_URL   Where to get the builds, permalinks to hudson artifacts (lastSuccessfulBuild)
+LASTBUILD_URL   Where to get the builds, permalinks to hudson artifacts (lastSuccessfulBuild)
 UPLOAD_URL  Where to upload the builds if all tests pass
             nuxeo@styx.nuxeo.com:/opt/www/www.nuxeo.org/static/snapshots/
 JAVA6_HOME  Java 6 path for glassfish tests
@@ -200,7 +200,7 @@ IT-nuxeo-5.2-tests
 * Execute shell
 
   UPLOAD_URL="nuxeo@styx.nuxeo.com:/opt/www/www.nuxeo.org/static/snapshots/" \
-    BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastBuild/ \
+    LASTBUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastBuild/ \
     ./test-all-distributions.sh
 
 * Schedule: After a successful Integration_build
@@ -243,7 +243,7 @@ When: After a successful release build
 * Execute shell
 
   cd trunk
-  BUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release_build/lastBuild/ \
+  LASTBUILD_URL=http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Release_build/lastBuild/ \
     ./test-all-distributions.sh
 
 * Schedule: After a successful Release_build

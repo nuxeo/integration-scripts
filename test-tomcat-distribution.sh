@@ -3,7 +3,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 . $HERE/integration-lib.sh
 
-BUILD_URL=${BUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/archives}
+LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 ZIP_FILE=${ZIP_FILE:-}
 
 # Cleaning
@@ -13,7 +13,7 @@ mkdir ./results ./download || exit 1
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $BUILD_URL | grep -o "http:.*nuxeo\-dm\-.*tomcat\.zip\(.md5\)*" | sort -u`
+    links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*nuxeo\-dm\-.*tomcat\.zip\(.md5\)*" | sort -u`
 
     # Download and unpack the latest builds
     for link in $links; do
