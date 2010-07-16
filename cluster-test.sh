@@ -9,8 +9,8 @@ ZIP_FILE=${ZIP_FILE:-}
 
 
 # Cleaning
-rm -rf ./jboss ./jboss2 ./results ./download ./report
-mkdir ./results ./download || exit 1
+rm -rf ./jboss ./jboss2 ./results ./download ./report /tmp/cluster-binaries
+mkdir ./results ./download /tmp/cluster-binaries || exit 1
 
 cd download
 if [ -z $ZIP_FILE ]; then
@@ -48,7 +48,7 @@ opensocial.gadgets.port=8000
 EOF
 
 # setup cluster mode
-cp ./default-repository-config.xml $JBOSS_HOME/templates/postgresql/config/default-repository-config.xml
+cp ./cluster_default-repository-config.xml $JBOSS_HOME/templates/postgresql/config/default-repository-config.xml
 
 # setup jboss2
 cp -r ./jboss ./jboss2

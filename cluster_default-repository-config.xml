@@ -24,6 +24,7 @@
             </index>
           </fulltext> 
         </indexing>
+        <binaryStore path="/tmp/cluster-binaries"/>
       </repository>
     </repository>
   </extension>
