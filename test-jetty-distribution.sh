@@ -44,7 +44,7 @@ echo "org.nuxeo.systemlog.token=dolog" > jetty/config/selenium.properties
 # Run selenium tests first
 # it requires an empty db
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
-HIDE_FF=true "$SELENIUM_PATH"/run.sh
+HIDE_FF=true SUITES=suite1 "$SELENIUM_PATH"/run.sh
 ret1=$?
 
 if [ -z $SKIP_FUNKLOAD ]; then
