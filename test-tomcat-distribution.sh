@@ -5,6 +5,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.3-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 ZIP_FILE=${ZIP_FILE:-}
+SKIP_FUNKLOAD=${SKIP_FUNKLOAD:-}
 
 # Cleaning
 rm -rf ./tomcat ./results ./download
@@ -45,11 +46,15 @@ SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/sel
 HIDE_FF=true "$SELENIUM_PATH"/run.sh
 ret1=$?
 
-java -version  2>&1 | grep 1.6.0
-if [ $? == 0 ]; then
-    # FunkLoad tests works only with java 1.6.0 (j_ids are changed by java6)
-    (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload; make EXT="--no-color")
-    ret2=$?
+if [ -z $SKIP_FUNKLOAD ]; then
+    java -version  2>&1 | grep 1.6.0
+    if [ $? == 0 ]; then
+        # FunkLoad tests works only with java 1.6.0 (j_ids are changed by java6)
+        (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload; make EXT="--no-color")
+        ret2=$?
+    else
+        ret2=0
+    fi
 else
     ret2=0
 fi
