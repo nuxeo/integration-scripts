@@ -22,5 +22,5 @@ find ./org/nuxeo/ -mtime -1 \( -name "*.jar" -o -name "*.pom" -o -name "*.zip" \
     [ -z $CLASSIFIER ] || URL="$URL&c=$CLASSIFIER"
     
     echo wget -O/dev/null --timeout $TIMEOUT --no-check-certificate \"$URL\"
-    wget -O/dev/null --timeout $TIMEOUT --no-check-certificate "$URL"
+    wget -O/dev/null --tries 1 --timeout $TIMEOUT --no-check-certificate "$URL"
   done 
