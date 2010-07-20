@@ -85,8 +85,8 @@ Outputs
 ~~~~~~~~
 
  * Packages: release/archives/*
-   - nuxeo-*-5.3.2-$TAG-jboss.zip
-   - nuxeo-*-5.3.2-$TAG-tomcat.zip
+   - nuxeo-*-5.4.0-$TAG-jboss.zip
+   - nuxeo-*-5.4.0-$TAG-tomcat.zip
    - all md5 files
    
 

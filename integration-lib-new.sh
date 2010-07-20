@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HERE=$(cd $(dirname $0); pwd -P)
-NXVERSION=${NXVERSION:-5.3}
+NXVERSION=${NXVERSION:-5.4}
 NXDISTRIBUTION="$HERE/nuxeo-distribution-$NXVERSION"
 JBOSS_HOME="$HERE/jboss"
 DBPORT=${DBPORT:-5432}

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HERE=$(cd $(dirname $0); pwd -P)
-NXVERSION=${NXVERSION:-5.3}
+NXVERSION=${NXVERSION:-5.4}
 NXDIR="$HERE/src-$NXVERSION"
 NXDISTRIBUTION=${NXDISTRIBUTION:-"$NXDIR"/nuxeo-distribution}
 JBOSS_ARCHIVE=${JBOSS_ARCHIVE:-~/jboss-4.2.3.GA.zip}
