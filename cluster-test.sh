@@ -61,7 +61,7 @@ cp -r ./jboss ./jboss2
 # Start two JBoss
 JBOSS_HOME="$HERE/jboss"
 start_jboss 127.0.1.1
-
+sleep 10
 JBOSS_HOME="$HERE/jboss2"
 start_jboss 127.0.1.2
 
