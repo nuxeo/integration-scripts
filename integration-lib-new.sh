@@ -84,7 +84,7 @@ setup_tomcat() {
         rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/* "$TOMCAT"/log/*
     fi
     chmod u+x "$TOMCAT"/bin/*.sh "$TOMCAT"/bin/*ctl 2>/dev/null
-    echo "org.nuxeo.systemlog.token=dolog" > "$TOMCAT"/nxserver/selenium.properties
+    echo "org.nuxeo.systemlog.token=dolog" > "$TOMCAT"/nxserver/config/selenium.properties
 }
 
 deploy_ear() {
