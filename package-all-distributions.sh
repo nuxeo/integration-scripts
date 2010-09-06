@@ -17,7 +17,8 @@ DEFAULT_ADDONS=${DEFAULT_ADDONS:-"nuxeo-platform-lang-ext
 nuxeo-chemistry
 nuxeo-http-client
 nuxeo-platform-classification
-nuxeo-platform-importer"}
+nuxeo-platform-importer
+nuxeo-platform-document-routing"}
 
 # dev workspace
 DWS="$HERE"/dev
