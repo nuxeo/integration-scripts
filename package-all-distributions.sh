@@ -18,7 +18,8 @@ nuxeo-chemistry
 nuxeo-http-client
 nuxeo-platform-classification
 nuxeo-platform-importer
-nuxeo-platform-document-routing"}
+nuxeo-platform-document-routing
+nuxeo-correspondence-marianne"}
 
 # dev workspace
 DWS="$HERE"/dev
