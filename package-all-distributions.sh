@@ -5,6 +5,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
 ADDONS=${ADDONS:-}
+if [ "$TAG" = "" ]; then unset TAG; fi
 TAG=${TAG:-"-I"$(date +"%Y%m%d_%H%M")}
 if [ $TAG = "final" ]; then
     # final release no more tag
