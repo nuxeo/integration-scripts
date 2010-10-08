@@ -19,7 +19,10 @@ nuxeo-http-client
 nuxeo-platform-classification
 nuxeo-platform-importer
 nuxeo-platform-document-routing
-nuxeo-correspondence-marianne"}
+nuxeo-correspondence-marianne
+nuxeo-platform-smart-search
+nuxeo-platform-sync
+nuxeo-platform-high-availability"}
 
 # dev workspace
 DWS="$HERE"/dev
