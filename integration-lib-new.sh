@@ -9,15 +9,17 @@ TOMCAT_HOME="$HERE/tomcat"
 
 check_ports_and_kill_ghost_process() {
     hostname=${1:-0.0.0.0}
-    port=${2:-8080}
-    RUNNING_PID=`lsof -n -i TCP@$hostname:$port | grep '(LISTEN)' | awk '{print $2}'`
-    if [ ! -z $RUNNING_PID ]; then 
-        echo [WARN] A process is already using port $port: $RUNNING_PID
-        echo [WARN] Storing jstack in $PWD/$RUNNING_PID.jstack then killing process
-        [ -e /usr/lib/jvm/java-6-sun/bin/jstack ] && /usr/lib/jvm/java-6-sun/bin/jstack $RUNNING_PID >$PWD/$RUNNING_PID.jstack
-        kill $RUNNING_PID || kill -9 $RUNNING_PID
-        sleep 5
-    fi
+    ports=${2:-8080 14440}
+    for port in $ports; do
+      RUNNING_PID=`lsof -n -i TCP@$hostname:$port | grep '(LISTEN)' | awk '{print $2}'`
+      if [ ! -z $RUNNING_PID ]; then 
+          echo [WARN] A process is already using port $port: $RUNNING_PID
+          echo [WARN] Storing jstack in $PWD/$RUNNING_PID.jstack then killing process
+          [ -e /usr/lib/jvm/java-6-sun/bin/jstack ] && /usr/lib/jvm/java-6-sun/bin/jstack $RUNNING_PID >$PWD/$RUNNING_PID.jstack
+          kill $RUNNING_PID || kill -9 $RUNNING_PID
+          sleep 5
+      fi
+    done
 }
 
 update_distribution_source() {
