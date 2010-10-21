@@ -4,7 +4,6 @@ HERE=$(cd $(dirname $0); pwd -P)
 NXVERSION=${NXVERSION:-5.4}
 NXDIR="$HERE/src-$NXVERSION"
 NXDISTRIBUTION=${NXDISTRIBUTION:-"$NXDIR"/nuxeo-distribution}
-JBOSS_ARCHIVE=${JBOSS_ARCHIVE:-~/jboss-4.2.3.GA.zip}
 JBOSS_HOME="$HERE/jboss"
 DBPORT=${DBPORT:-5432}
 if [ ! -z $PGPASSWORD ]; then
@@ -19,7 +18,7 @@ check_ports_and_kill_ghost_process() {
     ports=${2:-8080 14440}
     for port in $ports; do
       RUNNING_PID=`lsof -n -i TCP@$hostname:$port | grep '(LISTEN)' | awk '{print $2}'`
-      if [ ! -z $RUNNING_PID ]; then 
+      if [ ! -z $RUNNING_PID ]; then
           echo [WARN] A process is already using port $port: $RUNNING_PID
           echo [WARN] Storing jstack in $PWD/$RUNNING_PID.jstack then killing process
           [ -e /usr/lib/jvm/java-6-sun/bin/jstack ] && /usr/lib/jvm/java-6-sun/bin/jstack $RUNNING_PID >$PWD/$RUNNING_PID.jstack
@@ -39,22 +38,6 @@ update_distribution_source() {
         hg clone -r $NXVERSION http://hg.nuxeo.org/nuxeo/nuxeo-distribution $NXDIR/nuxeo-distribution 2>/dev/null || exit 1
     else
         (cd $NXDIR/nuxeo-distribution && hg pull && hg up $NXVERSION) || exit 1
-    fi
-}
-
-# DEPRECATED: setup a pristine jboss
-setup_jboss_from_archive() {
-    if [ ! -d "$JBOSS_HOME" ] || [ ! -z $NEW_JBOSS ] ; then
-        [ -d "$JBOSS_HOME" ] && rm -rf "$JBOSS_HOME"
-        unzip -q "$JBOSS_ARCHIVE" -d jboss.tmp || exit 1
-        mv  jboss.tmp/* "$JBOSS_HOME" || exit 1
-        rm -rf jboss.tmp
-        svn export --force https://svn.nuxeo.org/nuxeo/tools/jboss/bin "$JBOSS_HOME"/bin/ || exit 1
-        cp "$HERE"/nuxeo.conf "$JBOSS_HOME"/bin/
-        chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2>/dev/null
-    else
-        echo "Using previously installed JBOSS. Set NEW_JBOSS variable to force new JBOSS deployment"
-        rm -rf "$JBOSS_HOME"/server/default/data/* "$JBOSS_HOME"/log/*
     fi
 }
 
@@ -237,8 +220,8 @@ setup_postgresql_database() {
 \t
 \a
 \o /tmp/hudson-remove-transactions.sql
-SELECT 'ROLLBACK PREPARED ''' || gid || ''';'  AS cmd 
-  FROM pg_prepared_xacts 
+SELECT 'ROLLBACK PREPARED ''' || gid || ''';'  AS cmd
+  FROM pg_prepared_xacts
   WHERE database=current_database();
 \o
 \i /tmp/hudson-remove-transactions.sql
@@ -249,7 +232,7 @@ EOF
     fi
     createdb $DBNAME -U qualiscope -h localhost -p $DBPORT || exit 1
     createlang plpgsql $DBNAME -U qualiscope -h localhost -p $DBPORT
-    
+
     cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.templates=postgresql
 nuxeo.db.port=$DBPORT
@@ -259,8 +242,6 @@ nuxeo.db.password=$PGPASSWORD
 nuxeo.db.max-pool-size=40
 nuxeo.vcs.max-pool-size=40
 EOF
-
-
 }
 
 setup_database() {
@@ -285,7 +266,6 @@ nuxeo.db.password=$ORACLE_PASSWORD
 EOF
 
     echo "### Initializing Oracle DATABASE: $ORACLE_SID $ORACLE_USER"
-
     ssh -o "ConnectTimeout 0" -l oracle $ORACLE_HOST sqlplus $ORACLE_USER/$ORACLE_PASSWORD@$ORACLE_SID << EOF || exit 1
 SET ECHO OFF NEWP 0 SPA 0 PAGES 0 FEED OFF HEAD OFF TRIMS ON TAB OFF
 SET ESCAPE \\
@@ -298,53 +278,14 @@ SET ECHO ON
 @DELETEME.SQL
 EOF
 
-    # TODO: use private nexus to get jdbc driver
-    scp oracle@$ORACLE_HOST:/opt/oracle/10g/jdbc/lib/ojdbc14.jar "$JBOSS_HOME"/server/default/lib/ || exit 1
-
-    # xa does not work at ddl time for oracle
-    cat > "$JBOSS_HOME"/templates/oracle/datasources/unified-nuxeo-ds.xml-xa <<EOF || exit 1
-<?xml version="1.0" encoding="UTF-8"?>
-<datasources>
-   <xa-datasource>
-     <jndi-name>NuxeoDS</jndi-name>
-     <track-connection-by-tx/>
-     <no-tx-separate-pools/>
-     <isSameRM-override-value>false</isSameRM-override-value>
-     <xa-datasource-class>oracle.jdbc.xa.client.OracleXADataSource</xa-datasource-class>
-     <xa-datasource-property name="URL">jdbc:oracle:thin:@\${nuxeo.db.host}:\${nuxeo.db.port}:\${nuxeo.db.name}</xa-datasource-property>
-     <xa-datasource-property name="User">\${nuxeo.db.user}</xa-datasource-property>
-     <xa-datasource-property name="Password">\${nuxeo.db.password}</xa-datasource-property>
-   </xa-datasource>
-</datasources>
-EOF
-
-    cat > "$JBOSS_HOME"/templates/oracle/config/default-repository-config.xml <<EOF || exit 1
-<?xml version="1.0"?>
-<component name="default-repository-config">
-  <extension target="org.nuxeo.ecm.core.repository.RepositoryService"
-    point="repository">
-    <repository name="default"
-      factory="org.nuxeo.ecm.core.storage.sql.coremodel.SQLRepositoryFactory">
-      <repository name="default">
-      <schema>
-         <field type="largetext">note</field>
-       </schema>
-       <indexing>
-         <!-- for Oracle (Oracle Text indexing parmeters):
-              http://download.oracle.com/docs/cd/B19306_01/text.102/b14218/cdatadic.htm
-         <fulltext analyzer="LEXER MY_LEXER"/>-->
-       </indexing>
-      </repository>
-    </repository>
-  </extension>
-</component>
-EOF
-
-    cat > "$JBOSS_HOME"/templates/oracle/config/sql.properties <<EOF || exit 1
-# Jena database type and transaction mode
-org.nuxeo.ecm.sql.jena.databaseType=Oracle
-org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
-EOF
+    # Available JDBC drivers from private Nexus
+    # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar
+    # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar&c=g
+    # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar
+    # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar&c=g
+    wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar" \
+      -O $JBOSS_HOME"/server/default/lib/ojdbc6-11.2.0.2.jar \
+      || exit 1
 }
 
 setup_mysql_database() {
@@ -365,7 +306,6 @@ nuxeo.db.user=$MYSQL_USER
 nuxeo.db.password=$MYSQL_PASSWORD
 EOF
 
-
     if [ ! -r "$JBOSS_HOME"/server/default/lib/mysql-connector-java-*.jar  ]; then
         wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=nuxeo-central&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" || exit
         cp $MYSQL_JDBC  "$JBOSS_HOME"/server/default/lib/ || exit 1
@@ -377,44 +317,6 @@ CREATE DATABASE $MYSQL_DB
 CHARACTER SET utf8
 COLLATE utf8_bin;
 
-EOF
-
-    # XA raise XAER_RMFAIL  on table creation
-    cat > "$JBOSS_HOME"/templates/mysql/datasources/unified-nuxeo-ds.xml-xa <<EOF || exit 1
-<?xml version="1.0" encoding="UTF-8"?>
-<datasources>
-   <xa-datasource>
-     <jndi-name>NuxeoDS</jndi-name>
-     <track-connection-by-tx/>
-     <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
-     <xa-datasource-property name="URL">jdbc:mysql://\${nuxeo.db.host}:\${nuxeo.db.port}/\${nuxeo.db.name}?relaxAutoCommit=true</xa-datasource-property>
-     <xa-datasource-property name="User">\${nuxeo.db.user}</xa-datasource-property>
-     <xa-datasource-property name="Password">\${nuxeo.db.password}</xa-datasource-property>
-   </xa-datasource>
-</datasources>
-EOF
-
-    cat > "$JBOSS_HOME"/templates/mysql/config/default-repository-config.xml <<EOF || exit 1
-<?xml version="1.0"?>
-<component name="default-repository-config">
-  <extension target="org.nuxeo.ecm.core.repository.RepositoryService"
-    point="repository">
-    <repository name="default"
-      factory="org.nuxeo.ecm.core.storage.sql.coremodel.SQLRepositoryFactory">
-      <repository name="default">
-        <schema>
-          <field type="largetext">note</field>
-        </schema>
-      </repository>
-    </repository>
-  </extension>
-</component>
-EOF
-
-    cat > "$JBOSS_HOME"/templates/mysql/config/sql.properties <<EOF || exit 1
-# Jena database type and transaction mode
-org.nuxeo.ecm.sql.jena.databaseType=MySQL
-org.nuxeo.ecm.sql.jena.databaseTransactionEnabled=false
 EOF
 }
 
