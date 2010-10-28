@@ -52,7 +52,7 @@ fi
 
 
 # Start JBoss
-start_jboss
+start_jboss 127.0.0.1
 
 # Run selenium tests first
 # it requires an empty db

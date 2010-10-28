@@ -106,8 +106,13 @@ deploySRCtoDST() {
 }
 
 start_jboss() {
-    JBOSS=${1:-$JBOSS_HOME}
-    IP=${2:-0.0.0.0}
+    if [ $# == 2 ]; then
+        JBOSS="$1"
+        shift
+    else
+        JBOSS="$JBOSS_HOME"
+    fi
+    IP=${1:-0.0.0.0}
     check_ports_and_kill_ghost_process $IP
     echo "BINDHOST=$IP" > "$JBOSS"/bin/bind.conf
     "$JBOSS"/bin/nuxeoctl start || exit 1

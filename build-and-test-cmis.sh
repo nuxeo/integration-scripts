@@ -15,7 +15,7 @@ setup_jboss
 deploy_ear
 
 # Start Nuxeo
-start_jboss
+start_jboss 127.0.0.1
 
 java -version  2>&1 | grep 1.6.0
 if [ $? == 0 ]; then

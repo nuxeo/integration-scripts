@@ -15,11 +15,11 @@ setup_jboss
 deploy_ear
 
 # Start Nuxeo
-start_jboss
+start_jboss 127.0.0.1
 
 # Run selenium tests
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
-SUITES="suite1 suite2 suite-webengine" HIDE_FF=true "$SELENIUM_PATH"/run.sh
+SUITES="suite1 suite2 suite-webengine" HIDE_FF=true URL=http://127.0.0.1:8080/nuxeo/ "$SELENIUM_PATH"/run.sh
 ret1=$?
 
 # Stop nuxeo

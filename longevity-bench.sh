@@ -41,7 +41,7 @@ if [ ! -z $PGPASSWORD ]; then
 fi
 
 # Start jboss
-start_jboss
+start_jboss 127.0.0.1
 
 # Run simple rest, web and webengine tests
 test_path=$NXDIR/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload/

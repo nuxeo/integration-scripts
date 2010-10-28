@@ -175,13 +175,19 @@ EOF
 }
 
 start_jboss() {
-    if [ ! -e "$JBOSS_HOME"/bin/nuxeo.conf ]; then
-        cp "$HERE"/nuxeo.conf "$JBOSS_HOME"/bin/
+    if [ $# == 2 ]; then
+        JBOSS="$1"
+        shift
+    else
+        JBOSS="$JBOSS_HOME"
     fi
     IP=${1:-0.0.0.0}
+    if [ ! -e "$JBOSS"/bin/nuxeo.conf ]; then
+        cp "$HERE"/nuxeo.conf "$JBOSS"/bin/
+    fi
     check_ports_and_kill_ghost_process $IP
     MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`@$HOSTNAME}
-    cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
+    cat >> "$JBOSS"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.bind.address=$IP
 mail.smtp.host=merguez.in.nuxeo.com
 mail.smtp.port=2500
@@ -192,22 +198,23 @@ JAVA_OPTS=-server -Xms1g -Xmx1g -XX:MaxPermSize=512m \
   -XX:+PrintGCTimeStamps
 EOF
     setup_monitoring $IP
-    echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS_HOME"/templates/common/config/selenium.properties
-    chmod u+x "$JBOSS_HOME"/bin/*.sh "$JBOSS_HOME"/bin/*ctl 2>/dev/null
-    "$JBOSS_HOME"/bin/nuxeoctl start || exit 1
+    echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS"/templates/common/config/selenium.properties
+    chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl 2>/dev/null
+    "$JBOSS"/bin/nuxeoctl start || exit 1
 }
 
 stop_jboss() {
-    "$JBOSS_HOME"/bin/nuxeoctl stop
+    JBOSS=${1:-$JBOSS_HOME}
+    "$JBOSS"/bin/nuxeoctl stop
     if [ -r $PGSQL_OFFSET ]; then
-        $LOGTAIL -f $PGSQL_LOG -o $PGSQL_OFFSET > "$JBOSS_HOME"/log/pgsql.log
+        $LOGTAIL -f $PGSQL_LOG -o $PGSQL_OFFSET > "$JBOSS"/log/pgsql.log
     fi
     if [ ! -z $PGPASSWORD ]; then
-        vacuumdb -fzv $DBNAME -U qualiscope -h localhost -p $DBPORT &> "$JBOSS_HOME"/log/vacuum.log
+        vacuumdb -fzv $DBNAME -U qualiscope -h localhost -p $DBPORT &> "$JBOSS"/log/vacuum.log
     fi
     killall sar
-    gzip "$JBOSS_HOME"/log/*.log
-    gzip -cd  "$JBOSS_HOME"/log/server.log.gz > "$JBOSS_HOME"/log/server.log
+    gzip "$JBOSS"/log/*.log
+    gzip -cd  "$JBOSS"/log/server.log.gz > "$JBOSS"/log/server.log
 }
 
 setup_postgresql_database() {
