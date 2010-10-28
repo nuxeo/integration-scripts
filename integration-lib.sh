@@ -222,8 +222,8 @@ setup_postgresql_database() {
     echo "### Initializing PostgreSQL DATABASE: $DBNAME"
     dropdb $DBNAME -U qualiscope -h localhost -p $DBPORT
     if [ $? != 0 ]; then
-	# try to remove pending transactions
-	psql $DBNAME -U qualiscope -h localhost -p $DBPORT <<EOF
+        # try to remove pending transactions
+        psql $DBNAME -U qualiscope -h localhost -p $DBPORT <<EOF
 \t
 \a
 \o /tmp/hudson-remove-transactions.sql
@@ -234,8 +234,8 @@ SELECT 'ROLLBACK PREPARED ''' || gid || ''';'  AS cmd
 \i /tmp/hudson-remove-transactions.sql
 \q
 EOF
-	sleep 5
-	dropdb $DBNAME -U qualiscope -h localhost -p $DBPORT
+        sleep 5
+        dropdb $DBNAME -U qualiscope -h localhost -p $DBPORT
     fi
     createdb $DBNAME -U qualiscope -h localhost -p $DBPORT || exit 1
     createlang plpgsql $DBNAME -U qualiscope -h localhost -p $DBPORT
@@ -291,8 +291,8 @@ EOF
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar&c=g
     wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar" \
-      -O $JBOSS_HOME"/server/default/lib/ojdbc6-11.2.0.2.jar \
-      || exit 1
+      -O "$JBOSS_HOME"/server/default/lib/ojdbc6-11.2.0.2.jar \
+      || exit 1
 }
 
 setup_mysql_database() {
