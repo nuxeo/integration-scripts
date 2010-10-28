@@ -11,7 +11,7 @@ mkdir ./results ./download || exit 1
 update_distribution_source
 build_jboss
 NEW_JBOSS=true
-setup_jboss
+setup_jboss 127.0.0.1
 deploy_ear
 
 # Start Nuxeo

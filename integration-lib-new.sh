@@ -48,14 +48,19 @@ set_jboss_log4j_level() {
 
 
 setup_jboss() {
-    JBOSS=${1:-$JBOSS_HOME}
+    if [ $# == 2 ]; then
+        JBOSS="$1"
+        shift
+    else
+        JBOSS="$JBOSS_HOME"
+    fi
+    IP=${1:-0.0.0.0}
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
         cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/*jboss "$JBOSS" || exit 1
         if [ ! -e "$JBOSS"/bin/nuxeo.conf ]; then
             cp "$HERE"/nuxeo.conf "$JBOSS"/bin/
         fi
-        IP=${1:-0.0.0.0}
         MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`@$HOSTNAME}
         cat >> "$JBOSS"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.bind.address=$IP

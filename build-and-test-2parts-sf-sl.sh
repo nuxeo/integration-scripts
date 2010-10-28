@@ -15,8 +15,8 @@ update_distribution_source
 
 build_jboss
 
-setup_jboss "$JBOSS_HOME_SF"
-setup_jboss "$JBOSS_HOME_SL"
+setup_jboss "$JBOSS_HOME_SF" 127.0.1.1
+setup_jboss "$JBOSS_HOME_SL" 127.0.1.2
 
 (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ && ./package.sh nuxeo-2parts) || exit 1
 deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/nuxeo-platform-stateful.ear "$JBOSS_HOME_SF"/server/default/deploy/nuxeo.ear
