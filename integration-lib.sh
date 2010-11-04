@@ -262,6 +262,7 @@ setup_oracle_database() {
     ORACLE_USER=${ORACLE_USER:-hudson}
     ORACLE_PASSWORD=${ORACLE_PASSWORD:-ORACLE_USER}
     ORACLE_PORT=${ORACLE_PORT:-1521}
+    ORACLE_VERSION=${ORACLE_VERSION:-11}
 
     cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.templates=oracle
@@ -286,13 +287,16 @@ SET ECHO ON
 EOF
 
     # Available JDBC drivers from private Nexus
+    [ "$ORACLE_VERSION" == "10" ] && \
+        wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar" \
+          -O "$JBOSS_HOME"/server/default/lib/ojdbc14-10.2.0.5.jar
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar&c=g
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar&c=g
-    wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar" \
-      -O "$JBOSS_HOME"/server/default/lib/ojdbc6-11.2.0.2.jar \
-      || exit 1
+    [ "$ORACLE_VERSION" == "11" ] && \
+      wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar" \
+        -O "$JBOSS_HOME"/server/default/lib/ojdbc6-11.2.0.2.jar
 }
 
 setup_mysql_database() {
