@@ -36,8 +36,14 @@ build_jboss() {
 }
 
 build_jboss_ep() {
+    echo "DEPRECATED - Use Nuxeo CAP instead of EP"
     # should detect when it's necessary to rebuild JBoss (libraries or source code changed)
     (cd "$NXDISTRIBUTION" && mvn clean install -Pnuxeo-ep,jboss) || exit 1
+}
+
+build_jboss_cap() {
+    # should detect when it's necessary to rebuild JBoss (libraries or source code changed)
+    (cd "$NXDISTRIBUTION" && mvn clean install -Pnuxeo-cap,jboss) || exit 1
 }
 
 set_jboss_log4j_level() {
