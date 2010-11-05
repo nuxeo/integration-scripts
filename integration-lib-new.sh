@@ -69,6 +69,7 @@ setup_jboss() {
         fi
         MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`@$HOSTNAME}
         cat >> "$JBOSS"/bin/nuxeo.conf <<EOF || exit 1
+nuxeo.templates=default,monitor
 nuxeo.bind.address=$IP
 mail.smtp.host=merguez.in.nuxeo.com
 mail.smtp.port=2500

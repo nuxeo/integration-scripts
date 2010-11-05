@@ -71,107 +71,6 @@ setup_monitoring() {
     sar -d -o "$JBOSS_HOME"/log/sysstat-sar.log 5 1440 >/dev/null 2>&1 &
     # Activate logging monitor
     [ -r "$JBOSS_HOME"/server/default/lib/logging-monitor*.jar ] || cp "$JBOSS_HOME"/docs/examples/jmx/logging-monitor/lib/logging-monitor.jar "$JBOSS_HOME"/server/default/lib/
-    # Add mbean attributes to monitor
-    cat >  "$JBOSS_HOME"/server/default/deploy/webthreads-monitor-service.xml <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE server PUBLIC "-//JBoss//DTD MBean Service 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss-service_4_0.dtd">
-<server>
-  <mbean code="org.jboss.services.loggingmonitor.LoggingMonitor"
-         name="jboss.monitor:type=LoggingMonitor,name=WebThreadMonitor">
-    <attribute name="Filename">\${jboss.server.log.dir}/webthreads.log</attribute>
-    <attribute name="AppendToFile">false</attribute>
-    <attribute name="RolloverPeriod">DAY</attribute>
-    <attribute name="MonitorPeriod">5000</attribute>
-    <attribute name="MonitoredObjects">
-      <configuration>
-        <monitoredmbean name="jboss.web:name=http-$IP-8080,type=ThreadPool" logger="jboss.thread">
-          <attribute>currentThreadCount</attribute>
-          <attribute>currentThreadsBusy</attribute>
-          <attribute>maxThreads</attribute>
-        </monitoredmbean>
-      </configuration>
-    </attribute>
-    <depends>jboss.web:service=WebServer</depends>
-  </mbean>
-</server>
-EOF
-
-    cat >  "$JBOSS_HOME"/server/default/deploy/jvm-monitor-service.xml <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE server PUBLIC "-//JBoss//DTD MBean Service 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss-service_4_0.dtd">
-<server>
-  <mbean code="org.jboss.services.loggingmonitor.LoggingMonitor"
-         name="jboss.monitor:type=LoggingMonitor,name=JVMMonitor">
-    <attribute name="Filename">\${jboss.server.log.dir}/jvm.log</attribute>
-    <attribute name="AppendToFile">false</attribute>
-    <attribute name="RolloverPeriod">DAY</attribute>
-    <attribute name="MonitorPeriod">5000</attribute>
-    <attribute name="MonitoredObjects">
-      <configuration>
-        <monitoredmbean name="jboss.system:type=ServerInfo" logger="jvm">
-          <attribute>ActiveThreadCount</attribute>
-          <attribute>FreeMemory</attribute>
-          <attribute>TotalMemory</attribute>
-          <attribute>MaxMemory</attribute>
-        </monitoredmbean>
-      </configuration>
-    </attribute>
-  </mbean>
-</server>
-EOF
-
-    cat >  "$JBOSS_HOME"/server/default/deploy/default-ds-monitor-service.xml <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE server PUBLIC "-//JBoss//DTD MBean Service 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss-service_4_0.dtd">
-<server>
-  <mbean code="org.jboss.services.loggingmonitor.LoggingMonitor"
-         name="jboss.monitor:type=LoggingMonitor,name=NuxeoDSMonitor">
-    <attribute name="Filename">\${jboss.server.log.dir}/nuxeo-ds.log</attribute>
-    <attribute name="AppendToFile">false</attribute>
-    <attribute name="RolloverPeriod">DAY</attribute>
-    <attribute name="MonitorPeriod">5000</attribute>
-    <attribute name="MonitoredObjects">
-      <configuration>
-        <monitoredmbean name="jboss.jca:name=NuxeoDS,service=ManagedConnectionPool" logger="jca">
-          <attribute>InUseConnectionCount</attribute>
-          <attribute>AvailableConnectionCount</attribute>
-          <attribute>ConnectionCreatedCount</attribute>
-          <attribute>ConnectionDestroyedCount</attribute>
-          <attribute>MaxConnectionsInUseCount</attribute>
-        </monitoredmbean>
-      </configuration>
-    </attribute>
-    <depends>jboss.jca:name=DefaultDS,service=ManagedConnectionPool</depends>
-  </mbean>
-</server>
-EOF
-
-    cat >  "$JBOSS_HOME"/server/default/deploy/vcs-ds-monitor-service.xml <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE server PUBLIC "-//JBoss//DTD MBean Service 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss-service_4_0.dtd">
-<server>
-  <mbean code="org.jboss.services.loggingmonitor.LoggingMonitor"
-         name="jboss.monitor:type=LoggingMonitor,name=VCSDSMonitor">
-    <attribute name="Filename">\${jboss.server.log.dir}/vcs-ds.log</attribute>
-    <attribute name="AppendToFile">false</attribute>
-    <attribute name="RolloverPeriod">DAY</attribute>
-    <attribute name="MonitorPeriod">5000</attribute>
-    <attribute name="MonitoredObjects">
-      <configuration>
-        <monitoredmbean name="jboss.jca:name=NXRepository/default,service=ManagedConnectionPool" logger="jca1">
-          <attribute>InUseConnectionCount</attribute>
-          <attribute>AvailableConnectionCount</attribute>
-          <attribute>ConnectionCreatedCount</attribute>
-          <attribute>ConnectionDestroyedCount</attribute>
-          <attribute>MaxConnectionsInUseCount</attribute>
-        </monitoredmbean>
-      </configuration>
-    </attribute>
-    <depends>jboss.jca:name=DefaultDS,service=ManagedConnectionPool</depends>
-  </mbean>
-</server>
-EOF
-
 }
 
 start_jboss() {
@@ -241,7 +140,7 @@ EOF
     createlang plpgsql $DBNAME -U qualiscope -h localhost -p $DBPORT
 
     cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
-nuxeo.templates=postgresql
+nuxeo.templates=postgresql,monitor
 nuxeo.db.port=$DBPORT
 nuxeo.db.name=$DBNAME
 nuxeo.db.user=qualiscope
@@ -265,7 +164,7 @@ setup_oracle_database() {
     ORACLE_VERSION=${ORACLE_VERSION:-11}
 
     cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
-nuxeo.templates=oracle
+nuxeo.templates=oracle,monitor
 nuxeo.db.host=$ORACLE_HOST
 nuxeo.db.port=$ORACLE_PORT
 nuxeo.db.name=$ORACLE_SID
@@ -309,7 +208,7 @@ setup_mysql_database() {
     MYSQL_JDBC=mysql-connector-java-$MYSQL_JDBC_VERSION.jar
 
     cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
-nuxeo.templates=mysql
+nuxeo.templates=mysql,monitor
 nuxeo.db.host=$MYSQL_HOST
 nuxeo.db.port=$MYSQL_PORT
 nuxeo.db.name=$MYSQL_DB
