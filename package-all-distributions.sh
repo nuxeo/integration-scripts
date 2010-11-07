@@ -10,6 +10,7 @@ TAG=${TAG:-"-I"$(date +"%Y%m%d_%H%M")}
 if [ $TAG = "final" ]; then
     # final release no more tag
     TAG=
+    NO_MERGE=true
 fi
 # label for the zip package
 LABEL=${LABEL:-}
