@@ -5,6 +5,12 @@ NXVERSION=${NXVERSION:-5.4}
 NXDIR="$HERE/src-$NXVERSION"
 NXDISTRIBUTION=${NXDISTRIBUTION:-"$NXDIR"/nuxeo-distribution}
 JBOSS_HOME="$HERE/jboss"
+TOMCAT_HOME="$HERE/tomcat"
+if [ "$SERVER" = "tomcat" ]; then
+    SERVER_HOME="$TOMCAT_HOME"
+else
+    SERVER_HOME="$JBOSS_HOME"
+fi
 DBPORT=${DBPORT:-5432}
 if [ ! -z $PGPASSWORD ]; then
     DBNAME=${DBNAME:-qualiscope-ci-$(( RANDOM%10 ))}
@@ -43,6 +49,8 @@ update_distribution_source() {
 
 # DEPRECATED: deploy into an existing jboss
 build_and_deploy() {
+    echo "ERROR - deprecated method"
+    exit 1
     (cd "$NXDIR" && ant patch -Djboss.dir="$JBOSS_HOME") || exit 1
     (cd "$NXDIR" && ant copy-lib package copy -Djboss.dir="$JBOSS_HOME") || exit 1
 }
@@ -139,7 +147,7 @@ EOF
     createdb $DBNAME -U qualiscope -h localhost -p $DBPORT || exit 1
     createlang plpgsql $DBNAME -U qualiscope -h localhost -p $DBPORT
 
-    cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
+    cat >> "$SERVER_HOME"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.templates=postgresql,monitor
 nuxeo.db.port=$DBPORT
 nuxeo.db.name=$DBNAME
@@ -163,7 +171,7 @@ setup_oracle_database() {
     ORACLE_PORT=${ORACLE_PORT:-1521}
     ORACLE_VERSION=${ORACLE_VERSION:-11}
 
-    cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
+    cat >> "$SERVER_HOME"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.templates=oracle,monitor
 nuxeo.db.host=$ORACLE_HOST
 nuxeo.db.port=$ORACLE_PORT
@@ -188,14 +196,16 @@ EOF
     # Available JDBC drivers from private Nexus
     [ "$ORACLE_VERSION" == "10" ] && \
         wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar" \
-          -O "$JBOSS_HOME"/server/default/lib/ojdbc14-10.2.0.5.jar
+          -O "$JBOSS_HOME"/server/default/lib/ojdbc14-10.2.0.5.jar && \
+        cp "$JBOSS_HOME"/server/default/lib/ojdbc14-10.2.0.5.jar "$TOMCAT_HOME"/lib/
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar&c=g
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar&c=g
     [ "$ORACLE_VERSION" == "11" ] && \
       wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar" \
-        -O "$JBOSS_HOME"/server/default/lib/ojdbc6-11.2.0.2.jar
+        -O "$JBOSS_HOME"/server/default/lib/ojdbc6-11.2.0.2.jar && \
+        cp "$JBOSS_HOME"/server/default/lib/ojdbc14-10.2.0.5.jar "$TOMCAT_HOME"/lib/
 }
 
 setup_mysql_database() {
@@ -207,7 +217,7 @@ setup_mysql_database() {
     MYSQL_JDBC_VERSION=${MYSQL_JDBC_VERSION:-5.1.6}
     MYSQL_JDBC=mysql-connector-java-$MYSQL_JDBC_VERSION.jar
 
-    cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
+    cat >> "$SERVER_HOME"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.templates=mysql,monitor
 nuxeo.db.host=$MYSQL_HOST
 nuxeo.db.port=$MYSQL_PORT
@@ -217,8 +227,12 @@ nuxeo.db.password=$MYSQL_PASSWORD
 EOF
 
     if [ ! -r "$JBOSS_HOME"/server/default/lib/mysql-connector-java-*.jar  ]; then
-        wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=nuxeo-central&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" || exit
-        cp $MYSQL_JDBC  "$JBOSS_HOME"/server/default/lib/ || exit 1
+        wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=nuxeo-central&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" \
+          -O "$JBOSS_HOME"/server/default/lib/$MYSQL_JDBC || exit 1
+    fi
+    if [ ! -r "$TOMCAT_HOME"/lib/mysql-connector-java-*.jar  ]; then
+        wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=nuxeo-central&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" \
+          -O "$TOMCAT_HOME"/lib/$MYSQL_JDBC || exit 1
     fi
     echo "### Initializing MySQL DATABASE: $MYSQL_DB"
     mysql -u $MYSQL_USER --password=$MYSQL_PASSWORD <<EOF || exit 1

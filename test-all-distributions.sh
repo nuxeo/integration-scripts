@@ -1,6 +1,6 @@
 #!/bin/bash -x
 HERE=$(cd $(dirname $0); pwd -P)
-
+SERVER=${SERVER:-jboss}
 . $HERE/integration-lib.sh
 
 LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.4-build/lastBuild/artifact/trunk/release/archives}
@@ -8,30 +8,25 @@ ZIP_FILE=${ZIP_FILE:-}
 SKIP_FUNKLOAD=${SKIP_FUNKLOAD:-}
 
 # Cleaning
-rm -rf ./jboss ./results ./download
+rm -rf ./jboss ./results ./download ./tomcat
 mkdir ./results ./download || exit 1
 
 cd download
-if [ -z $ZIP_FILE ]; then
-    # extract list of links
-    links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u`
-
-    # Download and unpack the latest builds
-    for link in $links; do
-        wget -nv $link || exit 1
-    done
-
-    unzip -q nuxeo-dm*jboss*.zip
-else
-    unzip -q $ZIP_FILE || exit 1
-fi
+# extract list of links
+links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u`
+# Download and unpack the latest builds
+for link in $links; do
+    wget -nv $link || exit 1
+done
+unzip -q nuxeo-dm*tomcat.zip
 cd ..
-
-# JBOSS tests --------------------------------------------------------
-
+build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
+mv $build ./tomcat || exit 1
+cd download
+unzip -q nuxeo-dm*jboss.zip
+cd ..
 build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
 mv $build ./jboss || exit 1
-
 
 # Update selenium tests
 update_distribution_source
