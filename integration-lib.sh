@@ -27,8 +27,9 @@ check_ports_and_kill_ghost_process() {
           echo [WARN] A process is already using port $port: $RUNNING_PID
           echo [WARN] Storing jstack in $PWD/$RUNNING_PID.jstack then killing process
           [ -e /usr/lib/jvm/java-6-sun/bin/jstack ] && /usr/lib/jvm/java-6-sun/bin/jstack $RUNNING_PID >$PWD/$RUNNING_PID.jstack
-          kill $RUNNING_PID || kill -9 $RUNNING_PID
+          kill $RUNNING_PID || true
           sleep 5
+          kill -9 $RUNNING_PID || true
       fi
     done
 }
