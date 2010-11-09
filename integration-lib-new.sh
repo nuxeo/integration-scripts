@@ -128,10 +128,12 @@ start_jboss() {
     check_ports_and_kill_ghost_process $IP
     echo "BINDHOST=$IP" > "$JBOSS"/bin/bind.conf
     "$JBOSS"/bin/nuxeoctl start || exit 1
+    "$JBOSS"/bin/monitorctl.sh start
 }
 
 stop_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
+    "$JBOSS"/bin/monitorctl.sh stop
     "$JBOSS"/bin/nuxeoctl stop
     gzip "$JBOSS"/log/*.log
     gzip -cd  "$JBOSS"/log/server.log.gz 2>/dev/null > "$JBOSS"/log/server.log

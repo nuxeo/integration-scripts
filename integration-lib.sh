@@ -16,8 +16,7 @@ if [ ! -z $PGPASSWORD ]; then
     DBNAME=${DBNAME:-qualiscope-ci-$(( RANDOM%10 ))}
 fi
 PGSQL_LOG=${PGSQL_LOG:-/var/log/pgsql}
-PGSQL_OFFSET="$JBOSS_HOME"/log/pgsql.offset
-LOGTAIL=/usr/sbin/logtail
+
 
 check_ports_and_kill_ghost_process() {
     hostname=${1:-0.0.0.0}
@@ -67,18 +66,7 @@ setup_monitoring() {
     # Change log4j threshold from info to debug
     set_jboss_log4j_level INFO
     mkdir -p "$JBOSS_HOME"/log
-    # postgres
-    if [ ! -z $PGPASSWORD ]; then
-        if [ -r $PGSQL_LOG ]; then
-            rm -rf $PGSQL_OFFSET
-            $LOGTAIL -f $PGSQL_LOG -o $PGSQL_OFFSET > /dev/null
-        fi
-    fi
-    # Let sysstat sar record activity every 5s during 60min
-    killall sar
-    sar -d -o "$JBOSS_HOME"/log/sysstat-sar.log 5 1440 >/dev/null 2>&1 &
-    # Activate logging monitor
-    [ -r "$JBOSS_HOME"/server/default/lib/logging-monitor*.jar ] || cp "$JBOSS_HOME"/docs/examples/jmx/logging-monitor/lib/logging-monitor.jar "$JBOSS_HOME"/server/default/lib/
+    "$JBOSS_HOME"/bin/monitorctl.sh start
 }
 
 start_jboss() {
@@ -112,10 +100,8 @@ EOF
 
 stop_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
+    "$JBOSS"/bin/monitorctl stop
     "$JBOSS"/bin/nuxeoctl stop
-    if [ -r $PGSQL_OFFSET ]; then
-        $LOGTAIL -f $PGSQL_LOG -o $PGSQL_OFFSET > "$JBOSS"/log/pgsql.log
-    fi
     if [ ! -z $PGPASSWORD ]; then
         vacuumdb -fzv $DBNAME -U qualiscope -h localhost -p $DBPORT &> "$JBOSS"/log/vacuum.log
     fi
@@ -155,6 +141,7 @@ nuxeo.db.user=qualiscope
 nuxeo.db.password=$PGPASSWORD
 nuxeo.db.max-pool-size=40
 nuxeo.vcs.max-pool-size=40
+PG_LOG=$PGSQL_LOG
 EOF
 }
 
