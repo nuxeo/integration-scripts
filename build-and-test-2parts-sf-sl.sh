@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 HERE=$(cd $(dirname $0); pwd -P)
-. $HERE/integration-lib-new.sh
+. $HERE/integration-lib.sh
 
 JBOSS_HOME_SF="$JBOSS_HOME"-sf
 JBOSS_HOME_SL="$JBOSS_HOME"-sl
@@ -24,7 +24,7 @@ deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/nuxeo-web-stateles
 
 # Setup PostgreSQL
 if [ ! -z $PGPASSWORD ]; then
-    setup_database
+    setup_postgresql_database
 fi
 
 # Start Nuxeo

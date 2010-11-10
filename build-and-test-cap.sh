@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 HERE=$(cd $(dirname $0); pwd -P)
-. $HERE/integration-lib-new.sh
+. $HERE/integration-lib.sh
 
 # Cleaning
 rm -rf ./jboss ./results ./download
@@ -13,6 +13,11 @@ build_jboss_cap
 NEW_JBOSS=true
 setup_jboss 127.0.0.1
 deploy_ear
+
+# Setup PostgreSQL
+if [ ! -z $PGPASSWORD ]; then
+    setup_postgresql_database
+fi
 
 # Start Nuxeo
 start_jboss 127.0.0.1

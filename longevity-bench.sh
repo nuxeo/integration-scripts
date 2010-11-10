@@ -14,12 +14,10 @@ cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
     links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*nuxeo\-.*.zip\(.md5\)*" | sort -u`
-
     # Download and unpack the lastest builds
     for link in $links; do
         wget -nv $link || exit 1
     done
-
     unzip -q nuxeo-*jboss*.zip
 else
     unzip -q $ZIP_FILE || exit 1
@@ -27,13 +25,12 @@ fi
 cd ..
 
 # JBOSS tests --------------------------------------------------------
-
 build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
 mv $build ./jboss || exit 1
 
-
 # Update funkload/selenium tests
 update_distribution_source
+setup_jboss_conf
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then

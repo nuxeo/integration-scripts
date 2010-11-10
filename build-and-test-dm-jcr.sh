@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 HERE=$(cd $(dirname $0); pwd -P)
-. $HERE/integration-lib-new.sh
+. $HERE/integration-lib.sh
 
 # Cleaning
 rm -rf ./jboss ./results ./download

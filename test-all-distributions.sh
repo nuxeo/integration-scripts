@@ -1,6 +1,6 @@
 #!/bin/bash -x
+
 HERE=$(cd $(dirname $0); pwd -P)
-SERVER=${SERVER:-jboss}
 . $HERE/integration-lib.sh
 
 LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.4-build/lastBuild/artifact/trunk/release/archives}
@@ -30,12 +30,14 @@ mv $build ./jboss || exit 1
 
 # Update selenium tests
 update_distribution_source
+setup_jboss_conf
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
     setup_postgresql_database
 fi
 
+# Use MySQL
 if [ ! -z $MYSQL_HOST ]; then
     setup_mysql_database
 fi
@@ -44,7 +46,6 @@ fi
 if [ ! -z $ORACLE_SID ]; then
     setup_oracle_database
 fi
-
 
 # Start JBoss
 start_jboss 127.0.0.1

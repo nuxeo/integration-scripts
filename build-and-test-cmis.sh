@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 HERE=$(cd $(dirname $0); pwd -P)
-. $HERE/integration-lib-new.sh
+. $HERE/integration-lib.sh
 
 # Cleaning
 rm -rf ./jboss ./results ./download
@@ -14,19 +14,17 @@ NEW_JBOSS=true
 setup_jboss 127.0.0.1
 deploy_ear
 
+# Setup PostgreSQL
+if [ ! -z $PGPASSWORD ]; then
+    setup_database
+fi
+
 # Start Nuxeo
 start_jboss 127.0.0.1
 
-java -version  2>&1 | grep 1.6.0
-if [ $? == 0 ]; then
-    # FunkLoad tests works only with java 1.6.0 (j_ids are changed by java6)
-    (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/cmis; make EXT="--no-color")
-    ret1=$?
-else
-    echo "### JAVA 6 required to run funkload tests."
-    ret1=9
-fi
-
+# FunkLoad tests
+(cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/cmis; make EXT="--no-color")
+ret1=$?
 
 # Stop nuxeo
 stop_jboss

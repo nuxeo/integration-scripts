@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 HERE=$(cd $(dirname $0); pwd -P)
-. $HERE/integration-lib-new.sh
+. $HERE/integration-lib.sh
 
 # Cleaning
 rm -rf ./jboss ./report ./results ./download
@@ -16,25 +16,20 @@ deploy_ear
 
 # Setup PostgreSQL
 if [ ! -z $PGPASSWORD ]; then
-    . $HERE/integration-lib.sh
-    setup_database
+    setup_postgresql_database
 fi
 
 # Start Nuxeo
 start_jboss 127.0.0.1
 
-java -version  2>&1 | grep 1.6.0
-if [ $? == 0 ]; then
-    echo "Benching nuxeo ep ..."
-    # FunkLoad tests works only with java 1.6.0 (j_ids are changed by java6)
-    test_path="$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload/
-    (cd $test_path; make bench-long EXT="--no-color"; ret=$?; make stop; exit $ret)
-    ret1=$?
-    mv "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/ftest/funkload/report .
-else
-    echo "### JAVA 6 required to run funkload tests."
-    ret1=9
-fi
+# Run the bench
+echo "Benching nuxeo ep ..."
+test_path="$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload/
+(cd $test_path; make bench-long EXT="--no-color"; ret=$?; make stop; exit $ret)
+ret1=$?
+
+# Move the bench report
+mv "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/ftest/funkload/report .
 
 # Stop nuxeo
 stop_jboss

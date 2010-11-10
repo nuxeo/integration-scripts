@@ -32,9 +32,9 @@ cd ..
 build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
 mv $build ./tomcat || exit 1
 
-
 # Update selenium tests
 update_distribution_source
+setup_tomcat_conf
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
@@ -52,8 +52,7 @@ if [ ! -z $ORACLE_SID ]; then
 fi
 
 # Start tomcat
-echo "org.nuxeo.systemlog.token=dolog" > tomcat/nxerver/config/selenium.properties
-(cd tomcat/bin; chmod +x *.sh *ctl 2>/dev/null;  ./nuxeoctl start) || exit 1
+start_tomcat
 
 # Run selenium tests first
 # it requires an empty db
@@ -62,20 +61,14 @@ HIDE_FF=true "$SELENIUM_PATH"/run.sh
 ret1=$?
 
 if [ -z $SKIP_FUNKLOAD ]; then
-    java -version  2>&1 | grep 1.6.0
-    if [ $? == 0 ]; then
-        # FunkLoad tests works only with java 1.6.0 (j_ids are changed by java6)
-        (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload; make EXT="--no-color")
-        ret2=$?
-    else
-        ret2=0
-    fi
+    (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload; make EXT="--no-color")
+    ret2=$?
 else
     ret2=0
 fi
 
 # Stop tomcat
-(cd tomcat/bin; ./nuxeoctl stop)
+stop_tomcat
 
 # Exit if some tests failed
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9

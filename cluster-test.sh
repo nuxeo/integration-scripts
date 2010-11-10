@@ -1,12 +1,10 @@
 #!/bin/bash -x
+
 HERE=$(cd $(dirname $0); pwd -P)
-
 . $HERE/integration-lib.sh
-
 LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.4-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 UPLOAD_URL=${UPLOAD_URL:-}
 ZIP_FILE=${ZIP_FILE:-}
-
 
 # Cleaning
 rm -rf ./jboss ./jboss2 ./results ./download ./report /tmp/cluster-binaries
@@ -28,13 +26,12 @@ else
 fi
 cd ..
 
-
 build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
 mv $build ./jboss || exit 1
 
-
 # Update selenium tests
 update_distribution_source
+setup_jboss_conf
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
@@ -72,11 +69,6 @@ SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/sel
 URL=http://127.0.0.1:8000/nuxeo/ HIDE_FF=true "$SELENIUM_PATH"/run.sh
 ret1=$?
 
-# FunkLoad bench
-#test_path=$NXDIR/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload/
-#(cd $test_path; make bench EXT="--no-color" URL=http://127.0.0.1:8000/nuxeo; ret=$?; make stop; exit $ret)
-#ret1=$?
-#mv $NXDIR/nuxeo-distribution/nuxeo-distribution-dm/target/ftest/funkload/report .
 
 
 # Stop --------------------------------------------------

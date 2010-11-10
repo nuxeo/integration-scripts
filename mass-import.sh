@@ -40,6 +40,7 @@ mv $build ./jboss || exit 1
 
 # Update selenium tests
 update_distribution_source
+setup_jboss_conf
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
@@ -47,9 +48,9 @@ if [ ! -z $PGPASSWORD ]; then
 fi
 
 # mass import COMPIL
-npi="$NXDIR/nuxeo-platform-importer"
+npi="./nuxeo-platform-importer"
 if [ ! -d $npi ]; then
-    (cd $NXDIR; hg clone -r 5.2 http://hg.nuxeo.org/sandbox/nuxeo-platform-importer nuxeo-platform-importer) || exit 1
+    hg clone -r 5.2 http://hg.nuxeo.org/sandbox/nuxeo-platform-importer nuxeo-platform-importer || exit 1
 else
     (cd $npi && hg pull && hg up -C 5.2) || exit 1
 fi
@@ -63,12 +64,11 @@ cp ./ooo-config.xml $JBOSS_HOME/server/default/deploy/nuxeo.ear/config/
 # Start jboss
 start_jboss 127.0.0.1
 
-
 # create a document to init the database
 time curl -u Administrator:Administrator "http://127.0.0.1:8080/nuxeo/site/randomImporter/run?targetPath=/default-domain/workspaces&batchSize=10&nbThreads=1&interactive=true&nbNodes=5&fileSizeKB=$FILESIZEKB&bulkMode=true&onlyText=false"
 
 # drop fulltext trigger and gin index
-psql $dbname -U qualiscope -h localhost -p $DBPORT <<EOF || exit 1
+psql $DBNAME -U $DBUSER -h $DBHOST -p $DBPORT <<EOF || exit 1
 DROP TRIGGER IF EXISTS nx_trig_ft_update ON fulltext;
 DROP INDEX IF EXISTS fulltext_fulltext_idx;
 CREATE OR REPLACE FUNCTION nx_to_tsvector(string character varying) RETURNS tsvector
