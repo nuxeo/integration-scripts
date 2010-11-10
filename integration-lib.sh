@@ -5,11 +5,15 @@ NXVERSION=${NXVERSION:-5.4}
 NXDIR="$HERE/src-$NXVERSION"
 NXDISTRIBUTION=${NXDISTRIBUTION:-"$NXDIR"/nuxeo-distribution}
 JBOSS_HOME="$HERE/jboss"
+JBOSS_LIB="$JBOSS_HOME/server/default/lib"
 TOMCAT_HOME="$HERE/tomcat"
+TOMCAT_LIB="$TOMCAT_HOME/lib"
 if [ "$SERVER" = "tomcat" ]; then
     SERVER_HOME="$TOMCAT_HOME"
+    SERVER_LIB="$TOMCAT_LIB"
 else
     SERVER_HOME="$JBOSS_HOME"
+    SERVER_LIB="$JBOSS_LIB"
 fi
 DBPORT=${DBPORT:-5432}
 if [ ! -z $PGPASSWORD ]; then
@@ -184,16 +188,14 @@ EOF
     # Available JDBC drivers from private Nexus
     [ "$ORACLE_VERSION" == "10" ] && \
         wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar" \
-          -O "$JBOSS_HOME"/server/default/lib/ojdbc14-10.2.0.5.jar && \
-        cp "$JBOSS_HOME"/server/default/lib/ojdbc14-10.2.0.5.jar "$TOMCAT_HOME"/lib/
+          -O "$SERVER_LIB"/ojdbc14-10.2.0.5.jar
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar&c=g
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar&c=g
     [ "$ORACLE_VERSION" == "11" ] && \
       wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar" \
-        -O "$JBOSS_HOME"/server/default/lib/ojdbc6-11.2.0.2.jar && \
-        cp "$JBOSS_HOME"/server/default/lib/ojdbc14-10.2.0.5.jar "$TOMCAT_HOME"/lib/
+        -O "$SERVER_LIB"/ojdbc6-11.2.0.2.jar
 }
 
 setup_mysql_database() {
