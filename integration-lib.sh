@@ -176,7 +176,9 @@ stop_jboss() {
     JBOSS=${1:-$JBOSS_HOME}
     "$JBOSS"/bin/monitorctl.sh stop
     "$JBOSS"/bin/nuxeoctl stop
-    "$JBOSS"/bin/monitorctl.sh vacuumdb
+    if [ -z $PGPASSWORD ]; then
+	"$JBOSS"/bin/monitorctl.sh vacuumdb
+    fi
     gzip "$JBOSS"/log/*.log
     gzip -cd  "$JBOSS"/log/server.log.gz 2>/dev/null > "$JBOSS"/log/server.log
 }
