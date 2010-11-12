@@ -187,10 +187,12 @@ start_tomcat() {
     TOMCAT=${1:-$TOMCAT_HOME}
     check_ports_and_kill_ghost_process
     "$TOMCAT"/bin/nuxeoctl start || exit 1
+    "$TOMCAT"/bin/monitorctl.sh start
 }
 
 stop_tomcat() {
     TOMCAT=${1:-$TOMCAT_HOME}
+    "$TOMCAT"/bin/monitorctl.sh stop
     "$TOMCAT"/bin/nuxeoctl stop
     gzip "$TOMCAT"/log/*.log
     gzip -cd  "$TOMCAT"/log/server.log.gz 2>/dev/null > "$TOMCAT"/log/server.log
