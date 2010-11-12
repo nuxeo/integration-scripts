@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+PRODUCT=cap
+SERVER=${SERVER:-jboss}
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
