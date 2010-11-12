@@ -108,12 +108,12 @@ setup_jboss() {
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
         cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/*jboss "$JBOSS" || exit 1
-	setup_server_conf $JBOSS
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
         rm -rf "$JBOSS"/server/default/data/* "$JBOSS"/log/*
     fi
     mkdir -p "$JBOSS"/log
+    setup_server_conf $JBOSS
 }
 
 build_tomcat() {
