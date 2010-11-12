@@ -18,7 +18,7 @@ deploySRCtoDST "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/nuxeo-jcr.ear "$JB
 sed -i "s/<application-policy name = \"other\">/<application-policy name = \"other-notused-for-jcr\">/" $JBOSS_HOME/server/default/conf/login-config.xml
 
 # Start Nuxeo
-start_jboss 127.0.0.1
+start_server 127.0.0.1
 
 # Run selenium tests
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
@@ -26,7 +26,7 @@ SUITES="suite1 suite2 suite-dm suite-webengine suite-webengine-website" HIDE_FF=
 ret1=$?
 
 # Stop Nuxeo
-stop_jboss
+stop_server
 
 # Exit if some tests failed
 [ $ret1 -eq 0 ] || exit 9

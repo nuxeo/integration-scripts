@@ -20,7 +20,7 @@ if [ ! -z $PGPASSWORD ]; then
 fi
 
 # Start Nuxeo
-start_jboss 127.0.0.1
+start_server 127.0.0.1
 
 # Run the bench
 echo "Benching nuxeo ep ..."
@@ -32,7 +32,7 @@ ret1=$?
 mv "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/ftest/funkload/report .
 
 # Stop nuxeo
-stop_jboss
+stop_server
 
 # Exit if some tests failed
 [ $ret1 -eq 0 ] || exit 9

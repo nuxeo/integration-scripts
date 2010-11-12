@@ -1,9 +1,11 @@
 #!/bin/bash -x
 
+PRODUCT=${PRODUCT:-dm}
+SERVER=${SERVER:-jboss}
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
-LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.4-build/lastBuild/artifact/trunk/release/archives}
+LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.4-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 ZIP_FILE=${ZIP_FILE:-}
 SKIP_FUNKLOAD=${SKIP_FUNKLOAD:-}
 
@@ -12,25 +14,21 @@ rm -rf ./jboss ./results ./download ./tomcat
 mkdir ./results ./download || exit 1
 
 cd download
-# extract list of links
-links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u`
-# Download and unpack the latest builds
-for link in $links; do
+if [ -z $ZIP_FILE ]; then
+    # extract list of links
+    link=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v md5`
     wget -nv $link || exit 1
-done
-unzip -q nuxeo-dm*tomcat.zip
+    ZIP_FILE=nuxeo-$PRODUCT*$SERVER.zip
+fi
+unzip -q $ZIP_FILE || exit 1
 cd ..
 build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
-mv $build ./tomcat || exit 1
-cd download
-unzip -q nuxeo-dm*jboss.zip
-cd ..
-build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
-mv $build ./jboss || exit 1
+mv $build ./$SERVER || exit 1
 
 # Update selenium tests
 update_distribution_source
-setup_jboss_conf
+[ "$SERVER" = jboss ] && setup_jboss 127.0.0.1
+[ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
@@ -39,6 +37,10 @@ fi
 
 # Use MySQL
 if [ ! -z $MYSQL_HOST ]; then
+    if [ "$SERVER" = tomcat ];
+        echo ### ERROR: No MySQL template available for Tomcat! 
+        exit 9
+    fi
     setup_mysql_database
 fi
 
@@ -47,8 +49,8 @@ if [ ! -z $ORACLE_SID ]; then
     setup_oracle_database
 fi
 
-# Start JBoss
-start_jboss 127.0.0.1
+# Start Server
+start_server 127.0.0.1
 
 # Run selenium tests first
 # it requires an empty db
@@ -74,7 +76,7 @@ fi
 ret3=0
 
 # Stop nuxeo
-stop_jboss
+stop_server
 
 # Exit if some tests failed
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
@@ -83,8 +85,9 @@ stop_jboss
 # Upload successfully tested package and sources on http://www.nuxeo.org/static/snapshots/
 UPLOAD_URL=${UPLOAD_URL:-}
 SRC_URL=${SRC_URL:-download}
-if [ ! -z $UPLOAD_URL ]; then
+if [ ! -z "$UPLOAD_URL" ]; then
     date
-    scp -C $SRC_URL/*jboss*.zip* $SRC_URL/*sources*.zip $UPLOAD_URL || exit 1
+    scp -C $SRC_URL/$ZIP_FILE $UPLOAD_URL || exit 1
+    [ ! -z "$UPLOAD_SOURCES" ] && scp -C $SRC_URL/*sources*.zip $UPLOAD_URL
     date
 fi

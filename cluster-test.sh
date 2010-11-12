@@ -31,7 +31,7 @@ mv $build ./jboss || exit 1
 
 # Update selenium tests
 update_distribution_source
-setup_jboss_conf
+setup_jboss_conf 127.0.0.1
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
@@ -57,10 +57,10 @@ cp -r ./jboss ./jboss2
 
 # Start two JBoss
 JBOSS_HOME="$HERE/jboss"
-start_jboss 127.0.1.1
+start_server 127.0.1.1
 sleep 10
 JBOSS_HOME="$HERE/jboss2"
-start_jboss 127.0.1.2
+start_server 127.0.1.2
 
 # Test --------------------------------------------------
 # Run selenium tests first
@@ -75,9 +75,9 @@ ret1=$?
 
 kill `cat ./pound.pid`
 JBOSS_HOME="$HERE/jboss"
-stop_jboss
+stop_server
 JBOSS_HOME="$HERE/jboss2"
-stop_jboss
+stop_server
 
 cd "$HERE/jboss2/log"
 for log in *.log.gz; do

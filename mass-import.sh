@@ -40,7 +40,7 @@ mv $build ./jboss || exit 1
 
 # Update selenium tests
 update_distribution_source
-setup_jboss_conf
+setup_jboss 127.0.0.1
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
@@ -62,7 +62,7 @@ find $npi -type f -name '*.[js]ar' ! -name '*sources.jar' | grep target | xargs 
 cp ./ooo-config.xml $JBOSS_HOME/server/default/deploy/nuxeo.ear/config/
 
 # Start jboss
-start_jboss 127.0.0.1
+start_server 127.0.0.1
 
 # create a document to init the database
 time curl -u Administrator:Administrator "http://127.0.0.1:8080/nuxeo/site/randomImporter/run?targetPath=/default-domain/workspaces&batchSize=10&nbThreads=1&interactive=true&nbNodes=5&fileSizeKB=$FILESIZEKB&bulkMode=true&onlyText=false"
@@ -90,7 +90,7 @@ done
 
 
 # Stop nuxeo
-stop_jboss
+stop_server
 
 # Exit if some tests failed
 exit $ret1

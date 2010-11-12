@@ -71,15 +71,10 @@ set_jboss_log4j_level() {
     sed -i "/<root>/,/root>/ s,<level value=.*\$,<level value=\"$LEVEL\"/>," "$JBOSS"/server/default/conf/jboss-log4j.xml
 }
 
-setup_jboss_conf() {
-    if [ $# == 1 ]; then
-        JBOSS="$1"
-        shift
-    else
-        JBOSS="$JBOSS_HOME"
-    fi
+setup_server_conf() {
+    SERVER_HOME=${1:-"$SERVER_HOME"}
     MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`@$HOSTNAME}
-    cat >> "$JBOSS"/bin/nuxeo.conf <<EOF || exit 1
+    cat >> "$SERVER_HOME"/bin/nuxeo.conf <<EOF || exit 1
 nuxeo.templates=default,monitor
 nuxeo.bind.address=$IP
 mail.smtp.host=merguez.in.nuxeo.com
@@ -90,10 +85,16 @@ JAVA_OPTS=-server -Xms$JVM_XMX -Xmx$JVM_XMX -XX:MaxPermSize=512m \
   -Xloggc:\$DIRNAME/../log/gc.log  -verbose:gc -XX:+PrintGCDetails \
   -XX:+PrintGCTimeStamps
 EOF
-    set_jboss_log4j_level $JBOSS INFO
-    chmod u+x "$JBOSS"/bin/*.sh "$JBOSS"/bin/*ctl 2>/dev/null
-    echo "org.nuxeo.systemlog.token=dolog" > "$JBOSS"/templates/common/config/selenium.properties
-    mkdir -p "$JBOSS"/log
+    chmod u+x "$SERVER_HOME"/bin/*.sh "$SERVER_HOME"/bin/*ctl 2>/dev/null
+    
+    if [ "$SERVER" = jboss ]; then
+        set_jboss_log4j_level $SERVER_HOME INFO
+        echo "org.nuxeo.systemlog.token=dolog" > "$SERVER_HOME"/templates/common/config/selenium.properties
+        mkdir -p "$SERVER_HOME"/log
+    fi
+    if [ "$SERVER" = tomcat ]; then
+        echo "org.nuxeo.systemlog.token=dolog" > "$TOMCAT"/nxserver/config/selenium.properties
+    fi
 }
 
 setup_jboss() {
@@ -107,7 +108,7 @@ setup_jboss() {
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
         cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/*jboss "$JBOSS" || exit 1
-	setup_jboss_conf $JBOSS
+	setup_server_conf $JBOSS
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
         rm -rf "$JBOSS"/server/default/data/* "$JBOSS"/log/*
@@ -119,19 +120,14 @@ build_tomcat() {
     (cd "$NXDISTRIBUTION" && mvn clean install -Ptomcat) || exit 1
 }
 
-setup_tomcat_conf() {
-    if [ $# == 1 ]; then
+setup_tomcat() {
+    if [ $# == 2 ]; then
         TOMCAT="$1"
         shift
     else
         TOMCAT="$TOMCAT_HOME"
     fi
-    chmod u+x "$TOMCAT"/bin/*.sh "$TOMCAT"/bin/*ctl 2>/dev/null
-    echo "org.nuxeo.systemlog.token=dolog" > "$TOMCAT"/nxserver/config/selenium.properties
-}
-
-setup_tomcat() {
-    TOMCAT=${1:-$TOMCAT_HOME}
+    IP=${1:-0.0.0.0}
     if [ ! -d "$TOMCAT" ] || [ ! -z $NEW_TOMCAT ] ; then
         [ -d "$TOMCAT" ] && rm -rf "$TOMCAT"
         unzip "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/nuxeo-distribution-tomcat-*-nuxeo-dm.zip -d /tmp/ \
@@ -140,7 +136,7 @@ setup_tomcat() {
         echo "Using previously installed Tomcat. Set NEW_TOMCAT variable to force new TOMCAT deployment"
         rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/* "$TOMCAT"/log/*
     fi
-    setup_tomcat_conf
+    setup_server_conf $TOMCAT
 }
 
 deploy_ear() {
@@ -159,41 +155,24 @@ deploySRCtoDST() {
   cp -r $SRC $DST
 }
 
-start_jboss() {
+start_server() {
     if [ $# == 2 ]; then
-        JBOSS="$1"
+        SERVER_HOME="$1"
         shift
-    else
-        JBOSS="$JBOSS_HOME"
     fi
     IP=${1:-0.0.0.0}
     check_ports_and_kill_ghost_process $IP
-    "$JBOSS"/bin/nuxeoctl start || exit 1
-    "$JBOSS"/bin/monitorctl.sh start
+    "$SERVER_HOME"/bin/nuxeoctl start || exit 1
+    "$SERVER_HOME"/bin/monitorctl.sh start
 }
 
-stop_jboss() {
-    JBOSS=${1:-$JBOSS_HOME}
-    "$JBOSS"/bin/monitorctl.sh stop
-    "$JBOSS"/bin/nuxeoctl stop
+stop_server() {
+    SERVER_HOME=${1:-"$SERVER_HOME"}
+    "$SERVER_HOME"/bin/monitorctl.sh stop
+    "$SERVER_HOME"/bin/nuxeoctl stop
     if [ ! -z $PGPASSWORD ]; then
-	"$JBOSS"/bin/monitorctl.sh vacuumdb
+        "$SERVER_HOME"/bin/monitorctl.sh vacuumdb
     fi
-    gzip "$JBOSS"/log/*.log
-    gzip -cd  "$JBOSS"/log/server.log.gz 2>/dev/null > "$JBOSS"/log/server.log
-}
-
-start_tomcat() {
-    TOMCAT=${1:-$TOMCAT_HOME}
-    check_ports_and_kill_ghost_process
-    "$TOMCAT"/bin/nuxeoctl start || exit 1
-    "$TOMCAT"/bin/monitorctl.sh start
-}
-
-stop_tomcat() {
-    TOMCAT=${1:-$TOMCAT_HOME}
-    "$TOMCAT"/bin/monitorctl.sh stop
-    "$TOMCAT"/bin/nuxeoctl stop
-    gzip "$TOMCAT"/log/*.log
-    gzip -cd  "$TOMCAT"/log/server.log.gz 2>/dev/null > "$TOMCAT"/log/server.log
+    gzip "$SERVER_HOME"/log/*.log
+    gzip -cd  "$SERVER_HOME"/log/server.log.gz 2>/dev/null > "$SERVER_HOME"/log/server.log
 }

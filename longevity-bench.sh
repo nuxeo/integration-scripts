@@ -30,15 +30,15 @@ mv $build ./jboss || exit 1
 
 # Update funkload/selenium tests
 update_distribution_source
-setup_jboss_conf
+setup_jboss 127.0.0.1
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
-    setup_database
+    setup_postgresql_database
 fi
 
 # Start jboss
-start_jboss 127.0.0.1
+start_server 127.0.0.1
 
 # Run simple rest, web and webengine tests
 test_path=$NXDIR/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload/
@@ -47,7 +47,7 @@ ret1=$?
 mv $NXDIR/nuxeo-distribution/nuxeo-distribution-dm/target/ftest/funkload/report .
 
 # Stop nuxeo
-stop_jboss
+stop_server
 
 # Exit if some tests failed
 [ $ret1 -eq 0 ] || exit 9

@@ -28,8 +28,8 @@ if [ ! -z $PGPASSWORD ]; then
 fi
 
 # Start Nuxeo
-start_jboss "$JBOSS_HOME_SF" 127.0.1.1
-start_jboss "$JBOSS_HOME_SL" 127.0.1.2
+start_server "$JBOSS_HOME_SF" 127.0.1.1
+start_server "$JBOSS_HOME_SL" 127.0.1.2
 
 # Run selenium tests (not the webengine suite)
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
@@ -37,8 +37,8 @@ HIDE_FF=true URL=http://127.0.1.2:8080/nuxeo/ SUITES="suite1 suite2 suite-dm" "$
 ret1=$?
 
 # Stop Nuxeo
-stop_jboss "$JBOSS_HOME_SL"
-stop_jboss "$JBOSS_HOME_SF"
+stop_server "$JBOSS_HOME_SL"
+stop_server "$JBOSS_HOME_SF"
 
 # Exit if some tests failed
 [ $ret1 -eq 0 ] || exit 9

@@ -90,10 +90,6 @@ nx-builder -d install || exit 1
 nx-builder -d package || exit 1
 nx-builder -d package-sources || exit 1
 
-if [ $DISTRIBUTIONS = "ALL" ]; then
-    nx-builder -d package-other || exit 1
-fi
-
 cp fallback* archives/
 
 exit 0

@@ -6,7 +6,7 @@ rm -rf jboss
 unzip nuxeo-distribution-jboss/target/nuxeo-distribution-jboss-5.4.1-SNAPSHOT-nuxeo-dm.zip -d /tmp/
 mv /tmp/nuxeo-dm-5.4.1-SNAPSHOT-jboss jboss
 ant copy -Djboss.dir=jboss
-start_jboss 127.0.0.1
+start_server 127.0.0.1
 sleep 5
-stop_jboss
+stop_server
 rm -rf jboss
