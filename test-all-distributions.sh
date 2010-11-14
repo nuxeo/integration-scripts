@@ -27,8 +27,8 @@ mv $build ./$SERVER || exit 1
 
 # Update selenium tests
 update_distribution_source
-[ "$SERVER" = jboss ] && setup_jboss 127.0.0.1
-[ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
+[ "$SERVER" = jboss ] && setup_jboss 127.0.0.1
+[ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
@@ -37,7 +37,7 @@ fi
 
 # Use MySQL
 if [ ! -z $MYSQL_HOST ]; then
-    if [ "$SERVER" = tomcat ];
+    if [ "$SERVER" = tomcat ]; then
         echo ### ERROR: No MySQL template available for Tomcat! 
         exit 9
     fi
