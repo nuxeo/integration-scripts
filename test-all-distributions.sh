@@ -22,7 +22,7 @@ if [ -z $ZIP_FILE ]; then
 fi
 unzip -q $ZIP_FILE || exit 1
 cd ..
-build=$(find ./download -maxdepth 1 -name 'nuxeo-*' -name '*$PRODUCT*' -type d)
+build=$(find ./download -maxdepth 1 -name 'nuxeo-*' -name "*$PRODUCT*" -type d)
 mv $build ./$SERVER || exit 1
 
 # Update selenium tests
