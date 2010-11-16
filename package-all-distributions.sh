@@ -15,7 +15,8 @@ fi
 # label for the zip package
 LABEL=${LABEL:-}
 DISTRIBUTIONS=${DISTRIBUTIONS:-"DEFAULT"}
-DEFAULT_ADDONS=${DEFAULT_ADDONS:-"nuxeo-chemistry
+DEFAULT_ADDONS=${DEFAULT_ADDONS:-"nuxeo-platform-lang-ext
+nuxeo-chemistry
 nuxeo-http-client
 nuxeo-platform-classification
 nuxeo-platform-document-routing
@@ -24,7 +25,6 @@ nuxeo-platform-faceted-search
 nuxeo-platform-forms-layout-demo
 nuxeo-platform-high-availability
 nuxeo-platform-importer
-nuxeo-platform-lang-ext
 nuxeo-platform-login
 nuxeo-correspondence-marianne
 nuxeo-platform-smart-search
