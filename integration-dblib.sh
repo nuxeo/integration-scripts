@@ -12,6 +12,7 @@ setup_postgresql_database() {
     DBPORT=${DBPORT:-5432}
     DBUSER=${DBUSER:-qualiscope}
     DBHOST=${DBHOST:-localhost}
+    PGSQL_LOG=${PGSQL_LOG:-/var/log/pgsql}
     echo "### Initializing PostgreSQL DATABASE: $DBNAME"
     dropdb $DBNAME -U $DBUSER -h $DBHOST -p $DBPORT
     if [ $? != 0 ]; then
