@@ -7,16 +7,16 @@ JVM_XMX=${JVM_XMX:-1g}
 NXVERSION=${NXVERSION:-5.4}
 NXDISTRIBUTION="$HERE/nuxeo-distribution-$NXVERSION"
 JBOSS_HOME="$HERE/jboss"
-JBOSS_LIB="$JBOSS_HOME/server/default/lib"
 TOMCAT_HOME="$HERE/tomcat"
-TOMCAT_LIB="$TOMCAT_HOME/lib"
 SERVER=${SERVER:-jboss}
 
 if [ "$SERVER" = "tomcat" ]; then
     SERVER_HOME="$TOMCAT_HOME"
+    TOMCAT_LIB="$TOMCAT_HOME/lib"
     SERVER_LIB="$TOMCAT_LIB"
 else
     SERVER_HOME="$JBOSS_HOME"
+    JBOSS_LIB="$JBOSS_HOME/server/default/lib"
     SERVER_LIB="$JBOSS_LIB"
 fi
 
@@ -54,13 +54,10 @@ build_jboss() {
 
 build_jboss_ep() {
     echo "DEPRECATED - Use Nuxeo CAP instead of EP"
-    # should detect when it's necessary to rebuild JBoss (libraries or source code changed)
-    (cd "$NXDISTRIBUTION" && mvn clean install -Pnuxeo-ep,jboss) || exit 1
 }
 
-build_jboss_cap() {
-    # should detect when it's necessary to rebuild JBoss (libraries or source code changed)
-    (cd "$NXDISTRIBUTION" && mvn clean install -Pnuxeo-cap,jboss) || exit 1
+build_cap() {
+    (cd "$NXDISTRIBUTION" && mvn install -Pnuxeo-cap,$SERVER) || exit 1
 }
 
 set_jboss_log4j_level() {
@@ -107,7 +104,7 @@ setup_jboss() {
     IP=${1:-0.0.0.0}
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
-        cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/*jboss "$JBOSS" || exit 1
+        cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/*$PRODUCT*jboss "$JBOSS" || exit 1
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
         rm -rf "$JBOSS"/server/default/data/* "$JBOSS"/log/*
@@ -130,8 +127,8 @@ setup_tomcat() {
     IP=${1:-0.0.0.0}
     if [ ! -d "$TOMCAT" ] || [ ! -z $NEW_TOMCAT ] ; then
         [ -d "$TOMCAT" ] && rm -rf "$TOMCAT"
-        unzip "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/nuxeo-distribution-tomcat-*-nuxeo-dm.zip -d /tmp/ \
-        && mv /tmp/nuxeo-dm-*-tomcat "$TOMCAT" || exit 1
+        unzip "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/nuxeo-distribution-tomcat-*$PRODUCT.zip -d /tmp/ \
+        && mv /tmp/*$PRODUCT*-tomcat "$TOMCAT" || exit 1
     else
         echo "Using previously installed Tomcat. Set NEW_TOMCAT variable to force new TOMCAT deployment"
         rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/* "$TOMCAT"/log/*

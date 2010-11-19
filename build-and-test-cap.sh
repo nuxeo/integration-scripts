@@ -11,10 +11,16 @@ mkdir ./results ./download || exit 1
 
 # Build
 update_distribution_source
-build_jboss_cap
-NEW_JBOSS=true
-setup_jboss 127.0.0.1
-deploy_ear
+build_cap
+
+if [ "$SERVER" = "tomcat" ]; then
+    NEW_TOMCAT=true
+    setup_tomcat 127.0.0.1
+else
+    NEW_JBOSS=true
+    setup_jboss 127.0.0.1
+    deploy_ear
+fi
 
 # Setup PostgreSQL
 if [ ! -z $PGPASSWORD ]; then
