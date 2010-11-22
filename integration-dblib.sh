@@ -107,13 +107,9 @@ nuxeo.db.user=$MYSQL_USER
 nuxeo.db.password=$MYSQL_PASSWORD
 EOF
 
-    if [ ! -r "$JBOSS_HOME"/server/default/lib/mysql-connector-java-*.jar  ]; then
+    if [ ! -r "$SERVER_LIB/mysql-connector-java-*.jar  ]; then
         wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=thirdparty-releases&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" \
-          -O "$JBOSS_HOME"/server/default/lib/$MYSQL_JDBC || exit 1
-    fi
-    if [ ! -r "$TOMCAT_HOME"/lib/mysql-connector-java-*.jar  ]; then
-        wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=thirdparty-releases&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" \
-          -O "$TOMCAT_HOME"/lib/$MYSQL_JDBC || exit 1
+          -O "$SERVER_LIB/$MYSQL_JDBC || exit 1
     fi
     echo "### Initializing MySQL DATABASE: $MYSQL_DB"
     mysql -u $MYSQL_USER --password=$MYSQL_PASSWORD <<EOF || exit 1
