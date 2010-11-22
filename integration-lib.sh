@@ -170,8 +170,8 @@ stop_server() {
     if [ ! -z $PGPASSWORD ]; then
         "$SERVER_HOME"/bin/monitorctl.sh vacuumdb
     fi
-    echo "### Error frequencies --------------------"
-    grep " ERROR " "$SERVER_HOME"/log/server.log | sed "s/^.\{24\}//g" | sort | uniq -c | sort -nr
+    echo "### 10 most frequent errors --------------"
+    grep " ERROR \[" "$SERVER_HOME"/log/server.log | sed "s/^.\{24\}//g" | sort | uniq -c | sort -nr | head
     echo "### 10 first errors ----------------------"
     grep -nTm 10 " ERROR " "$SERVER_HOME"/log/server.log
     echo "### --------------------------------------"
