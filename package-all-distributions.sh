@@ -6,11 +6,16 @@ HERE=$(cd $(dirname $0); pwd -P)
 
 ADDONS=${ADDONS:-}
 if [ -z "$TAG" ]; then unset TAG; fi
+if [ -z "$NO_MERGE" ]; then unset NO_MERGE; fi
 TAG=${TAG:-"-I"$(date +"%Y%m%d_%H%M")}
 if [ $TAG = "final" ]; then
     # final release no more tag
     TAG=
-    NO_MERGE=true
+    if [ "$NO_MERGE" = "false" ]; then
+        unset NO_MERGE
+    else
+        NO_MERGE=true
+    fi
 fi
 # label for the zip package
 LABEL=${LABEL:-}
@@ -71,6 +76,9 @@ NX_BRANCH_NULL_MERGE=${NX_BRANCH_NULL_MERGE}
 NXA_BRANCH_NULL_MERGE=${NXA_BRANCH_NULL_MERGE}
 
 NXA_MODULES="$DEFAULT_ADDONS $ADDONS"
+
+NO_MERGE=$NO_MERGE
+NO_BRANCH=$NO_BRANCH
 
 EOF
 
