@@ -5,9 +5,8 @@ HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
 DWS="$HERE"/src
-NXP=${NXP:-5.4}
-NXC=${NXC:-5.4}
-MAVEN_OPTS="-Xmx2048m -Xms512m -XX:MaxPermSize=384m"
+NX=${NX:-5.4}
+MAVEN_OPTS=${MAVEN_OPTS:-"-Xmx2048m -Xms512m -XX:MaxPermSize=384m"}
 export MAVEN_OPTS
 
 if [ ! -e $DWS ]; then
@@ -20,13 +19,11 @@ else
 fi
 
 # Remove existing artifacts
-find ~/.m2/repository/org/nuxeo/ -name "*$NXP*SNAPSHOT*" -delete 2>/dev/null
-find ~/.m2/repository/org/nuxeo/ -name "*$NXC*SNAPSHOT*" -delete 2>/dev/null
+find ~/.m2/repository/org/nuxeo/ -name "*$NX*SNAPSHOT*" -delete 2>/dev/null
 
 cd $DWS/nuxeo || exit 1
-
-hgx $NXP $NXC up -C
-
+hgf up -C $NX
+hgf purge --all
 mvn -Dmaven.test.skip=true clean deploy -Pall-distributions || exit 1
 
 exit 0
