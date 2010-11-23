@@ -8,16 +8,23 @@ NXVERSION=${NXVERSION:-5.4}
 NXDISTRIBUTION="$HERE/nuxeo-distribution-$NXVERSION"
 JBOSS_HOME="$HERE/jboss"
 TOMCAT_HOME="$HERE/tomcat"
+JETTY_HOME="$HERE/jetty"
 SERVER=${SERVER:-jboss}
 
 if [ "$SERVER" = "tomcat" ]; then
     SERVER_HOME="$TOMCAT_HOME"
     TOMCAT_LIB="$TOMCAT_HOME/lib"
     SERVER_LIB="$TOMCAT_LIB"
-else
+elif [ "$SERVER" = "jetty" ]; then
+    SERVER_HOME="$JETTY_HOME"
+    JETTY_LIB="$JETTY_HOME/lib"
+    SERVER_LIB="$JETTY_LIB"
+elif [ "$SERVER" = "jboss" ]; then
     SERVER_HOME="$JBOSS_HOME"
     JBOSS_LIB="$JBOSS_HOME/server/default/lib"
     SERVER_LIB="$JBOSS_LIB"
+else
+    die "ERROR: unknown server! Please set SERVER"
 fi
 
 # include dblib
