@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+PRODUCT=${PRODUCT:-dm}
+SERVER=${SERVER:-jboss}
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
@@ -9,10 +11,16 @@ mkdir ./results ./download || exit 1
 
 # Build
 update_distribution_source
-build_jboss
-NEW_JBOSS=true
-setup_jboss 127.0.0.1
-deploy_ear
+if [ "$SERVER" = "tomcat" ]; then
+    build_tomcat
+    NEW_TOMCAT=true
+    setup_tomcat 127.0.0.1
+else
+    build_jboss
+    NEW_JBOSS=true
+    setup_jboss 127.0.0.1
+    deploy_ear
+fi
 
 # Setup PostgreSQL
 if [ ! -z $PGPASSWORD ]; then
