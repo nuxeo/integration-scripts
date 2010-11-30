@@ -57,11 +57,11 @@ cp -r ./jboss ./jboss2
 ( /usr/sbin/pound -f ./pound.cfg -p ./pound.pid || exit 1 )
 
 # Start two JBoss
-JBOSS_HOME="$HERE/jboss"
-start_server 127.0.1.1
+JBOSS_HOME_1="$HERE/jboss"
+start_server "$JBOSS_HOME_1" 127.0.1.1
 sleep 10
-JBOSS_HOME="$HERE/jboss2"
-start_server 127.0.1.2
+JBOSS_HOME_2="$HERE/jboss2"
+start_server "$JBOSS_HOME_2" 127.0.1.2
 
 # Test --------------------------------------------------
 # Run selenium tests first
@@ -75,10 +75,10 @@ ret1=$?
 # Stop --------------------------------------------------
 
 kill `cat ./pound.pid`
-JBOSS_HOME="$HERE/jboss"
-stop_server
-JBOSS_HOME="$HERE/jboss2"
-stop_server
+JBOSS_HOME_1="$HERE/jboss"
+stop_server "$JBOSS_HOME_1"
+JBOSS_HOME_2="$HERE/jboss2"
+stop_server "$JBOSS_HOME_2"
 
 cd "$HERE/jboss2/log"
 for log in *.log.gz; do
