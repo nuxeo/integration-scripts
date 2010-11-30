@@ -14,7 +14,7 @@ mkdir ./results ./download /tmp/cluster-binaries || exit 1
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*nuxeo\-dm.*.zip" | sort -u`
+    links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*nuxeo\-dm.*.zip" | sort -u | grep -v ear`
 
     # Download and unpack the latest builds
     for link in $links; do
