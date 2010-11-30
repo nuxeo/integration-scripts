@@ -3,6 +3,18 @@
 # DB Setup
 # this lib must be sourced from integration-lib.sh
 
+find_postgresql_log() {
+    echo "$PGSQL_LOG
+/var/log/pgsql
+/var/log/postgresql/postgresql-8.4-main.log
+/var/log/postgresql/postgresql-8.3-main.log" | while read log; do
+	if [ -f "$log" ]; then
+	    PGSQL_LOG=$log
+	    return
+	fi
+    done
+}
+
 setup_postgresql_database() {
     if [ -z $PGPASSWORD ]; then
 	echo "Missing PGPASSWORD to init a PostgreSQL DB"
@@ -12,7 +24,7 @@ setup_postgresql_database() {
     DBPORT=${DBPORT:-5432}
     DBUSER=${DBUSER:-qualiscope}
     DBHOST=${DBHOST:-localhost}
-    PGSQL_LOG=${PGSQL_LOG:-/var/log/pgsql}
+    find_postgresql_log
     echo "### Initializing PostgreSQL DATABASE: $DBNAME"
     dropdb $DBNAME -U $DBUSER -h $DBHOST -p $DBPORT
     if [ $? != 0 ]; then
