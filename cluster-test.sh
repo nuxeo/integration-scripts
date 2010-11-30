@@ -5,6 +5,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.4-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 UPLOAD_URL=${UPLOAD_URL:-}
 ZIP_FILE=${ZIP_FILE:-}
+PRODUCT=${PRODUCT:-dm}
 
 # Cleaning
 rm -rf ./jboss ./jboss2 ./results ./download ./report /tmp/cluster-binaries
@@ -26,7 +27,7 @@ else
 fi
 cd ..
 
-build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
+build=$(find ./download -maxdepth 1 -name 'nuxeo-*' -name "*$PRODUCT*" -type d)
 mv $build ./jboss || exit 1
 
 # Update selenium tests
