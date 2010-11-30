@@ -1,10 +1,10 @@
 #!/bin/bash -x
+PRODUCT=${PRODUCT:-dm}
+SERVER=${SERVER:-jboss}
 HERE=$(cd $(dirname $0); pwd -P)
-
 . $HERE/integration-lib.sh
 
-LASTBUILD_URL=${LASTBUILD_URL:-http://selenium.nuxeo.org/hudson/job/Server_Test_5.2_-_Integration_build/lastSuccessfulBuild/artifact/trunk/release/archives}
-UPLOAD_URL=${UPLOAD_URL:-}
+LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.4-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 ZIP_FILE=${ZIP_FILE:-}
 
 NBNODES=${NBNODES:-1000}
@@ -13,55 +13,43 @@ THREADS=${THREADS:-1 2 3 4 5 6 7 8 9 10 1}
 #THREADS=${THREADS:-1 2 3 4 5 6 1}
 
 # Cleaning
-rm -rf ./jboss ./results ./download
+rm -rf ./jboss ./results ./download ./tomcat
 mkdir ./results ./download || exit 1
 
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*nuxeo\-dm.*.zip" | sort -u`
-
-    # Download and unpack the lastest builds
-    for link in $links; do
-        wget -nv $link || exit 1
-    done
-
-    unzip -q nuxeo-*jboss*.zip
-else
-    unzip -q $ZIP_FILE || exit 1
+    link=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v md5|grep -v ear`
+    wget -nv $link || exit 1
+    ZIP_FILE=nuxeo-$PRODUCT*$SERVER.zip
 fi
+unzip -q $ZIP_FILE || exit 1
 cd ..
-
-# JBOSS tests --------------------------------------------------------
-
-build=$(find ./download -maxdepth 1 -name 'nuxeo-*'  -type d)
-mv $build ./jboss || exit 1
-
+build=$(find ./download -maxdepth 1 -name 'nuxeo-*' -name "*$PRODUCT*" -type d)
+mv $build ./$SERVER || exit 1
 
 # Update selenium tests
 update_distribution_source
-setup_jboss 127.0.0.1
+[ "$SERVER" = jboss ] && setup_jboss 127.0.0.1
+[ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
-    setup_database
+    setup_postgresql_database
 fi
 
 # mass import COMPIL
 npi="./nuxeo-platform-importer"
 if [ ! -d $npi ]; then
-    hg clone -r 5.2 http://hg.nuxeo.org/sandbox/nuxeo-platform-importer nuxeo-platform-importer || exit 1
-else
-    (cd $npi && hg pull && hg up -C 5.2) || exit 1
+    hg clone http://hg.nuxeo.org/sandbox/nuxeo-platform-importer nuxeo-platform-importer || exit 1
 fi
-
+(cd $npi && hg pull && hg up -C 5.4) || exit 1
 (cd $npi; mvn -Dmaven.test.skip=true clean install) || exit 1
-find $npi -type f -name '*.[js]ar' ! -name '*sources.jar' | grep target | xargs -i cp {} $JBOSS_HOME/server/default/deploy/nuxeo.ear/system/ || exit 1
+[ -e $SERVER/nxserver/bundles ] && dest=$SERVER/nxserver/bundles
+[ -e $SERVER/server/default/deploy/nuxeo.ear/system ] && dest=$SERVER/server/default/deploy/nuxeo.ear/system
+find $npi -type f -name '*.[js]ar' ! -name '*sources.jar' | grep target | xargs -i cp {} $dest/ || exit 1
 
-# remove ooo daemon
-cp ./ooo-config.xml $JBOSS_HOME/server/default/deploy/nuxeo.ear/config/
-
-# Start jboss
+# Start Server
 start_server 127.0.0.1
 
 # create a document to init the database
@@ -76,7 +64,6 @@ CREATE OR REPLACE FUNCTION nx_to_tsvector(string character varying) RETURNS tsve
   LANGUAGE 'SQL';
 EOF
 
-
 # Run mass import test
 ret1=9
 
@@ -87,7 +74,6 @@ for thread in $THREADS; do
     ret1=$?
     sleep 30
 done
-
 
 # Stop nuxeo
 stop_server
