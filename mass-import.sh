@@ -41,7 +41,7 @@ fi
 # mass import COMPIL
 npi="./nuxeo-platform-importer"
 if [ ! -d $npi ]; then
-    hg clone http://hg.nuxeo.org/sandbox/nuxeo-platform-importer nuxeo-platform-importer || exit 1
+    hg clone http://hg.nuxeo.org/addons/nuxeo-platform-importer nuxeo-platform-importer || exit 1
 fi
 (cd $npi && hg pull && hg up -C 5.4) || exit 1
 (cd $npi; mvn -Dmaven.test.skip=true clean install) || exit 1
