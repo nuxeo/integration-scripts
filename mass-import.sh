@@ -28,8 +28,6 @@ cd ..
 build=$(find ./download -maxdepth 1 -name 'nuxeo-*' -name "*$PRODUCT*" -type d)
 mv $build ./$SERVER || exit 1
 
-# Update selenium tests
-update_distribution_source
 [ "$SERVER" = jboss ] && setup_jboss 127.0.0.1
 [ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
 
@@ -45,8 +43,9 @@ if [ ! -d $npi ]; then
 fi
 (cd $npi && hg pull && hg up -C 5.4) || exit 1
 (cd $npi; mvn -Dmaven.test.skip=true clean install) || exit 1
-[ -e $SERVER/nxserver/bundles ] && dest=$SERVER/nxserver/bundles
-[ -e $SERVER/server/default/deploy/nuxeo.ear/system ] && dest=$SERVER/server/default/deploy/nuxeo.ear/system
+[ -r $SERVER/nxserver/bundles ] && dest=$SERVER/nxserver/bundles
+[ -r $SERVER/server/default/deploy/nuxeo.ear/bundles ] && dest=$SERVER/server/default/deploy/nuxeo.ear/bundles
+
 find $npi -type f -name '*.[js]ar' ! -name '*sources.jar' | grep target | xargs -i cp {} $dest/ || exit 1
 
 # Start Server
