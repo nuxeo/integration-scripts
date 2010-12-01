@@ -16,6 +16,9 @@ find_postgresql_log() {
 }
 
 setup_postgresql_database() {
+    if [ $# == 1 ]; then
+        SERVER_HOME="$1"
+    fi
     if [ -z $PGPASSWORD ]; then
 	echo "Missing PGPASSWORD to init a PostgreSQL DB"
 	return
@@ -46,19 +49,25 @@ EOF
     createdb $DBNAME -U $DBUSER -h $DBHOST -p $DBPORT || exit 1
     createlang plpgsql $DBNAME -U $DBUSER -h $DBHOST -p $DBPORT
 
-    cat >> "$SERVER_HOME"/bin/nuxeo.conf <<EOF || exit 1
-nuxeo.templates=postgresql,monitor
-nuxeo.db.port=$DBPORT
-nuxeo.db.name=$DBNAME
-nuxeo.db.user=qualiscope
-nuxeo.db.password=$PGPASSWORD
-nuxeo.db.max-pool-size=40
-nuxeo.vcs.max-pool-size=40
-PG_LOG=$PGSQL_LOG
-EOF
+    NUXEO_CONF="$SERVER_HOME"/bin/nuxeo.conf
+    activate_db_template postgresql
+    set_key_value nuxeo.db.port $DBPORT
+    set_key_value nuxeo.db.name $DBNAME
+    set_key_value nuxeo.db.user qualiscope
+    set_key_value nuxeo.db.password $PGPASSWORD
+    set_key_value nuxeo.db.max-pool-size 40
+    set_key_value nuxeo.vcs.max-pool-size 40
+    if [ ! -z "$PGSQL_LOG" ]; then
+        set_key_value PG_LOG $PGSQL_LOG
+    fi
+
 }
 
 setup_oracle_database() {
+    if [ $# == 1 ]; then
+        SERVER_HOME="$1"
+    fi
+
     ORACLE_SID=${ORACLE_SID:-NUXEO}
     ORACLE_HOST=${ORACLE_HOST:-ORACLE_HOST}
     ORACLE_USER=${ORACLE_USER:-hudson}
@@ -66,14 +75,13 @@ setup_oracle_database() {
     ORACLE_PORT=${ORACLE_PORT:-1521}
     ORACLE_VERSION=${ORACLE_VERSION:-11}
 
-    cat >> "$SERVER_HOME"/bin/nuxeo.conf <<EOF || exit 1
-nuxeo.templates=oracle,monitor
-nuxeo.db.host=$ORACLE_HOST
-nuxeo.db.port=$ORACLE_PORT
-nuxeo.db.name=$ORACLE_SID
-nuxeo.db.user=$ORACLE_USER
-nuxeo.db.password=$ORACLE_PASSWORD
-EOF
+    NUXEO_CONF="$SERVER_HOME"/bin/nuxeo.conf
+    activate_db_template oracle
+    set_key_value nuxeo.db.host $ORACLE_HOST
+    set_key_value nuxeo.db.port $ORACLE_PORT
+    set_key_value nuxeo.db.name $ORACLE_SID
+    set_key_value nuxeo.db.user $ORACLE_USER
+    set_key_value nuxeo.db.password $ORACLE_PASSWORD
 
     echo "### Initializing Oracle DATABASE: $ORACLE_SID $ORACLE_USER"
     ssh -o "ConnectTimeout 0" -l oracle $ORACLE_HOST sqlplus $ORACLE_USER/$ORACLE_PASSWORD@$ORACLE_SID << EOF || exit 1
@@ -102,6 +110,10 @@ EOF
 }
 
 setup_mysql_database() {
+    if [ $# == 1 ]; then
+        SERVER_HOME="$1"
+    fi
+
     MYSQL_HOST=${MYSQL_HOST:-localhost}
     MYSQL_PORT=${MYSQL_PORT:-3306}
     MYSQL_DB=${MYSQL_DB:-qualiscope_ci}
@@ -110,14 +122,13 @@ setup_mysql_database() {
     MYSQL_JDBC_VERSION=${MYSQL_JDBC_VERSION:-5.1.6}
     MYSQL_JDBC=mysql-connector-java-$MYSQL_JDBC_VERSION.jar
 
-    cat >> "$SERVER_HOME"/bin/nuxeo.conf <<EOF || exit 1
-nuxeo.templates=mysql,monitor
-nuxeo.db.host=$MYSQL_HOST
-nuxeo.db.port=$MYSQL_PORT
-nuxeo.db.name=$MYSQL_DB
-nuxeo.db.user=$MYSQL_USER
-nuxeo.db.password=$MYSQL_PASSWORD
-EOF
+    NUXEO_CONF="$SERVER_HOME"/bin/nuxeo.conf
+    activate_db_template mysql
+    set_key_value nuxeo.db.host $MYSQL_HOST
+    set_key_value nuxeo.db.port $MYSQL_PORT
+    set_key_value nuxeo.db.name $MYSQL_DB
+    set_key_value nuxeo.db.user $MYSQL_USER
+    set_key_value nuxeo.db.password $MYSQL_PASSWORD
 
     if [ ! -r "$SERVER_LIB/mysql-connector-java-*.jar"  ]; then
         wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=thirdparty-releases&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" \
@@ -135,5 +146,9 @@ EOF
 
 setup_database() {
     # default db is pg
-    setup_postgresql_database
+    if [ $# == 1 ]; then
+        setup_postgresql_database $1
+    else
+        setup_postgresql_database
+    fi
 }

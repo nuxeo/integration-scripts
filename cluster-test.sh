@@ -32,12 +32,12 @@ mv $build ./jboss || exit 1
 
 # Update selenium tests
 update_distribution_source
-setup_jboss_conf 127.0.0.1
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
-    setup_database
+    setup_database "$HERE/jboss"
 fi
+
 
 # remove ooo daemon, set opensocial port
 cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
@@ -56,11 +56,15 @@ cp -r ./jboss ./jboss2
 /usr/sbin/pound -f ./pound.cfg -p ./pound.pid || kill `cat ./pound.pid` && \
 ( /usr/sbin/pound -f ./pound.cfg -p ./pound.pid || exit 1 )
 
-# Start two JBoss
+# Setup both JBoss
 JBOSS_HOME_1="$HERE/jboss"
+setup_jboss "$JBOSS_HOME_1" 127.0.1.1
+JBOSS_HOME_2="$HERE/jboss2"
+setup_jboss "$JBOSS_HOME_2" 127.0.1.2
+
+# And start them
 start_server "$JBOSS_HOME_1" 127.0.1.1
 sleep 10
-JBOSS_HOME_2="$HERE/jboss2"
 start_server "$JBOSS_HOME_2" 127.0.1.2
 
 # Test --------------------------------------------------

@@ -30,6 +30,84 @@ fi
 # include dblib
 . $HERE/integration-dblib.sh
 
+get_templates_list() {
+    if [ -z "$NUXEO_CONF" ]; then
+        echo "[ERROR] NUXEO_CONF must be set"
+        exit 1
+    fi
+    templates=$(grep -E "^#?nuxeo.templates=" $NUXEO_CONF | perl -p -e "s/^#?nuxeo.templates=//" | tr "," " ")
+}
+
+activate_db_template() {
+    if [ -z "$NUXEO_CONF" ]; then
+        echo "[ERROR] NUXEO_CONF must be set"
+        exit 1
+    fi
+    db=${1:-"default"}
+    get_templates_list
+    newtemplates=""
+    for t in $templates; do
+        if [ "$t" = "default" ]; then
+            t=$db
+        fi
+        if [ ! -z $newtemplates ]; then
+            newtemplates+=","
+        fi
+        newtemplates+="$t"
+    done
+    perl -p -i -e "s/^#?nuxeo.templates=.*$/nuxeo.templates=$newtemplates/g" $NUXEO_CONF
+}
+
+activate_template() {
+    if [ -z "$NUXEO_CONF" ]; then
+        echo "[ERROR] NUXEO_CONF must be set"
+        exit 1
+    fi
+    tpl=${1:-""}
+    if [ -z "$tpl" ]; then
+        echo "[ERROR] No template name specified"
+        exit 1
+    fi
+    get_templates_list
+    newtemplates=""
+    tpl_already_exists=false
+    for t in $templates; do
+        if [ "$t" = "$tpl" ]; then
+            tpl_already_exists=true
+        fi
+        if [ ! -z $newtemplates ]; then
+            newtemplates+=","
+        fi
+        newtemplates+="$t"
+    done
+    if [ "$tpl_already_exists" = "false" ]; then
+        if [ ! -z $newtemplates ]; then
+            newtemplates+=","
+        fi
+        newtemplates+="$tpl"
+    fi
+    perl -p -i -e "s/^#?nuxeo.templates=.*$/nuxeo.templates=$newtemplates/g" $NUXEO_CONF
+}
+
+set_key_value() {
+    if [ -z "$NUXEO_CONF" ]; then
+        echo "[ERROR] NUXEO_CONF must be set"
+        exit 1
+    fi
+    if [ "$#" != "2" ]; then
+        echo "[ERROR] Usage: set_key_value key value"
+        exit 1
+    fi
+    key=$1
+    value=$2
+    has_key=$(grep -E "^#?$key=" $NUXEO_CONF | wc -l)
+    if [ "$has_key" = "0" ]; then
+        echo "$key=$value" >> $NUXEO_CONF
+    else
+        perl -p -i -e "s/^#?$key=.*$/$key=$value/g" $NUXEO_CONF
+    fi
+}
+
 check_ports_and_kill_ghost_process() {
     hostname=${1:-0.0.0.0}
     ports=${2:-8080 14440}
@@ -78,16 +156,17 @@ set_jboss_log4j_level() {
 setup_server_conf() {
     SERVER_HOME=${1:-"$SERVER_HOME"}
     MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`@$HOSTNAME}
-    cat >> "$SERVER_HOME"/bin/nuxeo.conf <<EOF || exit 1
-nuxeo.templates=default,monitor
-nuxeo.bind.address=$IP
-mail.smtp.host=merguez.in.nuxeo.com
-mail.smtp.port=2500
-mail.from=$MAIL_FROM
+    NUXEO_CONF="$SERVER_HOME"/bin/nuxeo.conf
+    activate_template monitor
+    set_key_value nuxeo.bind.address $IP
+    set_key_value mail.smtp.host merguez.in.nuxeo.com
+    set_key_value mail.smtp.port 2500
+    set_key_value mail.from $MAIL_FROM
+    cat >> "$NUXEO_CONF" <<EOF || exit 1
 JAVA_OPTS=-server -Xms$JVM_XMX -Xmx$JVM_XMX -XX:MaxPermSize=512m \
-  -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 \
-  -Xloggc:\$DIRNAME/../log/gc.log  -verbose:gc -XX:+PrintGCDetails \
-  -XX:+PrintGCTimeStamps
+-Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 \
+-Xloggc:\$DIRNAME/../log/gc.log  -verbose:gc -XX:+PrintGCDetails \
+-XX:+PrintGCTimeStamps
 EOF
     chmod u+x "$SERVER_HOME"/bin/*.sh "$SERVER_HOME"/bin/*ctl 2>/dev/null
     
