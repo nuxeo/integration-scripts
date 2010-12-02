@@ -4,14 +4,12 @@
 # this lib must be sourced from integration-lib.sh
 
 find_postgresql_log() {
-    echo "$PGSQL_LOG
-/var/log/pgsql
-/var/log/postgresql/postgresql-8.4-main.log
-/var/log/postgresql/postgresql-8.3-main.log" | while read log; do
-	if [ -f "$log" ]; then
-	    PGSQL_LOG=$log
-	    return
-	fi
+    logs=( "$PGSQL_LOG" "/var/log/pgsql" "/var/log/postgresql/postgresql-8.4-main.log" "/var/log/postgresql/postgresql-8.3-main.log" )
+    for ((i=0; i<${#logs[@]}; i++)); do
+        if [ -f "${logs[i]}" ]; then
+            PGSQL_LOG=${logs[i]}
+            return
+        fi
     done
 }
 
