@@ -155,7 +155,7 @@ set_jboss_log4j_level() {
 
 setup_server_conf() {
     SERVER_HOME=${1:-"$SERVER_HOME"}
-    MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`@$HOSTNAME}
+    MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`\@$HOSTNAME}
     NUXEO_CONF="$SERVER_HOME"/bin/nuxeo.conf
     activate_template monitor
     set_key_value nuxeo.bind.address $IP
