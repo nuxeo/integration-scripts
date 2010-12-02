@@ -55,9 +55,9 @@ EOF
     set_key_value nuxeo.db.password $PGPASSWORD
     set_key_value nuxeo.db.max-pool-size 40
     set_key_value nuxeo.vcs.max-pool-size 40
-    if [ ! -z "$PGSQL_LOG" ]; then
-        set_key_value PG_LOG $PGSQL_LOG
-    fi
+    cat >> "$NUXEO_CONF" <<EOF || exit 1
+PG_LOG=$PGSQL_LOG
+EOF
 
 }
 
