@@ -26,8 +26,8 @@ mv $build ./$SERVER || exit 1
 
 # Update selenium tests
 update_distribution_source
-[ "$SERVER" = jboss ] && setup_jboss 127.0.0.1
-[ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
+[ "$SERVER" = jboss ] && setup_jboss localhost
+[ "$SERVER" = tomcat ] && setup_tomcat localhost
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
@@ -53,13 +53,13 @@ cp target/dependency/*.jar $TOMCAT_HOME/nxserver/lib/ || exit 1
 cd $HERE
 cat >> "$NUXEO_CONF" <<EOF || exit 1
 nuxeo.templates=postgresql,$NXGSA/templates/gsa_tomcat
-nuxeo.url=http://127.0.0.1:8080/nuxeo
-gsa.host=127.0.0.1
+nuxeo.url=http://localhost:8080/nuxeo
+gsa.host=localhost
 gsa.feed.port=19900
 EOF
 
 # Start Server
-start_server 127.0.0.1
+start_server localhost
 
 if [ -z $SKIP_FUNKLOAD ]; then
     (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload; make EXT="--no-color")
