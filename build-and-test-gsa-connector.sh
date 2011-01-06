@@ -52,7 +52,7 @@ cp target/dependency/*.jar $TOMCAT_HOME/nxserver/lib/ || exit 1
 
 cd $HERE
 cat >> "$NUXEO_CONF" <<EOF || exit 1
-nuxeo.templates=postgresql,$NXGSA/template/gsa_tomcat
+nuxeo.templates=postgresql,$NXGSA/templates/gsa_tomcat
 nuxeo.url=http://127.0.0.1:8080/nuxeo
 gsa.host=127.0.0.1
 gsa.feed.port=19900
