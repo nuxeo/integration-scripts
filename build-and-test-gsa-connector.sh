@@ -34,20 +34,6 @@ if [ ! -z $PGPASSWORD ]; then
     setup_postgresql_database
 fi
 
-# Use MySQL
-if [ ! -z $MYSQL_HOST ]; then
-    if [ "$SERVER" = tomcat ]; then
-        echo ### ERROR: No MySQL template available for Tomcat! 
-        exit 9
-    fi
-    setup_mysql_database
-fi
-
-# Use oracle
-if [ ! -z $ORACLE_SID ]; then
-    setup_oracle_database
-fi
-
 NXGSA="$HERE/nuxeo-gsa-connector"
 if [ ! -d "$NXGSA" ]; then
     hg clone http://hg.nuxeo.org/sandbox/nuxeo-gsa-connector "$NXGSA" 2>/dev/null || exit 1
@@ -65,11 +51,11 @@ mvn -o clean dependency:copy-dependencies -DexcludeTransitive=true \
 cp target/dependency/*.jar $TOMCAT_HOME/nxserver/lib/ || exit 1
 
 cd $HERE
-activate_db_template postgresql $NXGSA/template/gsa_tomcat
 cat >> "$NUXEO_CONF" <<EOF || exit 1
-    nuxeo.url=http://127.0.0.1:8080/nuxeo
-    gsa.host=127.0.0.1
-    gsa.feed.port=19900
+nuxeo.templates=postgresql,$NXGSA/template/gsa_tomcat
+nuxeo.url=http://127.0.0.1:8080/nuxeo
+gsa.host=127.0.0.1
+gsa.feed.port=19900
 EOF
 
 # Start Server
