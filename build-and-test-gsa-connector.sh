@@ -44,7 +44,7 @@ fi
 # Buid and deploy GSA connector on tomcat
 cd  "$NXGSA"
 mvn clean package || exit 1
-cp target/nuxeo-gsa-connector-*.jar $TOMCAT_HOME/nxserver/bundles/ || exit 1
+cp target/nuxeo-gsa-connector-*-SNAPSHOT.jar $TOMCAT_HOME/nxserver/bundles/ || exit 1
 
 mvn -o clean dependency:copy-dependencies -DexcludeTransitive=true \
     -DincludeGroupIds=com.google,org.springframework,net.jmatrix || exit 1
