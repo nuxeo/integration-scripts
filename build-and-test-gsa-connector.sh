@@ -64,6 +64,8 @@ start_server localhost
 if [ -z $SKIP_FUNKLOAD ]; then
     (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload; make EXT="--no-color")
     ret1=$?
+else
+    ret1=0
 fi
 
 (cd "$NXGSA"/ftest/funkload; make EXT="--no-color -dv")
