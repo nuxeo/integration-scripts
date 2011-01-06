@@ -54,7 +54,7 @@ cd $HERE
 cat >> "$NUXEO_CONF" <<EOF || exit 1
 nuxeo.templates=postgresql,$NXGSA/templates/gsa_tomcat
 nuxeo.url=http://localhost:8080/nuxeo
-gsa.host=localhost
+gsa.host=127.0.0.1
 gsa.feed.port=19900
 EOF
 
