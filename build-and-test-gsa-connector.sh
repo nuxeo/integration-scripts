@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 PRODUCT=${PRODUCT:-dm}
-SERVER=${SERVER:-jboss}
+SERVER=${SERVER:-tomcat}
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
@@ -57,6 +57,9 @@ nuxeo.url=http://localhost:8080/nuxeo
 gsa.host=127.0.0.1
 gsa.feed.port=19900
 EOF
+
+# Setup an ad hoc log4j configuration
+cp $HERE/gsa-tomcat-log4j.xml $TOMCAT_HOME/lib/log4j.xml
 
 # Start Server
 start_server localhost
