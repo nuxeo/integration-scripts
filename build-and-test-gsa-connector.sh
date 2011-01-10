@@ -53,6 +53,8 @@ elif [ "$SERVER" = "jboss" ]; then
     SERVER_BUNDLES=$JBOSS_HOME/server/default/deploy/nuxeo.ear/bundles/
     SERVER_LIB=$JBOSS_HOME/server/default/deploy/nuxeo.ear/lib/
     GSA_TPL=gsa_jboss
+    # disable HDScanner
+    rm $JBOSS_HOME/server/server-profile/deploy/hdscanner-jboss-beans.xml
 fi
 
 # Buid and deploy GSA connector
