@@ -13,6 +13,10 @@ rm -rf ./jboss ./results ./download ./tomcat
 mkdir ./results ./download || exit 1
 
 cd download
+if [ ! -z $ZIP_URL ]; then
+    wget --no-clobber $ZIP_URL 
+    ZIP_FILE=$ZIP_URL
+fi
 if [ -z $ZIP_FILE ]; then
     # extract list of links
     link=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v md5|grep -v ear`
