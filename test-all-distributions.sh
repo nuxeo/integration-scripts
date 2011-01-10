@@ -70,9 +70,6 @@ if [ -z $SKIP_FUNKLOAD ]; then
 else
     ret2=0
 fi
-
-# TODO: test nuxeo shell
-#(cd "$NXDISTRIBUTION"/nuxeo-distribution-shell/ftest/; make)
 ret3=0
 
 # Stop nuxeo
