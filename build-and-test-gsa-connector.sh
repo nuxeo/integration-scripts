@@ -45,25 +45,38 @@ else
     (cd "$NXGSA" && hg pull && hg up -C) || exit 1
 fi
 
-# Buid and deploy GSA connector on tomcat
+if [ "$SERVER" = "tomcat" ]; then
+    SERVER_BUNDLES=$TOMCAT_HOME/nxserver/bundles/
+    SERVER_LIB=$TOMCAT_HOME/nxserver/lib/
+    GSA_TPL=gsa_tomcat
+elif [ "$SERVER" = "jboss" ]; then
+    SERVER_BUNDLES=$JBOSS_HOME/server/default/deploy/nuxeo.ear/bundles/
+    SERVER_LIB=$JBOSS_HOME/server/default/deploy/nuxeo.ear/lib/
+    GSA_TPL=gsa_jboss
+fi
+
+# Buid and deploy GSA connector
 cd  "$NXGSA"
 mvn clean package || exit 1
-cp target/nuxeo-gsa-connector-*-SNAPSHOT.jar $TOMCAT_HOME/nxserver/bundles/ || exit 1
+cp target/nuxeo-gsa-connector-*-SNAPSHOT.jar $SERVER_BUNDLES || exit 1
 
 mvn -o clean dependency:copy-dependencies -DexcludeTransitive=true \
     -DincludeGroupIds=com.google,org.springframework,net.jmatrix || exit 1
-cp target/dependency/*.jar $TOMCAT_HOME/nxserver/lib/ || exit 1
+cp target/dependency/*.jar $SERVER_LIB || exit 1
+
 
 cd $HERE
 cat >> "$NUXEO_CONF" <<EOF || exit 1
-nuxeo.templates=postgresql,$NXGSA/templates/gsa_tomcat
+nuxeo.templates=postgresql,$NXGSA/templates/$GSA_TPL
 nuxeo.url=http://localhost:8080/nuxeo
 gsa.host=127.0.0.1
 gsa.feed.port=19900
 EOF
 
 # Setup an ad hoc log4j configuration
-cp $HERE/gsa-tomcat-log4j.xml $TOMCAT_HOME/lib/log4j.xml
+if [ "$SERVER" = "tomcat" ]; then
+    cp $HERE/gsa-tomcat-log4j.xml $TOMCAT_HOME/lib/log4j.xml
+fi
 
 # Start Server
 start_server localhost
