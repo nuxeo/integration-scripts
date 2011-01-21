@@ -35,7 +35,8 @@ nuxeo-correspondence-marianne
 nuxeo-platform-smart-search
 nuxeo-platform-sync
 nuxeo-platform-video
-nuxeo-platform-audio"}
+nuxeo-platform-audio
+nuxeo-shell"}
 
 # dev workspace
 DWS="$HERE"/dev
