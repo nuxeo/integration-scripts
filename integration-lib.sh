@@ -113,7 +113,7 @@ check_ports_and_kill_ghost_process() {
     ports=${2:-8080 14440}
     for port in $ports; do
       RUNNING_PID=`lsof -n -i TCP@$hostname:$port | grep '(LISTEN)' | awk '{print $2}'`
-      if [ ! -z $RUNNING_PID ]; then 
+      if [ ! -z $RUNNING_PID ]; then
           echo [WARN] A process is already using port $port: $RUNNING_PID
           echo [WARN] Storing jstack in $PWD/$RUNNING_PID.jstack then killing process
           [ -e /usr/lib/jvm/java-6-sun/bin/jstack ] && /usr/lib/jvm/java-6-sun/bin/jstack $RUNNING_PID >$PWD/$RUNNING_PID.jstack
@@ -133,7 +133,6 @@ update_distribution_source() {
 }
 
 build_jboss() {
-    # should detect when it's necessary to rebuild JBoss (libraries or source code changed)
     (cd "$NXDISTRIBUTION" && mvn clean install -Pnuxeo-dm,cmis,jboss,nuxeo-dm-jboss) || exit 1
 }
 
@@ -169,7 +168,7 @@ JAVA_OPTS=-server -Xms$JVM_XMX -Xmx$JVM_XMX -XX:MaxPermSize=512m \
 -XX:+PrintGCTimeStamps
 EOF
     chmod u+x "$SERVER_HOME"/bin/*.sh "$SERVER_HOME"/bin/*ctl 2>/dev/null
-    
+
     if [ "$SERVER" = jboss ]; then
         set_jboss_log4j_level $SERVER_HOME INFO
         echo "org.nuxeo.systemlog.token=dolog" > "$SERVER_HOME"/templates/common/config/selenium.properties
@@ -200,7 +199,7 @@ setup_jboss() {
 }
 
 build_tomcat() {
-    (cd "$NXDISTRIBUTION" && mvn clean install -Ptomcat) || exit 1
+    (cd "$NXDISTRIBUTION" && mvn clean install -Pnuxeo-dm,tomcat) || exit 1
 }
 
 setup_tomcat() {
