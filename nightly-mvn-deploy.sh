@@ -22,6 +22,7 @@ fi
 find ~/.m2/repository/org/nuxeo/ -name "*$NX*SNAPSHOT*" -delete 2>/dev/null
 
 cd $DWS/nuxeo || exit 1
+. scripts/hgfunctions.sh
 hgf up -C $NX
 hgf purge --all
 mvn -Dmaven.test.skip=true clean deploy -Pall-distributions || exit 1
