@@ -36,7 +36,8 @@ nuxeo-platform-smart-search
 nuxeo-platform-sync
 nuxeo-platform-video
 nuxeo-platform-audio
-nuxeo-shell"}
+nuxeo-shell
+nuxeo-filesystem-connectors"}
 
 # dev workspace
 DWS="$HERE"/dev
