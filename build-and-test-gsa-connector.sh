@@ -40,7 +40,7 @@ fi
 
 NXGSA="$HERE/nuxeo-gsa-connector"
 if [ ! -d "$NXGSA" ]; then
-    hg clone http://hg.nuxeo.org/sandbox/nuxeo-gsa-connector "$NXGSA" 2>/dev/null || exit 1
+    hg clone http://hg.nuxeo.org/addons/nuxeo-gsa-connector "$NXGSA" 2>/dev/null || exit 1
 else
     (cd "$NXGSA" && hg pull && hg up -C) || exit 1
 fi
