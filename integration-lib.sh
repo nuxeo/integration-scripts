@@ -164,7 +164,7 @@ setup_server_conf() {
     cat >> "$NUXEO_CONF" <<EOF || exit 1
 JAVA_OPTS=-server -Xms$JVM_XMX -Xmx$JVM_XMX -XX:MaxPermSize=512m \
 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 \
--Xloggc:\$DIRNAME/../log/gc.log  -verbose:gc -XX:+PrintGCDetails \
+-Xloggc:\${nuxeo.log.dir}/gc.log  -verbose:gc -XX:+PrintGCDetails \
 -XX:+PrintGCTimeStamps
 EOF
     chmod u+x "$SERVER_HOME"/bin/*.sh "$SERVER_HOME"/bin/*ctl 2>/dev/null
