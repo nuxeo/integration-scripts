@@ -37,7 +37,8 @@ nuxeo-platform-sync
 nuxeo-platform-video
 nuxeo-platform-audio
 nuxeo-shell
-nuxeo-filesystem-connectors"}
+nuxeo-filesystem-connectors
+nuxeo-opensocial"}
 
 # dev workspace
 DWS="$HERE"/dev
