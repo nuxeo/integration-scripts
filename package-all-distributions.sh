@@ -28,7 +28,6 @@ nuxeo-platform-document-routing
 nuxeo-platform-error-web
 nuxeo-platform-faceted-search
 nuxeo-platform-forms-layout-demo
-nuxeo-platform-high-availability
 nuxeo-platform-importer
 nuxeo-platform-login
 nuxeo-correspondence-marianne
