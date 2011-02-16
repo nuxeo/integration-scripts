@@ -53,8 +53,10 @@ EOF
     set_key_value nuxeo.db.name $DBNAME
     set_key_value nuxeo.db.user qualiscope
     set_key_value nuxeo.db.password $PGPASSWORD
-    set_key_value nuxeo.db.max-pool-size 40
-    set_key_value nuxeo.vcs.max-pool-size 40
+    set_key_value nuxeo.db.max-pool-size 50
+    set_key_value nuxeo.db.min-pool-size 10
+    set_key_value nuxeo.vcs.max-pool-size 50
+    set_key_value nuxeo.vcs.min-pool-size 10
     cat >> "$NUXEO_CONF" <<EOF || exit 1
 PG_LOG=$PGSQL_LOG
 EOF
