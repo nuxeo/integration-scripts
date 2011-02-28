@@ -2,7 +2,7 @@
 
 PRODUCT=${PRODUCT:-dm}
 SERVER=${SERVER:-jboss}
-BENCH_TARGET=${BENCH_TARGET:-bench-reader}
+BENCH_TARGET=${BENCH_TARGET:-start bench-reader stop}
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
