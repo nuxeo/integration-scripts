@@ -71,8 +71,6 @@ for build in builds:
         for item in dom.documentElement.childNodes:
             if item.nodeName == 'description':
                 description = item.childNodes[0].nodeValue
-                if description.startswith('#'):
-                    continue
             if item.nodeName == 'result':
                 result = item.childNodes[0].nodeValue
             elif item.nodeName == 'number':
@@ -82,6 +80,8 @@ for build in builds:
     except IndexError:
         pass
     if result in ('ABORTED', 'FAILURE'):
+        continue
+    if description.startswith('#'):
         continue
     print result, build
 
