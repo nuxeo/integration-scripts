@@ -100,14 +100,15 @@ for build in builds:
         reports.append(report)
         # add a bench metadata if none
         metadata_file = os.path.join(report, 'funkload.metadata')
-        if not os.path.exists(metadata_file):
+        if True # not os.path.exists(metadata_file):
             metadata = []
             if description:
-                label = description | truncate()
+                label = description # | truncate()
                 metadata.append('label: ' + label)
                 metadata.append(description)
-            metadata.append('build: ' + number)
-            metadata.append('builtOn: ' + builtOn)
+            metadata.append("build `%s <%s>`__" % (builtOn, BASE_URL + '/' + number)
+            metadata.append("builtOn: " + builtOn)
+builtOn)
             metadata.append('`bench report <' + BASE_URL + '/' + number + '/artifact/trunk/report/' + os.path.basename(report) + '/index.html#page-stats>`__')
             metadata.append('`monitoring <' + BASE_URL + '/' + number + '/artifact/trunk/monitor/monitor.html>`__')
             f = open(metadata_file, "w+")
