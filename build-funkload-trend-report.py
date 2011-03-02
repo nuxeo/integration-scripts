@@ -100,7 +100,7 @@ for build in builds:
         reports.append(report)
         # add a bench metadata if none
         metadata_file = os.path.join(report, 'funkload.metadata')
-        if True # not os.path.exists(metadata_file):
+        if True: # not os.path.exists(metadata_file):
             metadata = []
             if description:
                 label = description # | truncate()
