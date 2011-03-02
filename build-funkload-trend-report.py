@@ -106,7 +106,7 @@ for build in builds:
                 label = description # | truncate()
                 metadata.append('label: ' + label)
                 metadata.append(description)
-            metadata.append("build `%s <%s>`__" % (builtOn, BASE_URL + '/' + number)
+            metadata.append("build `%s <%s>`__" % (builtOn, BASE_URL + '/' + number))
             metadata.append("builtOn: " + builtOn)
 builtOn)
             metadata.append('`bench report <' + BASE_URL + '/' + number + '/artifact/trunk/report/' + os.path.basename(report) + '/index.html#page-stats>`__')
