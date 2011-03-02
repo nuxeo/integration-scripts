@@ -108,7 +108,6 @@ for build in builds:
                 metadata.append(description)
             metadata.append("build `%s <%s>`__" % (builtOn, BASE_URL + '/' + number))
             metadata.append("builtOn: " + builtOn)
-builtOn)
             metadata.append('`bench report <' + BASE_URL + '/' + number + '/artifact/trunk/report/' + os.path.basename(report) + '/index.html#page-stats>`__')
             metadata.append('`monitoring <' + BASE_URL + '/' + number + '/artifact/trunk/monitor/monitor.html>`__')
             f = open(metadata_file, "w+")
