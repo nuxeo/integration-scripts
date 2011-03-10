@@ -25,6 +25,6 @@ cd $DWS/nuxeo || exit 1
 . scripts/hgfunctions.sh
 hgf up -C $NX
 hgf purge --all
-mvn -Dmaven.test.skip=true clean deploy -Pall-distributions || exit 1
+mvn -Dmaven.test.skip=true clean deploy -Pnightly,all-distributions || exit 1
 
 exit 0
