@@ -37,7 +37,8 @@ nuxeo-platform-video
 nuxeo-platform-audio
 nuxeo-shell
 nuxeo-filesystem-connectors
-nuxeo-opensocial"}
+nuxeo-opensocial
+nuxeo-user-center"}
 
 # dev workspace
 DWS="$HERE"/dev
