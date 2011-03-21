@@ -20,25 +20,6 @@ fi
 # label for the zip package
 LABEL=${LABEL:-}
 DISTRIBUTIONS=${DISTRIBUTIONS:-"DEFAULT"}
-DEFAULT_ADDONS=${DEFAULT_ADDONS:-"nuxeo-platform-lang-ext
-nuxeo-chemistry
-nuxeo-http-client
-nuxeo-platform-classification
-nuxeo-platform-document-routing
-nuxeo-platform-error-web
-nuxeo-platform-faceted-search
-nuxeo-platform-forms-layout-demo
-nuxeo-platform-importer
-nuxeo-platform-login
-nuxeo-correspondence-marianne
-nuxeo-platform-smart-search
-nuxeo-platform-sync
-nuxeo-platform-video
-nuxeo-platform-audio
-nuxeo-shell
-nuxeo-filesystem-connectors
-nuxeo-opensocial
-nuxeo-user-center"}
 
 # dev workspace
 DWS="$HERE"/dev
@@ -93,7 +74,7 @@ NXA_NEXT_SNAPSHOT=$NXA_NEXT_SNAPSHOT
 NX_BRANCH_NULL_MERGE=${NX_BRANCH_NULL_MERGE}
 NXA_BRANCH_NULL_MERGE=${NXA_BRANCH_NULL_MERGE}
 
-NXA_MODULES="$DEFAULT_ADDONS $ADDONS"
+NXADD_MODULES="$ADDONS"
 
 NO_MERGE=$NO_MERGE
 NO_BRANCH=$NO_BRANCH
