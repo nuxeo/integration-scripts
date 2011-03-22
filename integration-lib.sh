@@ -10,6 +10,7 @@ JBOSS_HOME="$HERE/jboss"
 TOMCAT_HOME="$HERE/tomcat"
 JETTY_HOME="$HERE/jetty"
 SERVER=${SERVER:-jboss}
+DELAYED=${DELAYED:-0}
 
 if [ "$SERVER" = "tomcat" ]; then
     SERVER_HOME="$TOMCAT_HOME"
@@ -246,6 +247,7 @@ start_server() {
     check_ports_and_kill_ghost_process $IP
     "$SERVER_HOME"/bin/nuxeoctl start || exit 1
     "$SERVER_HOME"/bin/monitorctl.sh start
+    sleep $DELAYED
 }
 
 stop_server() {
