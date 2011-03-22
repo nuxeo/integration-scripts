@@ -82,6 +82,8 @@ setup_oracle_database() {
     set_key_value nuxeo.db.name $ORACLE_SID
     set_key_value nuxeo.db.user $ORACLE_USER
     set_key_value nuxeo.db.password $ORACLE_PASSWORD
+    # Oracle VM are very slow
+    set_key_value launcher.start.max.wait 1200
 
     echo "### Initializing Oracle DATABASE: $ORACLE_SID $ORACLE_USER"
     ssh -o "ConnectTimeout 0" -l oracle $ORACLE_HOST sqlplus $ORACLE_USER/$ORACLE_PASSWORD@$ORACLE_SID << EOF || exit 1
