@@ -246,8 +246,8 @@ start_server() {
     IP=${1:-0.0.0.0}
     check_ports_and_kill_ghost_process $IP
     "$SERVER_HOME"/bin/nuxeoctl start || exit 1
-    "$SERVER_HOME"/bin/monitorctl.sh start
     sleep $DELAYED
+    "$SERVER_HOME"/bin/monitorctl.sh start
 }
 
 stop_server() {
