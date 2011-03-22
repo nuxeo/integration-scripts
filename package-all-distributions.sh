@@ -55,7 +55,7 @@ NXA_NEXT_SNAPSHOT=${NXA_NEXT_SNAPSHOT:-5.4.2-SNAPSHOT}
 # setup nx configuration file
 cat > nx-builder.conf <<EOF
 NX_HG=$DWS/nuxeo
-NXA_HG=$DWS/addons
+NXA_HG=$DWS/nuxeo/addons
 MVNOPTS=
 MAVEN_PROFILES=all-distributions
 JBOSS_PATCH=patch
