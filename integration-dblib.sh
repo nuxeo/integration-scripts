@@ -107,10 +107,8 @@ EOF
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar
     # http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar&c=g
     [ "$ORACLE_VERSION" == "11" ] && \
-        wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc14&v=10.2.0.5&e=jar" \
-          -O "$SERVER_LIB"/ojdbc14-10.2.0.5.jar
-#      wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar" \
-#        -O "$SERVER_LIB"/ojdbc6-11.2.0.2.jar
+      wget "http://mavenpriv.in.nuxeo.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.oracle&a=ojdbc6&v=11.2.0.2&e=jar" \
+        -O "$SERVER_LIB"/ojdbc6-11.2.0.2.jar
 }
 
 setup_mysql_database() {
