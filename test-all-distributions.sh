@@ -38,7 +38,7 @@ fi
 # Use MySQL
 if [ ! -z $MYSQL_HOST ]; then
     if [ "$SERVER" = tomcat ]; then
-        echo ### ERROR: No MySQL template available for Tomcat! 
+        echo ### ERROR: No MySQL template available for Tomcat!
         exit 9
     fi
     setup_mysql_database
@@ -54,6 +54,7 @@ start_server 127.0.0.1
 
 # Run selenium tests first
 # it requires an empty db
+rm -f $HERE/nuxeo-distribution-*/nuxeo-distribution-dm/ftest/selenium/result-* 2>/dev/null
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
 HIDE_FF=true "$SELENIUM_PATH"/run.sh
 ret1=$?
