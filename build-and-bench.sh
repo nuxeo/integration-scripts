@@ -29,7 +29,7 @@ if [ ! -z $PGPASSWORD ]; then
 fi
 
 cat >> "$NUXEO_CONF" <<EOF || exit 1
-JAVA_OPTS=$JAVA_OPTS -Dorg.nuxeo.runtime.redirectJUL=false
+JAVA_OPTS=\$JAVA_OPTS -Dorg.nuxeo.runtime.redirectJUL=false
 EOF
 
 # Start Nuxeo
