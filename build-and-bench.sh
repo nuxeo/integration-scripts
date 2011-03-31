@@ -28,10 +28,6 @@ if [ ! -z $PGPASSWORD ]; then
     setup_postgresql_database
 fi
 
-cat >> "$NUXEO_CONF" <<EOF || exit 1
-JAVA_OPTS=\$JAVA_OPTS -Dorg.nuxeo.runtime.redirectJUL=false
-EOF
-
 # Start Nuxeo
 start_server 127.0.0.1
 
