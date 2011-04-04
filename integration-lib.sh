@@ -162,6 +162,10 @@ setup_server_conf() {
     set_key_value mail.smtp.host merguez.in.nuxeo.com
     set_key_value mail.smtp.port 2500
     set_key_value mail.from $MAIL_FROM
+    # Workaround for broken jps in Java 6u24
+    # http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7021676
+    # http://www.linuxweblog.com/jps-jstat-tomcat
+    set_key_value launcher.override.java.tmpdir false
     cat >> "$NUXEO_CONF" <<EOF || exit 1
 JAVA_OPTS=-server -Xms$JVM_XMX -Xmx$JVM_XMX -XX:MaxPermSize=512m \
 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 \
