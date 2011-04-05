@@ -251,6 +251,9 @@ start_server() {
     check_ports_and_kill_ghost_process $IP
     "$SERVER_HOME"/bin/nuxeoctl start || exit 1
     sleep $DELAYED
+    if [ ! -z $MONITOR_THREAD_CONTENTION ]; then
+	"$SERVER_HOME"/bin/monitorctl.sh enable-cm
+    fi
     "$SERVER_HOME"/bin/monitorctl.sh start
 }
 
