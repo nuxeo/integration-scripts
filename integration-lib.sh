@@ -180,7 +180,7 @@ EOF
         mkdir -p "$SERVER_HOME"/log
     fi
     if [ "$SERVER" = tomcat ]; then
-        echo "org.nuxeo.systemlog.token=dolog" > "$TOMCAT"/nxserver/config/selenium.properties
+        echo "org.nuxeo.systemlog.token=dolog" > "$TOMCAT"/templates/common/config/selenium.properties
     fi
 }
 
