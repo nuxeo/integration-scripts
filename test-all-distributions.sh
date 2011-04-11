@@ -37,10 +37,6 @@ fi
 
 # Use MySQL
 if [ ! -z $MYSQL_HOST ]; then
-    if [ "$SERVER" = tomcat ]; then
-        echo ### ERROR: No MySQL template available for Tomcat!
-        exit 9
-    fi
     setup_mysql_database
 fi
 

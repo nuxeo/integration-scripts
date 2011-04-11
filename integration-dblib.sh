@@ -18,8 +18,8 @@ setup_postgresql_database() {
         SERVER_HOME="$1"
     fi
     if [ -z $PGPASSWORD ]; then
-	echo "Missing PGPASSWORD to init a PostgreSQL DB"
-	return
+        echo "Missing PGPASSWORD to init a PostgreSQL DB"
+        return
     fi
     DBNAME=${DBNAME:-qualiscope-ci-$(( RANDOM%10 ))}
     DBPORT=${DBPORT:-5432}
@@ -133,7 +133,7 @@ setup_mysql_database() {
     set_key_value nuxeo.db.password $MYSQL_PASSWORD
 
     if [ ! -r "$SERVER_LIB/mysql-connector-java-*.jar"  ]; then
-        wget "http://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=thirdparty-releases&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" \
+        wget --no-check-certificate "https://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=thirdparty-releases&g=mysql&a=mysql-connector-java&v=$MYSQL_JDBC_VERSION&p=jar" \
           -O "$SERVER_LIB/$MYSQL_JDBC" || exit 1
     fi
     echo "### Initializing MySQL DATABASE: $MYSQL_DB"
