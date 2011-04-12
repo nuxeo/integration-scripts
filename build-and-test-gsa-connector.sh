@@ -82,6 +82,7 @@ if [ "$SERVER" = "tomcat" ]; then
 fi
 
 # Start Server
+set_key_value nuxeo.wizard.done true
 start_server localhost
 
 if [ -z $SKIP_FUNKLOAD ]; then
