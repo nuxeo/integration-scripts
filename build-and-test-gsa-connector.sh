@@ -29,6 +29,7 @@ build=$(find ./download -maxdepth 1 -name 'nuxeo-*' -name "*$PRODUCT*" -type d)
 mv $build ./$SERVER || exit 1
 
 # Update selenium tests
+NXVERSION=5.4.1
 update_distribution_source
 [ "$SERVER" = jboss ] && setup_jboss localhost
 [ "$SERVER" = tomcat ] && setup_tomcat localhost
