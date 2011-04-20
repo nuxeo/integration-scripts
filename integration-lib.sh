@@ -159,6 +159,7 @@ setup_server_conf() {
     NUXEO_CONF="$SERVER_HOME"/bin/nuxeo.conf
     activate_template monitor
     set_key_value nuxeo.bind.address $IP
+    set_key_value nuxeo.loopback.url http://$IP/nuxeo
     set_key_value mail.smtp.host merguez.in.nuxeo.com
     set_key_value mail.smtp.port 2500
     set_key_value mail.from $MAIL_FROM
