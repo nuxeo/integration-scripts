@@ -79,6 +79,7 @@ stop_server
 # Run WebDriver tests
 if [ "$SERVER" = "tomcat" ]; then
     mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml -Dzip.file=$HERE/download/$ZIP_FILE
+    [ $? == 0 ] || exit 9
 fi
 
 # Upload successfully tested package and sources on http://www.nuxeo.org/static/snapshots/
