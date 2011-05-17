@@ -18,7 +18,7 @@ if [ -z $ZIP_FILE ]; then
     # extract list of links
     link=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v md5|grep -v ear`
     wget -nv $link || exit 1
-    ZIP_FILE=nuxeo-$PRODUCT*$SERVER.zip
+    ZIP_FILE=$(ls nuxeo-$PRODUCT*$SERVER.zip)
 fi
 unzip -q $ZIP_FILE || exit 1
 cd ..
