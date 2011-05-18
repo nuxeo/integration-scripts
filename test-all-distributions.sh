@@ -77,7 +77,7 @@ stop_server
 [ $ret3 -eq 0 ] || exit 9
 
 # Run WebDriver tests
-if [ "$SERVER" = "tomcat" ]; then
+if [ "$SERVER" = "tomcat" ] && [ -e "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml ]; then
     mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml -Dzip.file=$HERE/download/$ZIP_FILE
     [ $? == 0 ] || exit 9
 fi

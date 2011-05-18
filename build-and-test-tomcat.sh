@@ -36,5 +36,7 @@ stop_server
 [ $ret1 -eq 0 ] || exit 9
 
 # Run WebDriver tests
-mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml
-[ $? == 0 ] || exit 9
+if [ -e "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml ]; then
+    mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml
+    [ $? == 0 ] || exit 9
+fi
