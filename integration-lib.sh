@@ -5,7 +5,7 @@
 HERE=$(cd $(dirname $0); pwd -P)
 JVM_XMX=${JVM_XMX:-1g}
 NXVERSION=${NXVERSION:-5.4}
-NXDISTRIBUTION="$HERE/nuxeo-distribution-$NXVERSION"
+NXDISTRIBUTION="$HERE/nuxeo-$NXVERSION/nuxeo-distribution"
 JBOSS_HOME="$HERE/jboss"
 TOMCAT_HOME="$HERE/tomcat"
 JETTY_HOME="$HERE/jetty"
@@ -126,6 +126,7 @@ check_ports_and_kill_ghost_process() {
 }
 
 update_distribution_source() {
+    echo DEPRECATED - sources are available in $HERE/nuxeo-$NXVERSION/
     if [ ! -d "$NXDISTRIBUTION" ]; then
         hg clone -r $NXVERSION http://hg.nuxeo.org/nuxeo/nuxeo-distribution "$NXDISTRIBUTION" 2>/dev/null || exit 1
     else

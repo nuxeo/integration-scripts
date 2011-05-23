@@ -92,4 +92,13 @@ nx-builder -d package-sources || exit 1
 
 cp fallback* archives/
 
+## Synchronize repositories between slaves
+for i in 1 2; do
+    NODE=`lynx --dump "http://qa.nuxeo.org/jenkins/label/IT/api/xml?xpath=/*/node[$i]/nodeName/text()"`
+    if [ ! "$HOSTNAME" = "$NODE" ]; then
+        find ~/.m2/repository/org/nuxeo/ -name "*${NX_TAG:-5.4.2$TAG}*" >/tmp/filestosync
+        rsync -z --files-from=/tmp/filestosync / $NODE:/
+    fi
+done
+
 exit 0

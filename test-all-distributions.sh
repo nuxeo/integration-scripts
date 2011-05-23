@@ -3,7 +3,6 @@
 PRODUCT=${PRODUCT:-dm}
 SERVER=${SERVER:-jboss}
 HERE=$(cd $(dirname $0); pwd -P)
-. $HERE/integration-lib.sh
 
 LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.4-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 ZIP_FILE=${ZIP_FILE:-}
@@ -15,7 +14,7 @@ mkdir ./results ./download || exit 1
 
 cd download
 if [ -z $ZIP_FILE ]; then
-    # extract list of links
+    # extract link
     link=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v md5|grep -v ear`
     wget -nv $link || exit 1
     ZIP_FILE=$(ls nuxeo-$PRODUCT*$SERVER.zip)
@@ -25,8 +24,25 @@ cd ..
 build=$(find ./download -maxdepth 1 -name 'nuxeo-*' -name "*$PRODUCT*" -type d)
 mv $build ./$SERVER || exit 1
 
+NXVERSION=`basename $ZIP_FILE`
+NXVERSION=${NXVERSION#nuxeo-$PRODUCT-}
+NXVERSION=${NXVERSION%-$SERVER.zip}
+
+# Download sources (or copy if local)
+SOURCES_ZIP_FILE=`dirname $ZIP_FILE`/nuxeo-$NXVERSION-sources.zip
+cd download
+if [ ! -e $SOURCES_ZIP_FILE ]; then
+    # extract link
+    link=`lynx --dump $LASTBUILD_URL |grep -o "http:.*archives\/.*sources.*\.zip"| sort -u`
+    wget -nv $link || exit 1
+    SOURCES_ZIP_FILE=$(ls *sources*.zip)
+fi
+unzip -q $SOURCES_ZIP_FILE -d ../nuxeo-$NXVERSION || exit 1
+cd ..
+
+. $HERE/integration-lib.sh
+
 # Update selenium tests
-update_distribution_source
 [ "$SERVER" = jboss ] && setup_jboss 127.0.0.1
 [ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
 
@@ -51,6 +67,7 @@ start_server 127.0.0.1
 # Run selenium tests first
 # it requires an empty db
 rm -f $HERE/nuxeo-distribution-*/nuxeo-distribution-dm/ftest/selenium/result-* 2>/dev/null
+rm -f $HERE/nuxeo-*/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/result-* 2>/dev/null
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
 HIDE_FF=true "$SELENIUM_PATH"/run.sh
 ret1=$?
