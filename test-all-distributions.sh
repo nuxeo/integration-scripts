@@ -9,7 +9,7 @@ ZIP_FILE=${ZIP_FILE:-}
 SKIP_FUNKLOAD=${SKIP_FUNKLOAD:-}
 
 # Cleaning
-rm -rf ./jboss ./results ./download ./tomcat
+rm -rf ./jboss ./results ./download ./tomcat ./nuxeo-*/
 mkdir ./results ./download || exit 1
 
 cd download
