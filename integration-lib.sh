@@ -125,9 +125,10 @@ check_ports_and_kill_ghost_process() {
     done
 }
 
+# IT tests should not call that function, but download sources to be tested
 update_distribution_source() {
-    echo DEPRECATED - sources are available in $HERE/nuxeo-$NXVERSION/
     if [ ! -d "$NXDISTRIBUTION" ]; then
+        [ ! -d `dirname "$NXDISTRIBUTION"` ] && mkdir -p `dirname "$NXDISTRIBUTION"`
         hg clone -r $NXVERSION http://hg.nuxeo.org/nuxeo/nuxeo-distribution "$NXDISTRIBUTION" 2>/dev/null || exit 1
     else
         (cd "$NXDISTRIBUTION" && hg pull && hg up -C $NXVERSION) || exit 1
