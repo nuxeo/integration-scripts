@@ -99,7 +99,7 @@ if [ "$SERVER" = "tomcat" ] && [ -e "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-
     [ $? == 0 ] || exit 9
 fi
 
-# Upload successfully tested package and sources on http://www.nuxeo.org/static/snapshots/
+# Upload successfully tested package and sources on $UPLOAD_URL
 UPLOAD_URL=${UPLOAD_URL:-}
 SRC_URL=${SRC_URL:-download}
 if [ ! -z "$UPLOAD_URL" ]; then
