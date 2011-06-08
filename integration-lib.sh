@@ -105,7 +105,7 @@ set_key_value() {
     if [ "$has_key" = "0" ]; then
         echo "$key=$value" >> $NUXEO_CONF
     else
-        perl -p -i -e "s/^#?$key=.*$/$key=$value/g" $NUXEO_CONF
+        perl -p -i -e "s,^#?$key=.*$,$key=$value,g" $NUXEO_CONF
     fi
 }
 
