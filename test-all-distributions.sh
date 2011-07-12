@@ -66,8 +66,10 @@ start_server 127.0.0.1
 
 # Run selenium tests first
 # it requires an empty db
-rm -f $HERE/nuxeo-distribution-*/nuxeo-distribution-dm/ftest/selenium/result-* 2>/dev/null
-rm -f $HERE/nuxeo-*/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/result-* 2>/dev/null
+rm -f $HERE/nuxeo-distribution-*/nuxeo-distribution-dm/ftest/selenium/result-* \
+      $HERE/nuxeo-distribution-*/nuxeo-distribution-dm/ftest/selenium/results/result-* \
+      $HERE/nuxeo-*/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/result-* \
+      $HERE/nuxeo-*/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/results/result-* 2>/dev/null
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
 HIDE_FF=true "$SELENIUM_PATH"/run.sh
 ret1=$?
