@@ -5,14 +5,14 @@ BENCH_TARGET=${BENCH_TARGET:-bench-long}
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 CMISBENCH=cmisbench-jm
-JMETER_HOME=/opt/build/tools/jmeter
+JMETER_HOME=${JMETER_HOME:-/opt/build/tools/jmeter}
 # size of generated file
-SIZE_KB=${SIZE_KB:8}
-THREADS=${THREADS:20}
+SIZE_KB=${SIZE_KB:-8}
+THREADS=${THREADS:-20}
 # time to go from 1 to THREADS threads
-RAMPUP=${RAMPUP:400}
+RAMPUP=${RAMPUP:-400}
 # total duration of the bench
-DURATION=${DURATION:600}
+DURATION=${DURATION:-600}
 
 
 # Cleaning
@@ -34,7 +34,7 @@ fi
 
 # Configure bench
 cat > $CMISBENCH/build.properties <<EOF || exit 1
-jmeter.home=$JMETER.HOME
+jmeter.home=$JMETER_HOME
 username=Administrator
 password=Administrator
 base_url=http://localhost:8080/nuxeo/atom/cmis
