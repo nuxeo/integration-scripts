@@ -22,6 +22,10 @@ fi
 # Start Nuxeo
 start_server 127.0.0.1
 
+# Temporary workaround CMIS-55
+stop_server
+start_server 127.0.0.1
+
 # FunkLoad tests
 (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/cmis; make EXT="--no-color")
 ret1=$?
