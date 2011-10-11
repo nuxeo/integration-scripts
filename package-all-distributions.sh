@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 # default on 5.4 integration build
 HERE=$(cd $(dirname $0); pwd -P)
 
@@ -85,10 +85,10 @@ EOF
 # TODO fix hard coded versions
 find ~/.m2/repository/org/nuxeo/ -name "*${NX_TAG:-5.4.2$TAG}*" -exec rm -rf {} \; 2>/dev/null
 
-nx-builder -d prepare || exit 1
-nx-builder -d install || exit 1
-nx-builder -d package || exit 1
-nx-builder -d package-sources || exit 1
+nx-builder prepare || exit 1
+nx-builder install || exit 1
+nx-builder package || exit 1
+nx-builder package-sources || exit 1
 
 cp fallback* archives/
 

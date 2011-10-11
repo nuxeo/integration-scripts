@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 PRODUCT=cap
 SERVER=${SERVER:-jboss}
