@@ -4,7 +4,7 @@ SERVER=${SERVER:-jboss}
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
-LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.4-build/lastSuccessfulBuild/artifact/trunk/release/archives}
+LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.5-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 ZIP_FILE=${ZIP_FILE:-}
 
 NBNODES=${NBNODES:-1000}
@@ -41,7 +41,7 @@ npi="./nuxeo-platform-importer"
 if [ ! -d $npi ]; then
     hg clone http://hg.nuxeo.org/addons/nuxeo-platform-importer nuxeo-platform-importer || exit 1
 fi
-(cd $npi && hg pull && hg up -C 5.4) || exit 1
+(cd $npi && hg pull && hg up -C 5.5) || exit 1
 (cd $npi; mvn -Dmaven.test.skip=true clean install) || exit 1
 [ -r $SERVER/nxserver/bundles ] && dest=$SERVER/nxserver/bundles
 [ -r $SERVER/server/default/deploy/nuxeo.ear/bundles ] && dest=$SERVER/server/default/deploy/nuxeo.ear/bundles

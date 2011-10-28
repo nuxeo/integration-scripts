@@ -8,12 +8,12 @@ from commands import getstatusoutput
 from xml.dom.minidom import parse
 
 
-JOB = os.getenv('JOB', "FT-nuxeo-5.4-funkload-bench")
+JOB = os.getenv('JOB', "FT-nuxeo-5.5-funkload-bench")
 PERIODS = os.getenv('PERIODS', "15,30,160")
 DIRNAME_PATTERN = os.getenv('DIRNAME_PATTERN', "testReader-201*")
 BUILTON = os.getenv('BUILTON', 'chipolata')
 HERE = os.curdir
-BASE_URL = os.getenv('BASE_URL', 'http://qa.nuxeo.org/jenkins/job/FT-nuxeo-5.4-funkload-bench')
+BASE_URL = os.getenv('BASE_URL', 'http://qa.nuxeo.org/jenkins/job/FT-nuxeo-5.5-funkload-bench')
 REPORT_BASE_NAME = os.getenv('REPORT_BASE_NAME', "trend-reader")
 
 

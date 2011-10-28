@@ -1,11 +1,11 @@
 #!/bin/bash
-# 5.4 nightly artifacts snapshot deploy
+# 5.5 nightly artifacts snapshot deploy
 HERE=$(cd $(dirname $0); pwd -P)
 
 . $HERE/integration-lib.sh
 
 DWS="$HERE"/src
-NX=${NX:-5.4}
+NX=${NX:-5.5}
 MAVEN_OPTS=${MAVEN_OPTS:-"-Xmx2048m -Xms512m -XX:MaxPermSize=384m"}
 export MAVEN_OPTS
 

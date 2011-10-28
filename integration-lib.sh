@@ -4,7 +4,7 @@
 
 HERE=$(cd $(dirname $0); pwd -P)
 JVM_XMX=${JVM_XMX:-1g}
-NXVERSION=${NXVERSION:-5.4}
+NXVERSION=${NXVERSION:-5.5}
 NXDISTRIBUTION="$HERE/nuxeo-$NXVERSION/nuxeo-distribution"
 JBOSS_HOME="$HERE/jboss"
 TOMCAT_HOME="$HERE/tomcat"

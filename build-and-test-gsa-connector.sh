@@ -5,7 +5,7 @@ SERVER=${SERVER:-tomcat}
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
-LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.4-build/lastSuccessfulBuild/artifact/trunk/release/archives}
+LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.5-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 ZIP_FILE=${ZIP_FILE:-}
 
 # Cleaning
