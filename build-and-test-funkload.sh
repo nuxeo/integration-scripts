@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo DEPRECATED since Nuxeo 5.5
+
 PRODUCT=${PRODUCT:-dm}
 SERVER=${SERVER:-jboss}
 HERE=$(cd $(dirname $0); pwd -P)

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo DEPRECATED
+
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 

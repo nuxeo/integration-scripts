@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo DEPRECATED since Nuxeo 5.5
+exit 1
+
 PRODUCT=${PRODUCT:-dm}
 SERVER=tomcat
 HERE=$(cd $(dirname $0); pwd -P)
