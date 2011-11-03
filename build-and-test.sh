@@ -1,7 +1,9 @@
 #!/bin/bash
 
-echo DEPRECATED since Nuxeo 5.5
-exit 1
+if [ "$NXVERSION" != "5.4.1" ]; then
+    echo DEPRECATED since Nuxeo 5.4.2
+    exit 1
+fi
 
 PRODUCT=${PRODUCT:-dm}
 SERVER=jboss
