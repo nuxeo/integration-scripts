@@ -26,14 +26,9 @@ DWS="$HERE"/dev
 # release workspace
 RWS="$HERE"/release
 
-if [ ! -e $DWS ]; then
-    mkdir -p $DWS || exit 1
-    cd $DWS
-    nx-builder clone || exit 2
-else
-    cd $DWS
-    nx-builder pull || exit 2
-fi
+mkdir -p $DWS || exit 1
+cd $DWS
+nx-builder clone || exit 2
 
 [ -e $RWS ] && rm -rf $RWS
 mkdir $RWS || exit 1
@@ -45,17 +40,9 @@ NX_TAG_TMP=`echo $NX_SNAPSHOT|cut -f1 -d "-"`
 NX_TAG=${NX_TAG:-$NX_TAG_TMP$TAG}
 NX_NEXT_SNAPSHOT=${NX_NEXT_SNAPSHOT:-5.5-SNAPSHOT}
 
-# Addons
-NXA_BRANCH=${NXA_BRANCH:-5.5}
-NXA_SNAPSHOT=${NXA_SNAPSHOT:-5.5-SNAPSHOT}
-NXA_TAG_TMP=`echo $NXA_SNAPSHOT|cut -f1 -d "-"`
-NXA_TAG=${NXA_TAG:-$NXA_TAG_TMP$TAG}
-NXA_NEXT_SNAPSHOT=${NXA_NEXT_SNAPSHOT:-5.5-SNAPSHOT}
-
 # setup nx configuration file
 cat > nx-builder.conf <<EOF
 NX_HG=$DWS/nuxeo
-NXA_HG=$DWS/nuxeo/addons
 MVNOPTS=
 MAVEN_PROFILES=all-distributions
 JBOSS_PATCH=patch
@@ -64,15 +51,6 @@ NX_BRANCH=$NX_BRANCH
 NX_SNAPSHOT=$NX_SNAPSHOT
 NX_TAG=$NX_TAG
 NX_NEXT_SNAPSHOT=$NX_NEXT_SNAPSHOT
-
-# Addons
-NXA_BRANCH=$NXA_BRANCH
-NXA_SNAPSHOT=$NXA_SNAPSHOT
-NXA_TAG=$NXA_TAG
-NXA_NEXT_SNAPSHOT=$NXA_NEXT_SNAPSHOT
-
-NX_BRANCH_NULL_MERGE=${NX_BRANCH_NULL_MERGE}
-NXA_BRANCH_NULL_MERGE=${NXA_BRANCH_NULL_MERGE}
 
 NXADD_MODULES="$ADDONS"
 
