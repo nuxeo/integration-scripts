@@ -1,7 +1,8 @@
 #!/bin/bash
 
 PRODUCT=${PRODUCT:-dm}
-SERVER=${SERVER:-jboss}
+DATABASE=${PRODUCT:-default}
+SERVER=${SERVER:-tomcat}
 HERE=$(cd $(dirname $0); pwd -P)
 
 LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.5-build/lastSuccessfulBuild/artifact/trunk/release/archives}
@@ -43,44 +44,49 @@ cd ..
 
 . $HERE/integration-lib.sh
 
-# Update selenium tests
-[ "$SERVER" = jboss ] && setup_jboss 127.0.0.1
-[ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
-
-# Use postgreSQL
-if [ ! -z $PGPASSWORD ]; then
-    setup_postgresql_database
+if [ $PRODUCT -eq "cap" ]; then
+   SUITES="suite1,suite2,suite-cap,suite-webengine"
+else
+   # run nuxeo-dm suites by default
+   SUITES="suite1,suite2,suite-dm,suite-webengine,suite-webengine-website,suite-webengine-tags"
 fi
 
-# Use MySQL
-if [ ! -z $MYSQL_HOST ]; then
-    setup_mysql_database
-fi
-
-# Use oracle
-if [ ! -z $ORACLE_SID ]; then
-    setup_oracle_database
-fi
-
-# Start Server
-start_server 127.0.0.1
-
-# Run selenium tests first
-# it requires an empty db
-rm -f $HERE/nuxeo-distribution-*/nuxeo-distribution-dm/ftest/selenium/result-* \
-      $HERE/nuxeo-distribution-*/nuxeo-distribution-dm/ftest/selenium/results/result-* \
-      $HERE/nuxeo-*/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/result-* \
-      $HERE/nuxeo-*/nuxeo-distribution/nuxeo-distribution-dm/ftest/selenium/results/result-* 2>/dev/null
-SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
-HIDE_FF=true "$SELENIUM_PATH"/run.sh
+# Run Selenium tests
+mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/pom.xml \
+  -Dzip.file=$HERE/download/$ZIP_FILE \
+  -Pqa,$SERVER,$DATABASE -Dclassifier=nuxeo-$PRODUCT -Dsuites="$SUITES"
 ret1=$?
 
 if [ -z $SKIP_FUNKLOAD ]; then
+
     java -version  2>&1 | grep 1.6.0
     if [ $? == 0 ]; then
+        # Update selenium tests
+        [ "$SERVER" = jboss ] && setup_jboss 127.0.0.1
+        [ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
+
+        # Use postgreSQL
+        if [ ! -z $PGPASSWORD ]; then
+            setup_postgresql_database
+        fi
+
+        # Use MySQL
+        if [ ! -z $MYSQL_HOST ]; then
+            setup_mysql_database
+        fi
+
+        # Use oracle
+        if [ ! -z $ORACLE_SID ]; then
+            setup_oracle_database
+        fi
+
+        start_server 127.0.0.1
+
         # FunkLoad tests works only with java 1.6.0 (j_ids are changed by java6)
         (cd "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload; make EXT="--no-color")
         ret2=$?
+
+        stop_server
     else
         ret2=0
     fi
@@ -89,16 +95,14 @@ else
 fi
 ret3=0
 
-# Stop nuxeo
-stop_server
-
 # Exit if some tests failed
 [ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
 [ $ret3 -eq 0 ] || exit 9
 
 # Run WebDriver tests
 if [ "$SERVER" = "tomcat" ] && [ -e "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml ]; then
-    mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml -Dzip.file=$HERE/download/$ZIP_FILE
+    mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml \
+        -Dzip.file=$HERE/download/$ZIP_FILE
     [ $? == 0 ] || exit 9
 fi
 
