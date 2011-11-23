@@ -54,7 +54,10 @@ fi
 # Run Selenium tests
 mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/pom.xml \
   -Dzip.file=$HERE/download/$ZIP_FILE \
-  -Pqa,$SERVER,$DATABASE -Dclassifier=nuxeo-$PRODUCT -Dsuites="$SUITES"
+  -Pqa,$SERVER,$DATABASE \
+  -Dclassifier=nuxeo-$PRODUCT \
+  -Dsuites="$SUITES" \
+  -Dnuxeo.wizard.done=true
 ret1=$?
 
 if [ -z $SKIP_FUNKLOAD ]; then
