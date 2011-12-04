@@ -44,7 +44,7 @@ cd ..
 
 . $HERE/integration-lib.sh
 
-if [ "$PRODUCT" -eq "cap" ]; then
+if [ "$PRODUCT" = "cap" ]; then
    SUITES="suite1,suite2,suite-cap,suite-webengine"
 else
    # run nuxeo-dm suites by default
