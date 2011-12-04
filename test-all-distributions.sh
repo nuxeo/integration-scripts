@@ -14,7 +14,7 @@ rm -rf ./jboss ./results ./download ./tomcat ./nuxeo-*/
 mkdir ./results ./download || exit 1
 
 cd download
-if [ -z $ZIP_FILE ]; then
+if [ -z "$ZIP_FILE" ]; then
     # extract link
     link=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v md5|grep -v ear`
     wget -nv $link || exit 1
@@ -33,7 +33,7 @@ NXVERSION=${NXVERSION%-$SERVER.zip}
 # Download sources (or copy if local)
 SOURCES_ZIP_FILE=`dirname $ZIP_FILE`/nuxeo-$NXVERSION-sources.zip
 cd download
-if [ ! -e $SOURCES_ZIP_FILE ]; then
+if [ ! -e "$SOURCES_ZIP_FILE" ]; then
     # extract link
     link=`lynx --dump $LASTBUILD_URL |grep -o "http:.*archives\/.*sources.*\.zip"| sort -u`
     wget -nv $link || exit 1
@@ -44,7 +44,7 @@ cd ..
 
 . $HERE/integration-lib.sh
 
-if [ $PRODUCT -eq "cap" ]; then
+if [ "$PRODUCT" -eq "cap" ]; then
    SUITES="suite1,suite2,suite-cap,suite-webengine"
 else
    # run nuxeo-dm suites by default
@@ -60,7 +60,7 @@ mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/pom.xml \
   -Dnuxeo.wizard.done=true
 ret1=$?
 
-if [ -z $SKIP_FUNKLOAD ]; then
+if [ -z "$SKIP_FUNKLOAD" ]; then
 
     java -version  2>&1 | grep 1.6.0
     if [ $? == 0 ]; then
@@ -69,17 +69,17 @@ if [ -z $SKIP_FUNKLOAD ]; then
         [ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
 
         # Use postgreSQL
-        if [ ! -z $PGPASSWORD ]; then
+        if [ ! -z "$PGPASSWORD" ]; then
             setup_postgresql_database
         fi
 
         # Use MySQL
-        if [ ! -z $MYSQL_HOST ]; then
+        if [ ! -z "$MYSQL_HOST" ]; then
             setup_mysql_database
         fi
 
         # Use oracle
-        if [ ! -z $ORACLE_SID ]; then
+        if [ ! -z "$ORACLE_SID" ]; then
             setup_oracle_database
         fi
 
