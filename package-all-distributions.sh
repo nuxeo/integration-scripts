@@ -76,7 +76,7 @@ for i in 1 2; do
     if [ ! "$HOSTNAME" = "$NODE" ]; then
         find ~/.m2/repository/org/nuxeo/ -name "*${NX_TAG:-5.5$TAG}*" >/tmp/filestosync
         rsync -z --files-from=/tmp/filestosync / $NODE:/
-        scp -C $HERE/release/archives/*.zip* $HERE/release/archives/mp/*.zip* $NODE:$HERE/release/archives/ || true
+        scp -Cr $HERE/release/archives/*.zip* $HERE/release/archives/mp $NODE:$HERE/release/archives/ || true
     fi
 done
 
