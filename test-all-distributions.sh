@@ -16,7 +16,7 @@ mkdir ./results ./download || exit 1
 cd download
 if [ -z "$ZIP_FILE" ]; then
     # extract link
-    link=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*\(-sdk\)*.zip" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v ear`
+    link=`lynx --dump $LASTBUILD_URL | grep -E -o "http:.*archives\/nuxeo-.*(-sdk)*.zip(\.md5)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v ear`
     wget -nv $link || exit 1
     ZIP_FILE=$PWD/$(ls nuxeo-$PRODUCT*$SERVER.zip)
     SDK_ZIP_FILE=$PWD/$(ls nuxeo-$PRODUCT*$SERVER-sdk.zip 2>/dev/null)
@@ -110,14 +110,14 @@ UPLOAD_URL=${UPLOAD_URL:-}
 SRC_URL=${SRC_URL:-download}
 if [ ! -z "$UPLOAD_URL" ]; then
     date
-    scp -C $ZIP_FILE $UPLOAD_URL || exit 1
-    [ ! -z "$SDK_ZIP_FILE" ] && scp -C $SDK_ZIP_FILE $UPLOAD_URL
-    [ ! -z "$SOURCES_ZIP_FILE" ] && scp -C $SOURCES_ZIP_FILE.zip $UPLOAD_URL
+    scp -C $SRC_URL/*.zip* $UPLOAD_URL || exit 1
     mkdir -p $HERE/download/mp
     cd $HERE/download/mp
-    links=`lynx --dump $LASTBUILD_URL/mp | grep -o "http:.*archives\/nuxeo\-.*.zip" | sort -u`
-    wget -nv $links `lynx --dump $LASTBUILD_URL/mp | grep -o "http:.*archives\/packages.xml`
-    scp -C $SRC_URL/mp/* $UPLOAD_URL/mp/ || true
+    links=`lynx --dump $LASTBUILD_URL/mp | grep -E -o 'http:.*archives\/((nuxeo-.*(-sdk)*.zip(.md5)*)|packages.xml)' | sort -u`
+    if [ ! -z "$links" ]; then
+        wget -nv $links
+        scp -C $SRC_URL/mp/* $UPLOAD_URL/mp/ || true
+    fi
     cd -
     date
 fi
