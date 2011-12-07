@@ -1,7 +1,5 @@
 #!/bin/bash
 
-PRODUCT=${PRODUCT:-dm}
-DATABASE=${PRODUCT:-default}
 SERVER=${SERVER:-tomcat}
 HERE=$(cd $(dirname $0); pwd -P)
 
