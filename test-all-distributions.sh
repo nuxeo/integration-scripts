@@ -60,8 +60,8 @@ mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/pom.xml \
   -Dnuxeo.wizard.done=true
 ret1=$?
 
+ret2=0
 if [ -z "$SKIP_FUNKLOAD" ]; then
-
     java -version  2>&1 | grep 1.6.0
     if [ $? == 0 ]; then
         # Update selenium tests
@@ -90,24 +90,19 @@ if [ -z "$SKIP_FUNKLOAD" ]; then
         ret2=$?
 
         stop_server
-    else
-        ret2=0
     fi
-else
-    ret2=0
 fi
-ret3=0
-
-# Exit if some tests failed
-[ $ret1 -eq 0 -a $ret2 -eq 0 ] || exit 9
-[ $ret3 -eq 0 ] || exit 9
 
 # Run WebDriver tests
 if [ "$SERVER" = "tomcat" ] && [ -e "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml ]; then
     mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-tomcat-tests/pom.xml \
         -Dzip.file=$HERE/download/$ZIP_FILE
-    [ $? == 0 ] || exit 9
+    ret3=$?
 fi
+
+# Exit if some tests failed
+[ $ret1 -eq 0 -a $ret2 -eq 0 -a $ret3 -eq 0 ] || exit 9
+
 
 # Upload successfully tested package and sources on $UPLOAD_URL
 UPLOAD_URL=${UPLOAD_URL:-}
