@@ -187,6 +187,7 @@ EOF
     fi
     if [ "$SERVER" = tomcat ]; then
         echo "org.nuxeo.systemlog.token=dolog" > "$TOMCAT"/templates/common/config/selenium.properties
+	cp "$TOMCAT"/nxserver/data/installAfterRestart-DM.log "$TOMCAT"/nxserver/data/installAfterRestart.log
     fi
 }
 
@@ -223,8 +224,8 @@ setup_tomcat() {
     IP=${1:-0.0.0.0}
     if [ ! -d "$TOMCAT" ] || [ ! -z $NEW_TOMCAT ] ; then
         [ -d "$TOMCAT" ] && rm -rf "$TOMCAT"
-        unzip "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/nuxeo-distribution-tomcat-*$PRODUCT.zip -d /tmp/ \
-        && mv /tmp/*$PRODUCT*-tomcat "$TOMCAT" || exit 1
+        unzip "$NXDISTRIBUTION"/nuxeo-distribution-tomcat/target/nuxeo-distribution-tomcat-*nuxeo-cap.zip -d /tmp/ \
+        && mv /tmp/nuxeo-cap-*-tomcat "$TOMCAT" || exit 1
     else
         echo "Using previously installed Tomcat. Set NEW_TOMCAT variable to force new TOMCAT deployment"
         rm -rf "$TOMCAT"/webapps/nuxeo/nxserver/data/* "$TOMCAT"/log/*
