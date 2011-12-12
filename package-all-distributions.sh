@@ -28,7 +28,7 @@ RWS="$HERE"/release
 
 mkdir -p $DWS || exit 1
 cd $DWS
-nx-builder clone || exit 2
+nx-builder -d clone || exit 2
 
 [ -e $RWS ] && rm -rf $RWS
 mkdir $RWS || exit 1
@@ -63,10 +63,10 @@ EOF
 # TODO fix hard coded versions
 find ~/.m2/repository/org/nuxeo/ -name "*${NX_TAG:-5.5$TAG}*" -exec rm -rf {} \; 2>/dev/null
 
-nx-builder prepare || exit 1
-nx-builder install || exit 1
-nx-builder package || exit 1
-nx-builder package-sources || exit 1
+nx-builder -d prepare || exit 1
+nx-builder -d install || exit 1
+nx-builder -d package || exit 1
+nx-builder -d package-sources || exit 1
 
 cp fallback* archives/
 
