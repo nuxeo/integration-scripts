@@ -8,7 +8,7 @@ ZIP_FILE=${ZIP_FILE:-}
 SKIP_FUNKLOAD=${SKIP_FUNKLOAD:-}
 
 # Cleaning
-rm -rf ./jboss ./results ./download ./tomcat ./nuxeo*/
+rm -rf ./jboss ./results ./download ./tomcat* ./nuxeo*/
 mkdir ./download || exit 1
 
 if [ -z "$ZIP_FILE" ]; then
