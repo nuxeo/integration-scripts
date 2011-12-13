@@ -8,7 +8,7 @@ UPLOAD_URL=${UPLOAD_URL:-}
 SRC_URL=${SRC_URL:-download}
 if [ ! -z "$UPLOAD_URL" ]; then
     date
-    scp -C $SRC_URL/*.zip* $UPLOAD_URL || exit 1
+    scp -C $SRC_URL/*.zip* $UPLOAD_URL || true
     mkdir -p $HERE/download/mp
     cd $HERE/download/mp
     links=`lynx --dump $LASTBUILD_URL/mp | grep -E -o 'http:.*archives\/((nuxeo-.*(-sdk)*.zip(.md5)*)|packages.xml)' | sort -u`
