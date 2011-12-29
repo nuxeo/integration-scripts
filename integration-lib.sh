@@ -4,7 +4,7 @@
 
 HERE=$(cd $(dirname $0); pwd -P)
 JVM_XMX=${JVM_XMX:-1g}
-NXVERSION=${NXVERSION:-5.5}
+NXVERSION=${NXVERSION:-master}
 NXDISTRIBUTION="$HERE/nuxeo-$NXVERSION/nuxeo-distribution"
 JBOSS_HOME="$HERE/jboss"
 TOMCAT_HOME="$HERE/tomcat"
@@ -129,9 +129,11 @@ check_ports_and_kill_ghost_process() {
 update_distribution_source() {
     if [ ! -d "$NXDISTRIBUTION" ]; then
         [ ! -d `dirname "$NXDISTRIBUTION"` ] && mkdir -p `dirname "$NXDISTRIBUTION"`
-        hg clone -r $NXVERSION http://hg.nuxeo.org/nuxeo/nuxeo-distribution "$NXDISTRIBUTION" 2>/dev/null || exit 1
+	git clone git@github.com:nuxeo/nuxeo-distribution.git "$NXDISTRIBUTION" || exit 1
+	# TODO: support NXVERSION checkout
     else
-        (cd "$NXDISTRIBUTION" && hg pull && hg up -C $NXVERSION) || exit 1
+        (cd "$NXDISTRIBUTION" && git pull) || exit 1
+	# TODO: support NXVERSION checkout
     fi
 }
 
