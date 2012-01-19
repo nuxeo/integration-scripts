@@ -8,19 +8,19 @@ from commands import getstatusoutput
 from xml.dom.minidom import parse
 
 
-JOB = os.getenv('JOB', "FT-nuxeo-5.5-funkload-bench")
+JOB = os.getenv('JOB', "FT-nuxeo-master-funkload-bench")
 PERIODS = os.getenv('PERIODS', "15,30,160")
 DIRNAME_PATTERN = os.getenv('DIRNAME_PATTERN', "testReader-201*")
 BUILTON = os.getenv('BUILTON', 'chipolata')
 HERE = os.curdir
-BASE_URL = os.getenv('BASE_URL', 'http://qa.nuxeo.org/jenkins/job/FT-nuxeo-5.5-funkload-bench')
+BASE_URL = os.getenv('BASE_URL', 'http://qa.nuxeo.org/jenkins/job/FT-nuxeo-master-funkload-bench')
 REPORT_BASE_NAME = os.getenv('REPORT_BASE_NAME', "trend-reader")
 
 
 build_dir = './../../../%s/builds' % JOB
 periods = [int(period) for period in PERIODS.split(',')]
 
-# utils 
+# utils
 class BaseFilter(object):
     """Base filter."""
     def __ror__(self, other):
@@ -116,7 +116,7 @@ for build in builds:
     count += 1
     if count > max(periods):
         break
-   
+
 # build trends report
 ret = 1
 for period in periods:
