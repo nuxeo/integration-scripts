@@ -17,7 +17,7 @@ DURATION=${DURATION:-600}
 
 # Cleaning
 rm -rf ./jboss ./report ./results ./download
-mkdir ./results ./download || exit 1
+mkdir ./report ./results ./download || exit 1
 
 # Check JMeter
 if [ ! -r $JMETER_HOME/lib/junit ]; then
@@ -69,16 +69,25 @@ fi
 # Start Nuxeo
 start_server 127.0.0.1
 
-# Run the bench
-echo "Benching  ..."
-(cd $CMISBENCH && ant run)
-ret1=$?
+# Run a test
+echo "Testing ..."
+(cd $CMISBENCH && mvn test)
+ret0=$?
+
+ret1=9
+if [ $ret0 -eq 0 ]; then
+   # Run the bench
+   echo "Benching  ..."
+   (cd $CMISBENCH && ant run)
+   ret1=$?
+fi
 
 # Move the bench report
-mv $CMISBENCH/reports report
+mv $CMISBENCH/reports/* report/
+mv $CMISBENCH/target/surefire-reports/*.txt report/
 
 # Stop nuxeo
 stop_server
 
 # Exit if some tests failed
-[ $ret1 -eq 0 ] || exit 9
+[ $ret0 -eq 0 -a $ret1 -eq 0 ] || exit 9
