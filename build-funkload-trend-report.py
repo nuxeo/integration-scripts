@@ -17,7 +17,7 @@ BASE_URL = os.getenv('BASE_URL', 'http://qa.nuxeo.org/jenkins/job/FT-nuxeo-maste
 REPORT_BASE_NAME = os.getenv('REPORT_BASE_NAME', "trend-reader")
 
 
-build_dir = './../../../%s/builds' % JOB
+build_dir = './../../%s/builds' % JOB
 periods = [int(period) for period in PERIODS.split(',')]
 
 # utils
