@@ -12,27 +12,19 @@ ZIP_FILE=${ZIP_FILE:-}
 rm -rf ./jboss ./results ./download ./tomcat
 mkdir ./results ./download || exit 1
 
-cd download
-if [ ! -z $ZIP_URL ]; then
-    wget -nv --no-clobber $ZIP_URL 
-    ZIP_FILE=`basename $ZIP_URL`
-fi
-if [ -z $ZIP_FILE ]; then
-    # extract list of links
-    link=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v md5|grep -v ear`
-    wget -nv $link || exit 1
-    ZIP_FILE=nuxeo-$PRODUCT*$SERVER.zip
-fi
-unzip -q $ZIP_FILE || exit 1
-cd ..
-build=$(find ./download -maxdepth 1 -name 'nuxeo-*' -name "*$PRODUCT*" -type d)
-mv $build ./$SERVER || exit 1
-
-# Update selenium tests
-NXVERSION=master
+# Build
 update_distribution_source
-[ "$SERVER" = jboss ] && setup_jboss localhost
-[ "$SERVER" = tomcat ] && setup_tomcat localhost
+if [ "$SERVER" = "tomcat" ]; then
+    build_tomcat
+    NEW_TOMCAT=true
+    setup_tomcat 127.0.0.1
+else
+    build_jboss
+    NEW_JBOSS=true
+    setup_jboss 127.0.0.1
+    deploy_ear
+fi
+
 
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
