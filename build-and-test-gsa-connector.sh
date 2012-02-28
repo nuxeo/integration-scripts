@@ -5,7 +5,7 @@ SERVER=${SERVER:-tomcat}
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
-LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.5-build/lastSuccessfulBuild/artifact/trunk/release/archives}
+LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-master-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 ZIP_FILE=${ZIP_FILE:-}
 
 # Cleaning
@@ -29,7 +29,7 @@ build=$(find ./download -maxdepth 1 -name 'nuxeo-*' -name "*$PRODUCT*" -type d)
 mv $build ./$SERVER || exit 1
 
 # Update selenium tests
-NXVERSION=5.4.1
+NXVERSION=master
 update_distribution_source
 [ "$SERVER" = jboss ] && setup_jboss localhost
 [ "$SERVER" = tomcat ] && setup_tomcat localhost
