@@ -29,8 +29,6 @@ fi
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
     setup_postgresql_database
-    # tmp fix/test for missing h2 jar on JBoss
-    cp  "$TOMCAT_HOME"/templates/default/lib/h2-*.jar "$TOMCAT_HOME"/server/default/lib/
 fi
 
 NXGSA="$HERE/nuxeo-gsa-connector"
@@ -50,6 +48,8 @@ elif [ "$SERVER" = "jboss" ]; then
     GSA_TPL=gsa_jboss
     # disable HDScanner
     rm -f $JBOSS_HOME/server/default/deploy/hdscanner-jboss-beans.xml
+    # tmp fix/test for missing h2 jar on JBoss
+    cp  "$JBOSS_HOME"/templates/default/lib/h2*.jar "$JBOSS_HOME"/server/default/lib/
 fi
 
 # Buid and deploy GSA connector
