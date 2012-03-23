@@ -207,7 +207,7 @@ setup_jboss() {
     IP=${1:-0.0.0.0}
     if [ ! -d "$JBOSS" ] || [ ! -z $NEW_JBOSS ] ; then
         [ -d "$JBOSS" ] && rm -rf "$JBOSS"
-        cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/*$PRODUCT*jboss "$JBOSS" || exit 1
+        cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/nuxeo-*-jboss "$JBOSS" || exit 1
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
         rm -rf "$JBOSS"/server/default/data/* "$JBOSS"/log/*
