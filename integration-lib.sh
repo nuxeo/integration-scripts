@@ -5,6 +5,7 @@
 HERE=$(cd $(dirname $0); pwd -P)
 JVM_XMX=${JVM_XMX:-1g}
 NXVERSION=${NXVERSION:-master}
+NXTAG=${NXTAG:-}
 NXDISTRIBUTION="$HERE/nuxeo-$NXVERSION/nuxeo-distribution"
 JBOSS_HOME="$HERE/jboss"
 TOMCAT_HOME="$HERE/tomcat"
@@ -129,11 +130,14 @@ check_ports_and_kill_ghost_process() {
 update_distribution_source() {
     if [ ! -d "$NXDISTRIBUTION" ]; then
         [ ! -d `dirname "$NXDISTRIBUTION"` ] && mkdir -p `dirname "$NXDISTRIBUTION"`
-	git clone git@github.com:nuxeo/nuxeo-distribution.git "$NXDISTRIBUTION" || exit 1
-	# TODO: support NXVERSION checkout
+        git clone git@github.com:nuxeo/nuxeo-distribution.git "$NXDISTRIBUTION" || exit 1
+        # TODO: support NXVERSION checkout
     else
-        (cd "$NXDISTRIBUTION" && git pull) || exit 1
-	# TODO: support NXVERSION checkout
+        (cd "$NXDISTRIBUTION" && git checkout master && git pull) || exit 1
+        # TODO: support NXVERSION checkout
+    fi
+    if [ ! -z $NXTAG ]; then
+        git checkout $NXTAG
     fi
 }
 
@@ -189,7 +193,7 @@ EOF
     fi
     if [ "$SERVER" = tomcat ]; then
         echo "org.nuxeo.systemlog.token=dolog" > "$TOMCAT"/templates/common/config/selenium.properties
-	cp "$TOMCAT"/nxserver/data/installAfterRestart-DM.log "$TOMCAT"/nxserver/data/installAfterRestart.log
+        cp "$TOMCAT"/nxserver/data/installAfterRestart-DM.log "$TOMCAT"/nxserver/data/installAfterRestart.log
     fi
 }
 
