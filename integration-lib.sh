@@ -137,7 +137,7 @@ update_distribution_source() {
         # TODO: support NXVERSION checkout
     fi
     if [ ! -z $NXTAG ]; then
-        git checkout $NXTAG
+        (cd "$NXDISTRIBUTION" && git checkout $NXTAG) || exit 1
     fi
 }
 
