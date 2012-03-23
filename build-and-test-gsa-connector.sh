@@ -29,6 +29,8 @@ fi
 # Use postgreSQL
 if [ ! -z $PGPASSWORD ]; then
     setup_postgresql_database
+    # tmp fix/test for missing h2 jar on JBoss
+    cp  "$TOMCAT_HOME"/templates/default/lib/h2-*.jar "$TOMCAT_HOME"/server/default/lib/
 fi
 
 NXGSA="$HERE/nuxeo-gsa-connector"
