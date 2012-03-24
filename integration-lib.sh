@@ -164,6 +164,7 @@ set_jboss_log4j_level() {
 setup_server_conf() {
     SERVER_HOME=${1:-"$SERVER_HOME"}
     MAIL_FROM=${MAIL_FROM:-`dirname $PWD|xargs basename`\@$HOSTNAME}
+    JMX_PORT=${JMX_PORT:-1089}
     NUXEO_CONF="$SERVER_HOME"/bin/nuxeo.conf
     activate_template monitor
     set_key_value nuxeo.bind.address $IP
@@ -182,19 +183,19 @@ JAVA_OPTS=-server -Xms$JVM_XMX -Xmx$JVM_XMX -XX:MaxPermSize=512m \
 -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 \
 -Xloggc:\${nuxeo.log.dir}/gc.log  -verbose:gc -XX:+PrintGCDetails \
 -XX:+PrintGCTimeStamps \
--Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=1089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$JMX_PORT -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
 EOF
     chmod u+x "$SERVER_HOME"/bin/*.sh "$SERVER_HOME"/bin/*ctl 2>/dev/null
 
     if [ "$SERVER" = jboss ]; then
         set_jboss_log4j_level $SERVER_HOME INFO
         echo "org.nuxeo.systemlog.token=dolog" > "$SERVER_HOME"/templates/common/config/selenium.properties
-        cp "$JBOSS"/server/default/data/NXRuntime/data/installAfterRestart-DM.log "$JBOSS"/server/default/data/NXRuntime/data/installAfterRestart.log
+        cp "$SERVER_HOME"/server/default/data/NXRuntime/data/installAfterRestart-DM.log "$SERVER_HOME"/server/default/data/NXRuntime/data/installAfterRestart.log
         mkdir -p "$SERVER_HOME"/log
     fi
     if [ "$SERVER" = tomcat ]; then
-        echo "org.nuxeo.systemlog.token=dolog" > "$TOMCAT"/templates/common/config/selenium.properties
-        cp "$TOMCAT"/nxserver/data/installAfterRestart-DM.log "$TOMCAT"/nxserver/data/installAfterRestart.log
+        echo "org.nuxeo.systemlog.token=dolog" > "$SERVER_HOME"/templates/common/config/selenium.properties
+        cp "$SERVER_HOME"/nxserver/data/installAfterRestart-DM.log "$SERVER_HOME"/nxserver/data/installAfterRestart.log
     fi
 }
 

@@ -58,22 +58,27 @@ cp -r ./jboss ./jboss2
 
 # Setup both JBoss
 JBOSS_HOME_1="$HERE/jboss"
+JMX_PORT=1089
 setup_jboss "$JBOSS_HOME_1" 127.0.1.1
 JBOSS_HOME_2="$HERE/jboss2"
+JMX_PORT=1189
 setup_jboss "$JBOSS_HOME_2" 127.0.1.2
 
 # And start them
+echo "########## Starting JBOSS1 ##########"
 start_server "$JBOSS_HOME_1" 127.0.1.1
 sleep 10
+echo "########## Starting JBOSS2 ##########"
 start_server "$JBOSS_HOME_2" 127.0.1.2
 
 # Test --------------------------------------------------
 # Run selenium tests first
 # it requires an empty db
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
-URL=http://127.0.0.1:8000/nuxeo/ HIDE_FF=true "$SELENIUM_PATH"/run.sh
+pushd $SELENIUM_PATH
+mvn org.nuxeo.build:nuxeo-distribution-tools:integration-test -Dtarget=run-selenium -Dsuites=suite1,suite2,suite-dm,suite-webengine,suite-webengine-website,suite-webengine-tags -DnuxeoURL=http://localhost:8000/nuxeo/
 ret1=$?
-
+popd
 
 
 # Stop --------------------------------------------------
