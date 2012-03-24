@@ -5,7 +5,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.5-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 UPLOAD_URL=${UPLOAD_URL:-}
 ZIP_FILE=${ZIP_FILE:-}
-PRODUCT=${PRODUCT:-dm}
+PRODUCT=${PRODUCT:-cap}
 
 # Cleaning
 rm -rf ./jboss ./jboss2 ./results ./download ./report /tmp/cluster-binaries
@@ -14,7 +14,7 @@ mkdir ./results ./download /tmp/cluster-binaries || exit 1
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*nuxeo\-dm.*.zip" | sort -u | grep -v ear`
+    links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*nuxeo\-cap.*.zip" | grep jboss | sort -u | grep -v ear | grep -v sdk | grep -v online`
 
     # Download and unpack the latest builds
     for link in $links; do
@@ -46,7 +46,7 @@ opensocial.gadgets.port=8000
 EOF
 
 # setup cluster mode
-cp ./cluster_default-repository-config.xml $JBOSS_HOME/templates/postgresql/nuxeo.ear/config/default-repository-config.xml
+cp ./cluster_default-repository-config.xml $JBOSS_HOME/templates/postgresql/deploy/nuxeo.ear/config/default-repository-config.xml
 
 # setup jboss2
 cp -r ./jboss ./jboss2

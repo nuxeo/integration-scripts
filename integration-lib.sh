@@ -189,6 +189,7 @@ EOF
     if [ "$SERVER" = jboss ]; then
         set_jboss_log4j_level $SERVER_HOME INFO
         echo "org.nuxeo.systemlog.token=dolog" > "$SERVER_HOME"/templates/common/config/selenium.properties
+        cp "$JBOSS"/server/default/data/NXRuntime/data/installAfterRestart-DM.log "$JBOSS"/server/default/data/NXRuntime/data/installAfterRestart.log
         mkdir -p "$SERVER_HOME"/log
     fi
     if [ "$SERVER" = tomcat ]; then
@@ -210,7 +211,12 @@ setup_jboss() {
         cp -r "$NXDISTRIBUTION"/nuxeo-distribution-jboss/target/nuxeo-*-jboss "$JBOSS" || exit 1
     else
         echo "Using previously installed JBoss. Set NEW_JBOSS variable to force new JBOSS deployment"
+        mkdir -p saved_files
+        mv "$JBOSS"/server/default/data/NXRuntime/data/installAfterRestart* saved_files/
         rm -rf "$JBOSS"/server/default/data/* "$JBOSS"/log/*
+        mkdir -p "$JBOSS"/server/default/data/NXRuntime/data
+        mv saved_files/* "$JBOSS"/server/default/data/NXRuntime/data/
+        rmdir saved_files
     fi
     mkdir -p "$JBOSS"/log
     setup_server_conf $JBOSS
