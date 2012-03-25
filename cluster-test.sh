@@ -2,10 +2,13 @@
 
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
-LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.5-build/lastSuccessfulBuild/artifact/trunk/release/archives}
+LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-master-build/lastSuccessfulBuild/artifact/archives/}
 UPLOAD_URL=${UPLOAD_URL:-}
 ZIP_FILE=${ZIP_FILE:-}
 PRODUCT=${PRODUCT:-cap}
+
+# Comment out to enable monitoring
+SKIP_MONITORING=true
 
 # Cleaning
 rm -rf ./jboss ./jboss2 ./results ./download ./report /tmp/cluster-binaries
@@ -94,6 +97,7 @@ for log in *.log.gz; do
     cp  $log "$HERE/jboss/log/"${log%.log.gz}2.log.gz
 done
 # use sysstat log of jboss 2
-cp "$HERE"/jboss2/log/sysstat-sar.log.gz "$HERE"/jboss/log/
-
+if [ -z "$SKIP_MONITORING" ]; then
+    cp "$HERE"/jboss2/log/sysstat-sar.log.gz "$HERE"/jboss/log/
+fi
 exit $ret1

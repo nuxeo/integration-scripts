@@ -271,18 +271,24 @@ start_server() {
     check_ports_and_kill_ghost_process $IP
     "$SERVER_HOME"/bin/nuxeoctl start || exit 1
     sleep $DELAYED
-    if [ ! -z $MONITOR_THREAD_CONTENTION ]; then
-        "$SERVER_HOME"/bin/monitorctl.sh enable-cm
+    if [ -z "$SKIP_MONITORING" ]; then
+        if [ ! -z "$MONITOR_THREAD_CONTENTION" ]; then
+            "$SERVER_HOME"/bin/monitorctl.sh enable-cm
+        fi
+        "$SERVER_HOME"/bin/monitorctl.sh start
     fi
-    "$SERVER_HOME"/bin/monitorctl.sh start
 }
 
 stop_server() {
     SERVER_HOME=${1:-"$SERVER_HOME"}
-    "$SERVER_HOME"/bin/monitorctl.sh stop
+    if [ -z "$SKIP_MONITORING" ]; then
+        "$SERVER_HOME"/bin/monitorctl.sh stop
+    fi
     "$SERVER_HOME"/bin/nuxeoctl stop
-    if [ ! -z $PGPASSWORD ]; then
-        "$SERVER_HOME"/bin/monitorctl.sh vacuumdb
+    if [ -z "$SKIP_MONITORING" ]; then
+        if [ ! -z $PGPASSWORD ]; then
+            "$SERVER_HOME"/bin/monitorctl.sh vacuumdb
+        fi
     fi
     echo "### 10 most frequent errors --------------"
     grep " ERROR \[" "$SERVER_HOME"/log/server.log | sed "s/^.\{24\}//g" | sort | uniq -c | sort -nr | head
@@ -292,3 +298,4 @@ stop_server() {
     gzip "$SERVER_HOME"/log/*.log
     gzip -cd  "$SERVER_HOME"/log/server.log.gz 2>/dev/null > "$SERVER_HOME"/log/server.log
 }
+
