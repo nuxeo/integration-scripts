@@ -47,6 +47,11 @@ EOF
     createdb $DBNAME -U $DBUSER -h $DBHOST -p $DBPORT || exit 1
     createlang plpgsql $DBNAME -U $DBUSER -h $DBHOST -p $DBPORT
 
+    pg_stat=/usr/share/postgresql/8.4/contrib/pg_stat_statements.sql
+    if [ -f $pg_stat ]; then
+        psql $DBNAME -U $DBUSER -h $DBHOST -p $DBPORT -f $pg_stat
+    fi
+
     NUXEO_CONF="$SERVER_HOME"/bin/nuxeo.conf
     activate_db_template postgresql
     set_key_value nuxeo.db.port $DBPORT
