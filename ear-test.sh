@@ -41,9 +41,9 @@ echo "********************************************************************"
 echo "* JBoss version: $JBOSS_ARTIFACTID $JBOSS_VERSION"
 echo "* EAR version: $EAR_VERSION"
 if [ -z "$NXTAG" ]; then
-    echo "Test scripts branch: $NXVERSION"
+    echo "* Test scripts branch: $NXVERSION"
 else
-    echo "Test scripts branch: $NXVERSION (tag ${NXTAG})"
+    echo "* Test scripts branch: $NXVERSION (tag ${NXTAG})"
 fi
 echo "********************************************************************"
 
@@ -90,7 +90,7 @@ rsync -Wax */* "${SERVER_HOME}/"
 popd
 
 # Update selenium tests
-NXSRC=$HERE/nuxeo-src/nuxeo-distribution
+NXSRC="$HERE/nuxeo-src/nuxeo-distribution"
 if [ ! -d "$NXSRC" ]; then
     mkdir -p `dirname "$NXSRC"`
     git clone https://github.com/nuxeo/nuxeo-distribution.git "$NXSRC" || exit 1
@@ -100,12 +100,50 @@ if [ ! -z $NXTAG ]; then
     (cd "$NXSRC" && git checkout $NXTAG) || exit 1
 fi
 
-# TODO : DB setup
-#if [ ! -z $PGPASSWORD ]; then
-#    setup_database "$HERE/jboss"
-#fi
+# Update parent pom (master branch) for DB init
+NXMASTER="$HERE/nuxeo-src/nuxeo"
+if [ ! -d "$NXMASTER" ]; then
+    mkdir -p `dirname "$NXMASTER"`
+    git clone https://github.com/nuxeo/nuxeo.git "$NXMASTER" || exit 1
+fi
+(cd "$NXMASTER" && git pull) || exit 1
 
-#Setup and start JBoss
+# Setup DB
+USEDB=${USEDB:-default}
+if [ "$USEDB" = "postgresql" ]; then
+    mvn -f "$NXMASTER/pom.xml" initialize -Pcustomdb,pgsql -N
+    DBHOST=${NX_DB_HOST:-$NX_PGSQL_DB_HOST}
+    DBPORT=${NX_DB_PORT:-$NX_PGSQL_DB_PORT}
+    DBNAME=${NX_DB_NAME:-$NX_PGSQL_DB_NAME}
+    DBUSER=${NX_DB_USER:-$NX_PGSQL_DB_USER}
+    DBPASS=${NX_DB_PASS:-$NX_PGSQL_DB_PASS}
+    NUXEO_CONF="$SERVER_HOME/bin/nuxeo.conf"
+    activate_db_template postgresql
+    set_key_value nuxeo.db.host $DBHOST
+    set_key_value nuxeo.db.port $DBPORT
+    set_key_value nuxeo.db.name $DBNAME
+    set_key_value nuxeo.db.user $DBUSER
+    set_key_value nuxeo.db.password $DBPASS
+elif [ "$USEDB" = "oracle" ]; then
+    mvn -f "$NXMASTER/pom.xml" initialize -Pcustomdb,oracle11g -N
+    DBHOST=${NX_DB_HOST:-$NX_ORACLE11G_DB_HOST}
+    DBPORT=${NX_DB_PORT:-$NX_ORACLE11G_DB_PORT}
+    DBNAME=${NX_DB_NAME:-$NX_ORACLE11G_DB_NAME}
+    DBUSER=${NX_DB_USER:-$NX_ORACLE11G_DB_USER}
+    DBPASS=${NX_DB_PASS:-$NX_ORACLE11G_DB_PASS}
+    NUXEO_CONF="$SERVER_HOME/bin/nuxeo.conf"
+    activate_db_template oracle
+    set_key_value nuxeo.db.host $DBHOST
+    set_key_value nuxeo.db.port $DBPORT
+    set_key_value nuxeo.db.name $DBNAME
+    set_key_value nuxeo.db.user $DBUSER
+    set_key_value nuxeo.db.password $DBPASS
+    set_key_value launcher.start.max.wait 1200
+    mvn org.apache.maven.plugins:maven-dependency-plugin:2.4:get -DremoteRepositories=${EAR_REPO_URL} -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.2 -Dpackaging=jar -Dtransitive=false -Ddest="$SERVER_HOME/common/lib/ojdbc6-11.2.0.2.jar"
+fi
+
+
+# Setup and start JBoss
 setup_jboss "$SERVER_HOME" 127.0.0.1
 start_server "$SERVER_HOME" 127.0.0.1
 
