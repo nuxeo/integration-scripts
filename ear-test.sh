@@ -155,9 +155,9 @@ rm -f result-*.html
 rm -rf target
 if [ -f "run.sh" ]; then
     ./run.sh
-    # Add symlink to have the same location for the results for all versions
-    mkdir -p target
-    ln -s "$SELENIUM_PATH" target/results
+    # Move results to target/results for Jenkins
+    mkdir -p target/results
+    mv result-*.html target/results/
 else
     mvn org.nuxeo.build:nuxeo-distribution-tools:integration-test -Dtarget=run-selenium -Dsuites=suite1,suite2,suite-dm,suite-webengine,suite-webengine-website,suite-webengine-tags -DnuxeoURL=http://127.0.0.1:8080/nuxeo/
 fi
