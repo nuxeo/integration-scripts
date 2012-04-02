@@ -28,17 +28,24 @@ if [ -z "$NXVERSION" ]; then
     else
         NXVERSION=${EAR_VERSION//-SNAPSHOT/}
         if [[ "$NXVERSION" =~ -HF[0-9][0-9] ]]; then
-            NXTAG="release-$NXVERSION"
+            if [ -z "$NXTAG" ]; then
+                NXTAG="release-$NXVERSION"
+            fi
             NXVERSION=${NXVERSION//-HF[0-9][0-9]/}
         fi
-        echo "********************************************************************"
-        echo "*"
-        echo "* Using NXVERSION=$NXVERSION and NXTAG=$NXTAG"
-        echo "* Please set them explicitely if this is wrong"
-        echo "*"
-        echo "********************************************************************"
     fi
 fi
+
+# Display versions in the logs
+echo "********************************************************************"
+echo "* JBoss version: $JBOSS_ARTIFACTID $JBOSS_VERSION"
+echo "* EAR version: $EAR_VERSION"
+if [ -z "$NXTAG" ]; then
+    echo "Test scripts branch: $NXVERSION"
+else
+    echo "Test scripts branch: $NXVERSION (tag ${NXTAG})"
+fi
+echo "********************************************************************"
 
 # Misc
 SERVER="jboss"
