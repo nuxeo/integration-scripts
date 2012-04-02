@@ -105,6 +105,8 @@ start_server "$SERVER_HOME" 127.0.0.1
 # Run selenium tests
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
 pushd $SELENIUM_PATH
+rm -f result-*.html
+rm -rf target
 if [ -f "run.sh" ]; then
     ./run.sh
 else
