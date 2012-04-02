@@ -90,13 +90,14 @@ rsync -Wax */* "${SERVER_HOME}/"
 popd
 
 # Update selenium tests
-if [ ! -d "$NXDISTRIBUTION" ]; then
-    mkdir -p `dirname "$NXDISTRIBUTION"`
-    git clone https://github.com/nuxeo/nuxeo-distribution.git "$NXDISTRIBUTION" || exit 1
+NXSRC=$HERE/nuxeo-src/nuxeo-distribution
+if [ ! -d "$NXSRC" ]; then
+    mkdir -p `dirname "$NXSRC"`
+    git clone https://github.com/nuxeo/nuxeo-distribution.git "$NXSRC" || exit 1
 fi
-(cd "$NXDISTRIBUTION" && git checkout master && git fetch --tags && git pull --all&& git checkout $NXVERSION) || exit 1
+(cd "$NXSRC" && git checkout master && git fetch --tags && git pull --all&& git checkout $NXVERSION) || exit 1
 if [ ! -z $NXTAG ]; then
-    (cd "$NXDISTRIBUTION" && git checkout $NXTAG) || exit 1
+    (cd "$NXSRC" && git checkout $NXTAG) || exit 1
 fi
 
 # TODO : DB setup
@@ -110,7 +111,7 @@ start_server "$SERVER_HOME" 127.0.0.1
 
 # Test --------------------------------------------------
 # Run selenium tests
-SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
+SELENIUM_PATH=${SELENIUM_PATH:-"$NXSRC"/nuxeo-distribution-dm/ftest/selenium}
 pushd $SELENIUM_PATH
 rm -f result-*.html
 rm -rf target
