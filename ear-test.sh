@@ -83,7 +83,14 @@ rsync -Wax */* "${SERVER_HOME}/"
 popd
 
 # Update selenium tests
-update_distribution_source
+if [ ! -d "$NXDISTRIBUTION" ]; then
+    mkdir -p `dirname "$NXDISTRIBUTION"`
+    git clone https://github.com/nuxeo/nuxeo-distribution.git "$NXDISTRIBUTION" || exit 1
+fi
+(cd "$NXDISTRIBUTION" && git checkout master && git fetch --tags && git pull --all&& git checkout $NXVERSION) || exit 1
+if [ ! -z $NXTAG ]; then
+    (cd "$NXDISTRIBUTION" && git checkout $NXTAG) || exit 1
+fi
 
 # TODO : DB setup
 #if [ ! -z $PGPASSWORD ]; then
