@@ -82,12 +82,18 @@ else
     unzip -q "${EAR_ZIP_FILE}"
 fi
 
-# Temporary fix
+# fix1
 find . -type f -name 'hibernate-core.jar' -exec rm {} \;
 
 rsync -Wax */* "${SERVER_HOME}/"
 
 popd
+
+# fix2
+mv "${SERVER_HOME}"/server/default/deploy/nuxeo.ear/lib/jboss-seam-[0-9]*.jar "${SERVER_HOME}"/server/default/deploy/nuxeo.ear/bundles/
+
+# fix3
+patch -p0 --reverse < ear-template-patch.diff
 
 # Update selenium tests
 NXSRC="$HERE/nuxeo-src/nuxeo-distribution"

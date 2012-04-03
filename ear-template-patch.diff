@@ -1,0 +1,16 @@
+*** jboss/templates/common/META-INF/templates/application.xml	2012-04-03 11:16:06.069181001 +0200
+--- jboss/templates/common/META-INF/templates/application.xml~	2012-04-03 09:32:03.000000000 +0200
+***************
+*** 6,16 ****
+  
+    <display-name>Nuxeo EP</display-name>
+  
+-   <module>
+-     <ejb>bundles/jboss-seam-2.1.0.SP1.jar</ejb>
+-   </module>
+- 
+- 
+    %{MODULE}%
+  
+    <module>
+--- 6,11 ----
