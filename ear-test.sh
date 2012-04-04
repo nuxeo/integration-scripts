@@ -98,7 +98,7 @@ patch -p0 --reverse < "$HERE"/resources/ear-template-patch.diff
 # fix4
 if [ -f "$HERE"/resources/nuxeo-opensocial-container-5.4.2-HF20-patch.jar ]; then
     rm -f "${SERVER_HOME}"/server/default/deploy/nuxeo.ear/bundles/nuxeo-opensocial-container-*.jar
-    mv "$HERE"/resources/nuxeo-opensocial-container-5.4.2-HF20-patch.jar "${SERVER_HOME}"/server/default/deploy/nuxeo.ear/bundles/
+    cp "$HERE"/resources/nuxeo-opensocial-container-5.4.2-HF20-patch.jar "${SERVER_HOME}"/server/default/deploy/nuxeo.ear/bundles/
 fi
 
 exit 0
