@@ -101,8 +101,6 @@ if [ -f "$HERE"/resources/nuxeo-opensocial-container-5.4.2-HF20-patch.jar ]; the
     cp "$HERE"/resources/nuxeo-opensocial-container-5.4.2-HF20-patch.jar "${SERVER_HOME}"/server/default/deploy/nuxeo.ear/bundles/
 fi
 
-exit 0
-
 # Update selenium tests
 NXSRC="$HERE/nuxeo-src/nuxeo-distribution"
 if [ ! -d "$NXSRC" ]; then
