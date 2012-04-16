@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 CURRENT_DEV_VERSION="5.6-SNAPSHOT"
 
@@ -13,7 +13,7 @@ JBOSS_PACKAGING="zip"
 
 # EAR location:
 EAR_ZIP_FILE=${EAR_ZIP_FILE:-}
-EAR_REPO_URL=${EAR_REPO_URL:-"http://maven.in.nuxeo.com/nexus/"}
+EAR_REPO_URL=${EAR_REPO_URL:-"http://maven.in.nuxeo.com/nexus/,http://maven.in.nuxeo.com/nexus/content/repositories/daily-snapshots/"}
 EAR_GROUPID=${EAR_GROUPID:-"org.nuxeo.ecm.distribution"}
 EAR_ARTIFACTID=${EAR_ARTIFACTID:-"nuxeo-distribution-jboss"}
 EAR_VERSION=${EAR_VERSION:-$CURRENT_DEV_VERSION}
