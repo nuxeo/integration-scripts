@@ -1,10 +1,10 @@
 #!/bin/bash -x
-PRODUCT=${PRODUCT:-dm}
+PRODUCT=${PRODUCT:-cap}
 SERVER=${SERVER:-jboss}
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
 
-LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.5-build/lastSuccessfulBuild/artifact/trunk/release/archives}
+LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-master-build/lastSuccessfulBuild/artifact/archives}
 ZIP_FILE=${ZIP_FILE:-}
 
 NBNODES=${NBNODES:-1000}
@@ -19,7 +19,7 @@ mkdir ./results ./download || exit 1
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    link=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v md5|grep -v ear`
+    link=`lynx --dump $LASTBUILD_URL | grep -o "http:.*archives\/nuxeo\-.*.zip\(.md5\)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v md5|grep -v ear|grep -v online`
     wget -nv $link || exit 1
     ZIP_FILE=nuxeo-$PRODUCT*$SERVER.zip
 fi
@@ -31,17 +31,42 @@ mv $build ./$SERVER || exit 1
 [ "$SERVER" = jboss ] && setup_jboss 127.0.0.1
 [ "$SERVER" = tomcat ] && setup_tomcat 127.0.0.1
 
-# Use postgreSQL
-if [ ! -z $PGPASSWORD ]; then
-    setup_postgresql_database
+# Setup PostgreSQL
+
+# Update parent pom (master branch) for DB init
+NXMASTER="$HERE/nuxeo-src/nuxeo"
+if [ ! -d "$NXMASTER" ]; then
+    mkdir -p `dirname "$NXMASTER"`
+    git clone https://github.com/nuxeo/nuxeo.git "$NXMASTER" || exit 1
 fi
+(cd "$NXMASTER" && git pull) || exit 1
+
+# Setup DB
+mvn -f "$NXMASTER/pom.xml" initialize -Pcustomdb,pgsql -N
+DBHOST=${NX_DB_HOST:-$NX_PGSQL_DB_HOST}
+DBPORT=${NX_DB_PORT:-$NX_PGSQL_DB_PORT}
+DBNAME=${NX_DB_NAME:-$NX_PGSQL_DB_NAME}
+DBUSER=${NX_DB_USER:-$NX_PGSQL_DB_USER}
+DBPASS=${NX_DB_PASS:-$NX_PGSQL_DB_PASS}
+NUXEO_CONF="$SERVER_HOME/bin/nuxeo.conf"
+activate_db_template postgresql
+set_key_value nuxeo.db.host $DBHOST
+set_key_value nuxeo.db.port $DBPORT
+set_key_value nuxeo.db.name $DBNAME
+set_key_value nuxeo.db.user $DBUSER
+set_key_value nuxeo.db.password $DBPASS
+if [ -f ~/.pgpass ]; then
+    cp ~/.pgpass ~/.pgpass.save
+fi
+echo "$DBHOST:$DBPORT:$DBNAME:$DBUSER:$DBPASS" >> ~/.pgpass
+chmod 0600 ~/.pgpass
 
 # mass import COMPIL
 npi="./nuxeo-platform-importer"
-if [ ! -d $npi ]; then
-    hg clone http://hg.nuxeo.org/addons/nuxeo-platform-importer nuxeo-platform-importer || exit 1
+if [ -d $npi ]; then
+    rm -rf "$npi"
 fi
-(cd $npi && hg pull && hg up -C 5.5) || exit 1
+git clone git@github.com:nuxeo/nuxeo-platform-importer nuxeo-platform-importer || exit 1
 (cd $npi; mvn -Dmaven.test.skip=true clean install) || exit 1
 [ -r $SERVER/nxserver/bundles ] && dest=$SERVER/nxserver/bundles
 [ -r $SERVER/server/default/deploy/nuxeo.ear/bundles ] && dest=$SERVER/server/default/deploy/nuxeo.ear/bundles
@@ -100,3 +125,9 @@ CREATE OR REPLACE FUNCTION nx_to_tsvector(string character varying) RETURNS tsve
   AS 'SELECT NULL::tsvector'
   LANGUAGE 'SQL';
 EOF
+
+if [ -f ~/.pgpass.save ]; then
+    mv -f ~/.pgpass.save ~/.pgpass
+    chmod 0600 ~/.pgpass
+fi
+
