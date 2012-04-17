@@ -82,6 +82,28 @@ else
     unzip -q "${EAR_ZIP_FILE}"
 fi
 
+# enable remote debug
+patch -p0 <<EOF
+*** bin/nuxeo.conf~	2012-04-17 10:34:14.055004000 +0200
+--- bin/nuxeo.conf	2012-04-17 10:34:48.023004001 +0200
+***************
+*** 113,119 ****
+  
+  # DEBUGGING ----------------------------------------------
+  # Sample JPDA settings for remote socket debugging
+! #JAVA_OPTS=\$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
+  
+  # Sample JPDA settings for shared memory debugging
+  #JAVA_OPTS=\$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_shmem,server=y,suspend=n,address=jboss
+--- 113,119 ----
+  
+  # DEBUGGING ----------------------------------------------
+  # Sample JPDA settings for remote socket debugging
+! JAVA_OPTS=\$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,address=8799,server=y,suspend=n
+  
+  # Sample JPDA settings for shared memory debugging
+  #JAVA_OPTS=\$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_shmem,server=y,suspend=n,address=jboss
+EOF
 # fix1
 find . -type f -name 'hibernate-core.jar' -exec rm {} \;
 
