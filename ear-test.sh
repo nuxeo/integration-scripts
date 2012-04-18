@@ -104,24 +104,10 @@ patch -p0 <<EOF
   # Sample JPDA settings for shared memory debugging
   #JAVA_OPTS=\$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_shmem,server=y,suspend=n,address=jboss
 EOF
-# fix1
-find . -type f -name 'hibernate-core.jar' -exec rm {} \;
 
 rsync -Wax */* "${SERVER_HOME}/"
 
 popd
-
-# fix2
-mv "${SERVER_HOME}"/server/default/deploy/nuxeo.ear/lib/jboss-seam-[0-9]*.jar "${SERVER_HOME}"/server/default/deploy/nuxeo.ear/bundles/
-
-# fix3
-patch -p0 --reverse < "$HERE"/resources/ear-template-patch.diff
-
-# fix4
-if [ -f "$HERE"/resources/nuxeo-opensocial-container-5.4.2-HF20-patch.jar ]; then
-    rm -f "${SERVER_HOME}"/server/default/deploy/nuxeo.ear/bundles/nuxeo-opensocial-container-*.jar
-    cp "$HERE"/resources/nuxeo-opensocial-container-5.4.2-HF20-patch.jar "${SERVER_HOME}"/server/default/deploy/nuxeo.ear/bundles/
-fi
 
 # Update selenium tests
 NXSRC="$HERE/nuxeo-src/nuxeo-distribution"
