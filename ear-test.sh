@@ -105,6 +105,9 @@ patch -p0 <<EOF
   #JAVA_OPTS=\$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_shmem,server=y,suspend=n,address=jboss
 EOF
 
+# remove wrong hibernate artifacts
+find . -type f -name 'hibernate-core.jar' -exec rm {} \;
+
 rsync -Wax */* "${SERVER_HOME}/"
 
 popd
