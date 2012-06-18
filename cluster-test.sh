@@ -49,6 +49,7 @@ opensocial.gadgets.port=8000
 EOF
 
 # setup cluster mode
+mkdir -p $JBOSS_HOME/templates/postgresql/deploy/nuxeo.ear/config
 cp ./cluster_default-repository-config.xml $JBOSS_HOME/templates/postgresql/deploy/nuxeo.ear/config/default-repository-config.xml
 
 # setup jboss2
