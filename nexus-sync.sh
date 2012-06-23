@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TIMEOUT=${TIMEOUT:-1}
+TIMEOUT=${TIMEOUT:-10}
 REPO=${REPO:-public-snapshots}
 DELAY=${DELAY:-2}
 
@@ -18,8 +18,9 @@ find ./org/nuxeo/ -mtime -1 \( -name "*.jar" -o -name "*.pom" -o -name "*.zip" \
     GROUP=`dirname $DIR`
     GROUP=`dirname $GROUP`
     GROUP=`echo $GROUP |tr -s '/' '.'|cut -c 2-` 
-    
-    URL="https://maven.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=$REPO&g=$GROUP&a=$ARTIFACT&v=$VERSION&e=$EXTENSION"
+
+    # Trigger "pull chain": maven-us <- maven-eu <- maven.in
+    URL="https://maven-us.nuxeo.org/nexus/service/local/artifact/maven/redirect?r=$REPO&g=$GROUP&a=$ARTIFACT&v=$VERSION&e=$EXTENSION"
     [ -z $CLASSIFIER ] || URL="$URL&c=$CLASSIFIER"
     
     echo wget -O/dev/null --timeout $TIMEOUT --no-check-certificate \"$URL\"
