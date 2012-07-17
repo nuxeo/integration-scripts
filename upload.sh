@@ -14,7 +14,7 @@ if [ ! -z "$UPLOAD_URL" ]; then
     links=`lynx --dump $LASTBUILD_URL/mp | grep -E -o 'http:.*archives\/((nuxeo-.*(-sdk)*.zip(.md5)*)|packages.xml)' | sort -u`
     if [ ! -z "$links" ]; then
         wget -nv $links
-        scp -C $SRC_URL/mp/* $UPLOAD_URL/mp/ || true
+        scp -C $SRC_URL/mp/* $UPLOAD_URL/mp/ || true
     fi
     cd -
     date
