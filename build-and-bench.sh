@@ -38,7 +38,7 @@ test_path="$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload/
 ret1=$?
 
 # Move the bench report
-mv "$NXDISTRIBUTION"/nuxeo-distribution-dm/target/ftest/funkload/report .
+mv "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/funkload/target/results ./report
 
 # Stop nuxeo
 stop_server

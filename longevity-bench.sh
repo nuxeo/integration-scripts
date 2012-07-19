@@ -44,7 +44,7 @@ start_server 127.0.0.1
 test_path=$NXDIR/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload/
 (cd $test_path; make bench-longevity EXT="--no-color"; ret=$?; make stop; exit $ret)
 ret1=$?
-mv $NXDIR/nuxeo-distribution/nuxeo-distribution-dm/target/ftest/funkload/report .
+mv $NXDIR/nuxeo-distribution/nuxeo-distribution-dm/ftest/funkload/target/results ./report
 
 # Stop nuxeo
 stop_server
