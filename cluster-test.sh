@@ -46,6 +46,7 @@ fi
 cat >> "$JBOSS_HOME"/bin/nuxeo.conf <<EOF || exit 1
 org.nuxeo.ecm.platform.transform.ooo.enableDaemon=false
 opensocial.gadgets.port=8000
+repository.clustering.enabled=true
 EOF
 
 # setup cluster mode
@@ -81,6 +82,7 @@ start_server "$JBOSS_HOME_2" 127.0.1.2
 SELENIUM_PATH=${SELENIUM_PATH:-"$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium}
 pushd $SELENIUM_PATH
 mvn org.nuxeo.build:nuxeo-distribution-tools:integration-test -Dtarget=run-selenium -Dsuites=suite1,suite2,suite-dm,suite-webengine,suite-webengine-website,suite-webengine-tags -DnuxeoURL=http://localhost:8000/nuxeo/
+mvn org.nuxeo.build:nuxeo-distribution-tools:verify
 ret1=$?
 popd
 
