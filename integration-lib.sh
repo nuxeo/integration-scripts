@@ -3,6 +3,7 @@
 # Lib to ease CI scripts
 
 HERE=$(cd $(dirname $0); pwd -P)
+SOURCE_DIR=$(cd $(dirname $BASH_SOURCE[0]); pwd -P)
 JVM_XMX=${JVM_XMX:-1g}
 NXVERSION=${NXVERSION:-master}
 NXTAG=${NXTAG:-}
@@ -30,7 +31,7 @@ else
 fi
 
 # include dblib
-. $HERE/integration-dblib.sh
+. $SOURCE_DIR/integration-dblib.sh
 
 get_templates_list() {
     if [ -z "$NUXEO_CONF" ]; then
