@@ -32,5 +32,6 @@ then
     export MAVEN_OPTS="-Xmx$MAVEN_XMX_PERFORM -Xms1g -XX:MaxPermSize=512m"
 else
     export MAVEN_OPTS="-Xmx1g -Xms1g -XX:MaxPermSize=512m"
+fi
 
 ./release.py perform || exit 1
