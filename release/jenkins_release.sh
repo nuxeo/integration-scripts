@@ -37,7 +37,7 @@ fi
 rm -rf $WORKSPACE/archives/
 
 # create a specific directory for release scripts
-rmdir jenkins_release_dir 2> /dev/null || exit 1
+rmdir jenkins_release_dir 2> /dev/null
 mkdir -p jenkins_release_dir || exit 1
 cd jenkins_release_dir || exit 1
 
