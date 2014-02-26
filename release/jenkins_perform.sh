@@ -21,7 +21,7 @@
 export MAVEN_OPTS="-Xmx4096m -Xms1024m -XX:MaxPermSize=512m"
 export PATH=$MAVEN_PATH/bin:$PATH
 if [ ! -z $JDK_PATH ]; then
-export JAVA_HOME=$JDK_PATH
+  export JAVA_HOME=$JDK_PATH
   export PATH=$JDK_PATH/bin:$PATH
 fi
 ./release.py perform

@@ -22,7 +22,7 @@ export MAVEN_OPTS="-Xmx4g -Xms1g -XX:MaxPermSize=512m"
 echo JAVA_OPTS: $JAVA_OPTS
 
 if [ ! -z $JDK_PATH ]; then
-export JAVA_HOME=$JDK_PATH
+  export JAVA_HOME=$JDK_PATH
   export PATH=$JDK_PATH/bin:$PATH
 fi
 
@@ -30,7 +30,7 @@ export PATH=/opt/apache-maven-2.2.1/bin:$PATH
 rm -rf $WORKSPACE/archives/
 
 for file in release.py nxutils.py terminalsize.py IndentedHelpFormatterWithNL.py ; do
-wget --no-check-certificate https://raw.github.com/nuxeo/nuxeo/master/scripts/$file -O $file
+  wget --no-check-certificate https://raw.github.com/nuxeo/nuxeo/master/scripts/$file -O $file
 done
 
 chmod +x *.py
@@ -38,25 +38,25 @@ chmod +x *.py
 cd addon
 OPTIONS=
 if [ $NO_STAGGING != true ]; then
-OPTIONS=-d
+  OPTIONS=-d
 fi
 if [ $FINAL = true ]; then
-OPTIONS="$OPTIONS -f"
+  OPTIONS="$OPTIONS -f"
 fi
 if [ ! -z $OTHER_VERSION_TO_REPLACE ]; then
-OPTIONS="$OPTIONS --arv=$OTHER_VERSION_TO_REPLACE"
+  OPTIONS="$OPTIONS --arv=$OTHER_VERSION_TO_REPLACE"
 fi
 if [ $SKIP_TESTS = true ]; then
-OPTIONS="$OPTIONS --skipTests"
+  OPTIONS="$OPTIONS --skipTests"
 fi
 if [ ! -z $PROFILES ]; then
-OPTIONS="$OPTIONS -p $PROFILES"
+  OPTIONS="$OPTIONS -p $PROFILES"
 fi
 if [ ! -z $MSG_COMMIT ]; then
-OPTIONS="$OPTIONS --mc='$MSG_COMMIT'"
+  OPTIONS="$OPTIONS --mc='$MSG_COMMIT'"
 fi
 if [ ! -z $MSG_TAG ]; then
-OPTIONS="$OPTIONS --mt='$MSG_TAG'"
+  OPTIONS="$OPTIONS --mt='$MSG_TAG'"
 fi
 
 ../release.py prepare -b $BRANCH -t $TAG -n $NEXT_SNAPSHOT -m $MAINTENANCE $OPTIONS
