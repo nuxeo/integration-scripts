@@ -47,32 +47,42 @@ for file in release.py nxutils.py terminalsize.py IndentedHelpFormatterWithNL.py
 done
 chmod +x *.py
 
-OPTIONS=
+# build up command line options for the release.py script from Jenkins build parameters
+OPTIONS=( )
 if [ $NO_STAGGING != true ]; then
-  OPTIONS=-d
+  OPTIONS+=("-d")
 fi
 if [ $FINAL = true ]; then
-  OPTIONS="$OPTIONS -f"
+  OPTIONS+=("-f")
 fi
 if [ ! -z $OTHER_VERSION_TO_REPLACE ]; then
-  OPTIONS="$OPTIONS --arv=$OTHER_VERSION_TO_REPLACE"
+  OPTIONS+=("--arv=$OTHER_VERSION_TO_REPLACE")
 fi
 if [ $SKIP_TESTS = true ]; then
-  OPTIONS="$OPTIONS --skipTests"
+  OPTIONS+=("--skipTests")
 fi
 if [ ! -z $PROFILES ]; then
-  OPTIONS="$OPTIONS -p $PROFILES"
+  OPTIONS+=("-p $PROFILES")
 fi
-if [ ! -z $MSG_COMMIT ]; then
-  OPTIONS="$OPTIONS --mc='$MSG_COMMIT'"
+if [ ! -z "$MSG_COMMIT" ]; then
+  # FIXME: this will fail if message contains a quote but above option fails
+  # further down the line when parsing the command in the release.py script
+  #OPTIONS+=("--mc="$(printf %q "$MSG_COMMIT"))
+  OPTIONS+=("--mc=$MSG_COMMIT")
 fi
-if [ ! -z $MSG_TAG ]; then
-  OPTIONS="$OPTIONS --mt='$MSG_TAG'"
+if [ ! -z "$MSG_TAG" ]; then
+  # FIXME: this will fail if message contains a quote but above option fails
+  # further down the line when parsing the command in the release.py script
+  #OPTIONS+=("--mt="$(printf %q "$MSG_TAG"))
+  OPTIONS+=("--mt=$MSG_TAG")
 fi
 
-../release.py prepare -b $BRANCH -t $TAG -n $NEXT_SNAPSHOT -m $MAINTENANCE $OPTIONS
+echo Prepare release
+echo "../release.py prepare -b $BRANCH -t $TAG -n $NEXT_SNAPSHOT -m $MAINTENANCE ${OPTIONS[@]}"
+../release.py prepare -b "$BRANCH" -t "$TAG" -n "$NEXT_SNAPSHOT" -m "$MAINTENANCE" "${OPTIONS[@]}"
 
 # . $WORKSPACE/release.log
+
 echo Check prepared release
 git checkout $BRANCH
 git pull
@@ -81,5 +91,7 @@ git log $BRANCH..origin/$BRANCH
 echo
 
 if [ $NO_STAGGING = true ]; then
+  echo Perform release
+  echo "../release.py perform"
   ../release.py perform
 fi
