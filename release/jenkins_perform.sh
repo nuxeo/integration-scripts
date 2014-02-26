@@ -1,7 +1,10 @@
 #!/bin/bash
 #
 # Bash command executed by Jenkins to pass parameters and call release
-# scripts.
+# script to perform a release.
+#
+# Assumes the jenkins_release.sh job has already retrieved all needed scripts,
+# even this one.
 #
 # (C) Copyright 2009-2014 Nuxeo SA (http://nuxeo.com/) and contributors.
 #
@@ -18,10 +21,17 @@
 # Contributors:
 #
 
-export MAVEN_OPTS="-Xmx4096m -Xms1024m -XX:MaxPermSize=512m"
-export PATH=$MAVEN_PATH/bin:$PATH
 if [ ! -z $JDK_PATH ]; then
   export JAVA_HOME=$JDK_PATH
   export PATH=$JDK_PATH/bin:$PATH
 fi
+
+export PATH=$MAVEN_PATH/bin:$PATH
+if [ ! -z $MAVEN_XMX_PERFORM ]
+then
+    export MAVEN_OPTS="-Xmx$MAVEN_XMX_PERFORM -Xms1g -XX:MaxPermSize=512m"
+else
+    export MAVEN_OPTS="-Xmx1g -Xms1g -XX:MaxPermSize=512m"
+
+cd jenkins_release_dir
 ./release.py perform

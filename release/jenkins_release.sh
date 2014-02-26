@@ -18,7 +18,6 @@
 # Contributors:
 #
 
-export MAVEN_OPTS="-Xmx4g -Xms1g -XX:MaxPermSize=512m"
 echo JAVA_OPTS: $JAVA_OPTS
 
 if [ ! -z $JDK_PATH ]; then
@@ -26,7 +25,15 @@ if [ ! -z $JDK_PATH ]; then
   export PATH=$JDK_PATH/bin:$PATH
 fi
 
-export PATH=/opt/apache-maven-2.2.1/bin:$PATH
+export PATH=$MAVEN_PATH/bin:$PATH
+if [ ! -z $MAVEN_XMX_RELEASE ]
+then
+    export MAVEN_OPTS="-Xmx$MAVEN_XMX_RELEASE -Xms1g -XX:MaxPermSize=512m"
+else
+    export MAVEN_OPTS="-Xmx1g -Xms1g -XX:MaxPermSize=512m"
+fi
+
+# remove jenkins archives from workspace if any (?)
 rm -rf $WORKSPACE/archives/
 
 for file in release.py nxutils.py terminalsize.py IndentedHelpFormatterWithNL.py ; do
