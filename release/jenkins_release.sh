@@ -37,20 +37,20 @@ fi
 rm -rf $WORKSPACE/archives/
 
 # create a specific directory for release scripts
-rmdir jenkins_release_dir 2> /dev/null
-mkdir -p jenkins_release_dir
-cd jenkins_release_dir
+rmdir jenkins_release_dir 2> /dev/null || exit 1
+mkdir -p jenkins_release_dir || exit 1
+cd jenkins_release_dir || exit 1
 
 # retrieve release scripts
 for file in release.py nxutils.py terminalsize.py IndentedHelpFormatterWithNL.py ; do
-  wget --no-check-certificate https://raw.github.com/nuxeo/nuxeo/master/scripts/$file -O $file
+  wget --no-check-certificate https://raw.github.com/nuxeo/nuxeo/master/scripts/$file -O $file || exit 1
 done
 chmod +x *.py
 
 # retrieve utility file for task using jenkins_perform.py, in case release is not
 # performed right away
 for file in jenkins_perform.sh; do
-  wget --no-check-certificate https://raw.github.com/nuxeo/integration-scripts/master/jenkins/$file -O $file
+  wget --no-check-certificate https://raw.github.com/nuxeo/integration-scripts/master/jenkins/$file -O $file || exit 1
 done
 chmod +x *.sh
 
@@ -83,19 +83,19 @@ fi
 
 echo Prepare release
 echo "../release.py prepare -b $BRANCH -t $TAG -n $NEXT_SNAPSHOT -m $MAINTENANCE ${OPTIONS[@]}"
-../release.py prepare -b "$BRANCH" -t "$TAG" -n "$NEXT_SNAPSHOT" -m "$MAINTENANCE" "${OPTIONS[@]}"
+../release.py prepare -b "$BRANCH" -t "$TAG" -n "$NEXT_SNAPSHOT" -m "$MAINTENANCE" "${OPTIONS[@]}" || exit 1
 
 # . $WORKSPACE/release.log
 
 echo Check prepared release
-git checkout $BRANCH
-git pull
-git push -n origin $BRANCH
-git log $BRANCH..origin/$BRANCH
+git checkout $BRANCH || exit 1
+git pull || exit 1
+git push -n origin $BRANCH || exit 1
+git log $BRANCH..origin/$BRANCH || exit 1
 echo
 
 if [ $NO_STAGING = true ]; then
   echo Perform release
   echo "../release.py perform"
-  ../release.py perform
+  ../release.py perform || exit 1
 fi
