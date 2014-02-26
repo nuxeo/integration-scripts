@@ -47,6 +47,13 @@ for file in release.py nxutils.py terminalsize.py IndentedHelpFormatterWithNL.py
 done
 chmod +x *.py
 
+# retrieve utility file for task using jenkins_perform.py, in case release is not
+# performed right away
+for file in jenkins_perform.sh; do
+  wget --no-check-certificate https://raw.github.com/nuxeo/integration-scripts/master/jenkins/$file -O $file
+done
+chmod +x *.sh
+
 # build up command line options for the release.py script from Jenkins build parameters
 OPTIONS=( )
 if [ $FINAL = true ]; then
