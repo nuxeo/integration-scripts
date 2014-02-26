@@ -36,11 +36,6 @@ fi
 # remove jenkins archives from workspace if any (?)
 rm -rf $WORKSPACE/archives/
 
-# create a specific directory for release scripts
-rmdir jenkins_release_dir 2> /dev/null
-mkdir -p jenkins_release_dir || exit 1
-cd jenkins_release_dir || exit 1
-
 # retrieve release scripts
 for file in release.py nxutils.py terminalsize.py IndentedHelpFormatterWithNL.py ; do
   wget --no-check-certificate https://raw.github.com/nuxeo/nuxeo/master/scripts/$file -O $file || exit 1

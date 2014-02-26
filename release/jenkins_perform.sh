@@ -33,5 +33,4 @@ then
 else
     export MAVEN_OPTS="-Xmx1g -Xms1g -XX:MaxPermSize=512m"
 
-cd jenkins_release_dir || exit 1
 ./release.py perform || exit 1
