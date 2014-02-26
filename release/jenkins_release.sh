@@ -49,9 +49,6 @@ chmod +x *.py
 
 # build up command line options for the release.py script from Jenkins build parameters
 OPTIONS=( )
-if [ $NO_STAGGING != true ]; then
-  OPTIONS+=("-d")
-fi
 if [ $FINAL = true ]; then
   OPTIONS+=("-f")
 fi
@@ -90,7 +87,7 @@ git push -n origin $BRANCH
 git log $BRANCH..origin/$BRANCH
 echo
 
-if [ $NO_STAGGING = true ]; then
+if [ $NO_STAGING = true ]; then
   echo Perform release
   echo "../release.py perform"
   ../release.py perform
