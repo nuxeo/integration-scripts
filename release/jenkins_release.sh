@@ -50,7 +50,7 @@ chmod +x *.py
 # retrieve utility file for task using jenkins_perform.py, in case release is not
 # performed right away
 for file in jenkins_perform.sh; do
-  wget --no-check-certificate https://raw.github.com/nuxeo/integration-scripts/master/jenkins/release/$file -O $file || exit 1
+  wget --no-check-certificate https://raw.github.com/nuxeo/integration-scripts/master/release/$file -O $file || exit 1
 done
 chmod +x *.sh
 
