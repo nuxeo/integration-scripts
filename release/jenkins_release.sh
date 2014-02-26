@@ -82,8 +82,8 @@ if [ ! -z "$MSG_TAG" ]; then
 fi
 
 echo Prepare release
-echo "../release.py prepare -b $BRANCH -t $TAG -n $NEXT_SNAPSHOT -m $MAINTENANCE ${OPTIONS[@]}"
-../release.py prepare -b "$BRANCH" -t "$TAG" -n "$NEXT_SNAPSHOT" -m "$MAINTENANCE" "${OPTIONS[@]}" || exit 1
+echo "./release.py prepare -b $BRANCH -t $TAG -n $NEXT_SNAPSHOT -m $MAINTENANCE ${OPTIONS[@]}"
+./release.py prepare -b "$BRANCH" -t "$TAG" -n "$NEXT_SNAPSHOT" -m "$MAINTENANCE" "${OPTIONS[@]}" || exit 1
 
 # . $WORKSPACE/release.log
 
@@ -96,6 +96,6 @@ echo
 
 if [ $NO_STAGING = true ]; then
   echo Perform release
-  echo "../release.py perform"
-  ../release.py perform || exit 1
+  echo "./release.py perform"
+  ./release.py perform || exit 1
 fi
