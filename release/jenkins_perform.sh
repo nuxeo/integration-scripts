@@ -5,6 +5,8 @@
 #
 # Assumes the jenkins_release.sh job has already retrieved all needed scripts,
 # even this one.
+# Assumes this script is executed from a subdirectory of the git repository
+# root.
 #
 # (C) Copyright 2009-2014 Nuxeo SA (http://nuxeo.com/) and contributors.
 #
@@ -34,4 +36,4 @@ else
     export MAVEN_OPTS="-Xmx1g -Xms1g -XX:MaxPermSize=512m"
 fi
 
-./release.py perform || exit 1
+../release.py perform || exit 1

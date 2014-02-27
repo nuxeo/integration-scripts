@@ -2,6 +2,8 @@
 #
 # Bash command executed by Jenkins to pass parameters and call release
 # scripts.
+# Assumes this script is executed from a subdirectory of the git repository
+# root.
 #
 # (C) Copyright 2009-2014 Nuxeo SA (http://nuxeo.com/) and contributors.
 #
@@ -84,8 +86,8 @@ if [ ! -z "$MSG_TAG" ]; then
 fi
 
 echo Prepare release
-echo "./release.py prepare -b $BRANCH -t $TAG -n $NEXT_SNAPSHOT -m $MAINTENANCE ${OPTIONS[@]}"
-./release.py prepare -b "$BRANCH" -t "$TAG" -n "$NEXT_SNAPSHOT" -m "$MAINTENANCE" "${OPTIONS[@]}" || exit 1
+echo "../release.py prepare -b $BRANCH -t $TAG -n $NEXT_SNAPSHOT -m $MAINTENANCE ${OPTIONS[@]}"
+../release.py prepare -b "$BRANCH" -t "$TAG" -n "$NEXT_SNAPSHOT" -m "$MAINTENANCE" "${OPTIONS[@]}" || exit 1
 
 # . $WORKSPACE/release.log
 
