@@ -51,8 +51,15 @@ chmod +x *.sh
 
 # build up command line options for the release.py script from Jenkins build parameters
 OPTIONS=( )
+
+if [ $NO_STAGING = true ]; then
+  OPTIONS+=("-d")
+fi
 if [ $FINAL = true ]; then
   OPTIONS+=("-f")
+fi
+if [ $NO_STAGING = true -a $FINAL = true ]; then
+  OPTIONS+=("--push")
 fi
 if [ ! -z $OTHER_VERSION_TO_REPLACE ]; then
   OPTIONS+=("--arv=$OTHER_VERSION_TO_REPLACE")
@@ -88,9 +95,3 @@ git pull || exit 1
 git push -n origin $BRANCH || exit 1
 git log $BRANCH..origin/$BRANCH || exit 1
 echo
-
-if [ $NO_STAGING = true ]; then
-  echo Perform release
-  echo "./release.py perform"
-  ./release.py perform || exit 1
-fi
