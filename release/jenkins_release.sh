@@ -1,11 +1,5 @@
 #!/bin/bash
 #
-# Bash command executed by Jenkins to pass parameters and call release
-# scripts.
-#
-# Assumes this script is a subdirectory of the git repository root named
-# "jenkins_release_dir".
-#
 # (C) Copyright 2009-2014 Nuxeo SA (http://nuxeo.com/) and contributors.
 #
 # All rights reserved. This program and the accompanying materials
@@ -19,6 +13,13 @@
 # Lesser General Public License for more details.
 #
 # Contributors:
+#     Anahide Tchertchian
+#     Julien Carsique
+#
+# Bash command executed by CI to pass parameters and call release scripts.
+#
+# Assumes this script is in a sub-directory named "jenkins_release_dir" and
+# the Git repository to release is its parent directory.
 #
 
 echo JAVA_OPTS: $JAVA_OPTS
@@ -36,7 +37,7 @@ else
     export MAVEN_OPTS="-Xmx1g -Xms1g -XX:MaxPermSize=512m"
 fi
 
-# remove jenkins archives from workspace if any (?)
+# remove archives from previous build if any
 rm -rf $WORKSPACE/archives/
 
 # retrieve release scripts
@@ -52,17 +53,18 @@ for file in jenkins_perform.sh; do
 done
 chmod +x *.sh
 
-# build up command line options for the release.py script from Jenkins build parameters
+# build up command line options for the release.py script from env parameters
+COMMAND=prepare
 OPTIONS=( )
 
-if [ $NO_STAGING = true ]; then
+if [ $NO_STAGING != true ]; then
   OPTIONS+=("-d")
 fi
 if [ $FINAL = true ]; then
   OPTIONS+=("-f")
 fi
-if [ $NO_STAGING = true -a $FINAL = true ]; then
-  OPTIONS+=("--push")
+if [ $ONESTEP = true ]; then
+  COMMAND=onestep
 fi
 if [ ! -z $OTHER_VERSION_TO_REPLACE ]; then
   OPTIONS+=("--arv=$OTHER_VERSION_TO_REPLACE")
@@ -71,7 +73,7 @@ if [ $SKIP_TESTS = true ]; then
   OPTIONS+=("--skipTests")
 fi
 if [ ! -z $PROFILES ]; then
-  OPTIONS+=("-p $PROFILES")
+  OPTIONS+=("-P $PROFILES")
 fi
 if [ ! -z "$MSG_COMMIT" ]; then
   # FIXME: this will fail if message contains a quote but above option fails
@@ -86,15 +88,15 @@ if [ ! -z "$MSG_TAG" ]; then
   OPTIONS+=("--mt=$MSG_TAG")
 fi
 
-echo Prepare release
-echo "release.py prepare -b $BRANCH -t $TAG -n $NEXT_SNAPSHOT -m $MAINTENANCE ${OPTIONS[@]}"
-(cd ../; ./jenkins_release_dir/release.py prepare -b "$BRANCH" -t "$TAG" -n "$NEXT_SNAPSHOT" -m "$MAINTENANCE" "${OPTIONS[@]}") || exit 1
+echo "release.py $COMMAND -b $BRANCH -t $TAG -n $NEXT_SNAPSHOT -m $MAINTENANCE ${OPTIONS[@]}"
+(cd ../; ./jenkins_release_dir/release.py $COMMAND -b "$BRANCH" -t "$TAG" -n "$NEXT_SNAPSHOT" -m "$MAINTENANCE" "${OPTIONS[@]}") || exit 1
 
 # . $WORKSPACE/release.log
 
-echo Check prepared release
+echo Check release
+git fetch --all || exit 1
 git checkout $BRANCH || exit 1
-git pull || exit 1
+git pull --rebase || exit 1
 git push -n origin $BRANCH || exit 1
-git log $BRANCH..origin/$BRANCH || exit 1
+git log $BRANCH...origin/$BRANCH --oneline --left-right --cherry-pick || exit 1
 echo
