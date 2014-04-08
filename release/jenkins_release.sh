@@ -73,7 +73,7 @@ if [ $SKIP_TESTS = true ]; then
   OPTIONS+=("--skipTests")
 fi
 if [ ! -z $PROFILES ]; then
-  OPTIONS+=("-P $PROFILES")
+  OPTIONS+=("-p $PROFILES")
 fi
 if [ ! -z "$MSG_COMMIT" ]; then
   # FIXME: this will fail if message contains a quote but above option fails
