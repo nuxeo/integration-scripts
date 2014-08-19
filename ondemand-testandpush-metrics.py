@@ -99,6 +99,9 @@ if not os.path.exists(ci_metrics):
     sys.exit(1)
 else:
     print "Reading %s ..." % ci_metrics
+init = 0
+maven_build = 0
+finalize = 0
 with open(ci_metrics) as f:
     for line in f:
         (metric, time) = line.split()
