@@ -32,8 +32,8 @@ import datetime
 from commands import getstatusoutput
 from xml.dom.minidom import parse
 
-JOB = os.getenv('JOB', "ondemand-testandpush-sample")
-BUILD = os.getenv('BUILD', "1")
+JOB = os.getenv('JOB', None)
+BUILD = os.getenv('BUILD', None)
 BUILD_DIR = os.getenv('BUILD_DIR', './../../%s/builds/%s' % (JOB, BUILD))
 
 
@@ -77,113 +77,164 @@ def parse_test(line):
     else:
         return 0
 
+def write_metrics(**kwargs):
+    header = ("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s"
+              "\t%-50s\t%s\n") % ("Result",
+                                  "Queuing",
+                                  "Total",
+                                  "Init",
+                                  "Build",
+                                  "Finalize",
+                                  "Download",
+                                  "Test",
+                                  "Job/Build", "Built On")
+    metrics = ("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s"
+               "\t%-50s\t%s\n") % (result,
+                                   print_datetime(milliseconds=queuingDuration),
+                                   print_datetime(milliseconds=duration),
+                                   print_datetime(seconds=init),
+                                   print_datetime(seconds=maven_build),
+                                   print_datetime(seconds=finalize),
+                                   print_datetime(seconds=download_duration),
+                                   print_datetime(seconds=test_duration),
+                                   JOB + "/" + BUILD, builtOn)
+    metrics_file = os.path.join(os.getcwd(), 'metrics')
+    if not os.path.exists(metrics_file):
+        with open(metrics_file, "w") as f:
+            print "Creating metrics file: %s" % metrics_file
+            f.write(header)
+    else:
+        print "Updating metrics file: %s" % metrics_file
+    with open(metrics_file, "a") as f:
+        f.write(metrics)
+    print header, metrics
+
+    header_raw = ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n") % (
+                  "Result", "Queuing", "Total", "Init", "Build", "Finalize",
+                  "Download", "Test")
+    metrics_raw = ("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n") % (
+                   result, queuingDuration / 1000, duration / 1000, init,
+                   maven_build, finalize, download_duration, test_duration)
+    metrics_raw_file = os.path.join(os.getcwd(), 'metrics-raw')
+    if not os.path.exists(metrics_raw_file):
+        with open(metrics_raw_file, "w") as f:
+            print "Creating metrics raw file: %s" % metrics_raw_file
+            f.write(header_raw)
+    else:
+        print "Updating metrics raw file: %s" % metrics_raw_file
+    with open(metrics_raw_file, "a") as f:
+        f.write(metrics_raw)
+
 # main
-if not os.path.exists(BUILD_DIR):
-    print "Invalid path : " + BUILD_DIR
-    sys.exit(1)
+if JOB is None:
+    if not os.path.exists('archives'):
+        print "No archives!"
+        sys.exit(1)
+    print "Rebuild metrics from archives"
+    for root, dirs, filenames in os.walk('archives'):
+        for f in filenames:
+            print "Reading %s..." % f
+            with open(os.path.join(root, f), 'rU') as f2:
+                for line in f2:
+                    if not line or not line.rstrip('\n'):
+                        continue
+                    (metric, time) = line.rstrip('\n').split('=')
+                    if metric == "Build":
+                        if "/" in time:
+                            (JOB, BUILD) = time.split('/')
+                        else:
+                            maven_build = int(time)
+                    elif metric == "BuiltOn":
+                        builtOn = time
+                    elif metric == "Queuing":
+                        queuingDuration = long(time)
+                    elif metric == "Total":
+                        duration = long(time)
+                    elif metric == "Init":
+                        init = int(time)
+                    elif metric == "Finalize":
+                        finalize = int(time)
+                    elif metric == "Download":
+                        download_duration = float(time)
+                    elif metric == "Test":
+                        test_duration = float(time)
+                    elif metric == "Result":
+                        result = time
+                write_metrics(result=result,
+                  queuingDuration=queuingDuration, duration=duration,
+                  init=init, maven_build=maven_build, finalize=finalize,
+                  download_duration=download_duration,
+                  test_duration=test_duration, JOB=JOB, BUILD=BUILD,
+                  builtOn=builtOn)
+    sys.exit(0)
 
-# Parse build.xml file
-build_xml = os.path.join(BUILD_DIR, "build.xml")
-if not os.path.exists(build_xml):
-    print "Missing file %s !" % build_xml
-    sys.exit(1)
 else:
-    print "Reading %s ..." % build_xml
-dom = parse(build_xml)
-(result, builtOn, duration, queuingDuration) = parse_build(dom)
+    if not os.path.exists(BUILD_DIR):
+        print "Invalid path : " + BUILD_DIR
+        sys.exit(1)
 
-# Parse .ci-metrics file
-ci_metrics = os.path.join(BUILD_DIR, "archive", ".ci-metrics")
-if not os.path.exists(ci_metrics):
-    print "Missing file %s !" % ci_metrics
-    sys.exit(1)
-else:
-    print "Reading %s ..." % ci_metrics
-init = 0
-maven_build = 0
-finalize = 0
-with open(ci_metrics) as f:
-    for line in f:
-        (metric, time) = line.split()
-        if metric == "Init":
-            init = int(time)
-        elif metric == "Maven":
-            maven_build = int(time)
-        elif metric == "Finalize":
-            finalize = int(time)
+    # Parse build.xml file
+    build_xml = os.path.join(BUILD_DIR, "build.xml")
+    if not os.path.exists(build_xml):
+        print "Missing file %s !" % build_xml
+        sys.exit(1)
+    else:
+        print "Reading %s ..." % build_xml
+    dom = parse(build_xml)
+    (result, builtOn, duration, queuingDuration) = parse_build(dom)
 
-# Parse console log
-console_log = os.path.join(BUILD_DIR, "log")
-if not os.path.exists(console_log):
-    print "Missing file %s !" % console_log
-    sys.exit(1)
-else:
-    print "Reading %s ..." % console_log
-download_duration = 0
-test_duration = 0
-with open(console_log) as f:
-    for line in f:
-        if "Downloaded" in line:
-            download_duration += parse_download(line)
-        elif "Tests run:" in line:
-            test_duration += parse_test(line)
+    # Parse .ci-metrics file
+    ci_metrics = os.path.join(BUILD_DIR, "archive", ".ci-metrics")
+    if not os.path.exists(ci_metrics):
+        print "Missing file %s !" % ci_metrics
+        sys.exit(1)
+    else:
+        print "Reading %s ..." % ci_metrics
+    init = 0
+    maven_build = 0
+    finalize = 0
+    with open(ci_metrics) as f:
+        for line in f:
+            (metric, time) = line.split()
+            if metric == "Init":
+                init = int(time)
+            elif metric == "Maven":
+                maven_build = int(time)
+            elif metric == "Finalize":
+                finalize = int(time)
 
-# Archive results and update global metrics
-if not os.path.exists('archives'):
-    os.mkdir('archives')
-archive = os.path.join('archives', JOB + "_" + BUILD)
-print "Creating archive file: %s" % archive
-with open(archive, "w") as f:
-    f.write("Build=%s\nBuiltOn=%s\n"
-            "Queuing=%s\nTotal=%s\nInit=%s\nBuild=%s\nFinalize=%s\n"
-            "Download=%s\nTest=%s\n" % (
-            JOB + "/" + BUILD, builtOn, queuingDuration, duration, init,
-            maven_build, finalize, download_duration, test_duration))
+    # Parse console log
+    console_log = os.path.join(BUILD_DIR, "log")
+    if not os.path.exists(console_log):
+        print "Missing file %s !" % console_log
+        sys.exit(1)
+    else:
+        print "Reading %s ..." % console_log
+    download_duration = 0
+    test_duration = 0
+    with open(console_log) as f:
+        for line in f:
+            if "Downloaded" in line:
+                download_duration += parse_download(line)
+            elif "Tests run:" in line:
+                test_duration += parse_test(line)
 
-header = ("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s"
-          "\t%-50s\t%s\n") % ("Result",
-                              "Queuing",
-                              "Total",
-                              "Init",
-                              "Build",
-                              "Finalize",
-                              "Download",
-                              "Test",
-                              "Job/Build", "Built On")
-metrics = ("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s"
-           "\t%-50s\t%s\n") % (result,
-                               print_datetime(milliseconds=queuingDuration),
-                               print_datetime(milliseconds=duration),
-                               print_datetime(seconds=init),
-                               print_datetime(seconds=maven_build),
-                               print_datetime(seconds=finalize),
-                               print_datetime(seconds=download_duration),
-                               print_datetime(seconds=test_duration),
-                               JOB + "/" + BUILD, builtOn)
-metrics_file = os.path.join(os.getcwd(), 'metrics')
-if not os.path.exists(metrics_file):
-    with open(metrics_file, "w") as f:
-        print "Creating metrics file: %s" % metrics_file
-        f.write(header)
-else:
-    print "Updating metrics file: %s" % metrics_file
-with open(metrics_file, "a") as f:
-    f.write(metrics)
-print header, metrics
+    # Archive results and update global metrics
+    if not os.path.exists('archives'):
+        os.mkdir('archives')
+    archive = os.path.join('archives', JOB + "_" + BUILD)
+    print "Creating archive file: %s" % archive
+    with open(archive, "w") as f:
+        f.write("Build=%s\nBuiltOn=%s\n"
+                "Queuing=%s\nTotal=%s\nInit=%s\nBuild=%s\nFinalize=%s\n"
+                "Download=%s\nTest=%s\nResult=%s\n" % (
+                JOB + "/" + BUILD, builtOn, queuingDuration, duration, init,
+                maven_build, finalize, download_duration, test_duration,
+                result))
 
-header_raw = ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n") % (
-              "Result", "Queuing", "Total", "Init", "Build", "Finalize",
-              "Download", "Test")
-metrics_raw = ("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n") % (
-               result, queuingDuration / 1000, duration / 1000, init,
-               maven_build, finalize, download_duration, test_duration)
-metrics_raw_file = os.path.join(os.getcwd(), 'metrics-raw')
-if not os.path.exists(metrics_raw_file):
-    with open(metrics_raw_file, "w") as f:
-        print "Creating metrics raw file: %s" % metrics_raw_file
-        f.write(header_raw)
-else:
-    print "Updating metrics raw file: %s" % metrics_raw_file
-with open(metrics_raw_file, "a") as f:
-    f.write(metrics_raw)
+    write_metrics(result=result, queuingDuration=queuingDuration,
+                  duration=duration, init=init, maven_build=maven_build,
+                  finalize=finalize, download_duration=download_duration,
+                  test_duration=test_duration, JOB=JOB, BUILD=BUILD,
+                  builtOn=builtOn)
 
