@@ -126,48 +126,51 @@ def write_metrics(**kwargs):
         f.write(metrics_raw)
 
 # main
+archives = os.path.join(os.getcwd(), 'archives')
 if JOB is None:
-    if not os.path.exists('archives'):
+    if not os.path.exists(archives):
         print "No archives!"
         sys.exit(1)
     print "Rebuild metrics from archives"
-    os.remove('metrics')
-    os.remove('metrics-raw')
-    for root, dirs, filenames in os.walk('archives'):
-        for f in filenames:
-            print "Reading %s..." % f
-            with open(os.path.join(root, f), 'rU') as f2:
-                for line in f2:
-                    if not line or not line.rstrip('\n'):
-                        continue
-                    (metric, time) = line.rstrip('\n').split('=')
-                    if metric == "Build":
-                        if "/" in time:
-                            (JOB, BUILD) = time.split('/')
-                        else:
-                            maven_build = int(time)
-                    elif metric == "BuiltOn":
-                        builtOn = time
-                    elif metric == "Queuing":
-                        queuingDuration = long(time)
-                    elif metric == "Total":
-                        duration = long(time)
-                    elif metric == "Init":
-                        init = int(time)
-                    elif metric == "Finalize":
-                        finalize = int(time)
-                    elif metric == "Download":
-                        download_duration = float(time)
-                    elif metric == "Test":
-                        test_duration = float(time)
-                    elif metric == "Result":
-                        result = time
-                write_metrics(result=result,
-                  queuingDuration=queuingDuration, duration=duration,
-                  init=init, maven_build=maven_build, finalize=finalize,
-                  download_duration=download_duration,
-                  test_duration=test_duration, JOB=JOB, BUILD=BUILD,
-                  builtOn=builtOn)
+    os.remove('metrics') if os.path.isfile('metrics') else None
+    os.remove('metrics-raw') if os.path.isfile('metrics-raw') else None
+    files = os.listdir(archives)
+    files = [os.path.join(archives, f) for f in files]
+    files.sort(key=lambda x: os.path.getmtime(x))
+    for f in files:
+        print "Reading %s..." % f
+        with open(os.path.join(archives, f), 'rU') as f2:
+            for line in f2:
+                if not line or not line.rstrip('\n'):
+                    continue
+                (metric, time) = line.rstrip('\n').split('=')
+                if metric == "Build":
+                    if "/" in time:
+                        (JOB, BUILD) = time.split('/')
+                    else:
+                        maven_build = int(time)
+                elif metric == "BuiltOn":
+                    builtOn = time
+                elif metric == "Queuing":
+                    queuingDuration = long(time)
+                elif metric == "Total":
+                    duration = long(time)
+                elif metric == "Init":
+                    init = int(time)
+                elif metric == "Finalize":
+                    finalize = int(time)
+                elif metric == "Download":
+                    download_duration = float(time)
+                elif metric == "Test":
+                    test_duration = float(time)
+                elif metric == "Result":
+                    result = time
+            write_metrics(result=result,
+              queuingDuration=queuingDuration, duration=duration,
+              init=init, maven_build=maven_build, finalize=finalize,
+              download_duration=download_duration,
+              test_duration=test_duration, JOB=JOB, BUILD=BUILD,
+              builtOn=builtOn)
     sys.exit(0)
 
 else:
@@ -222,9 +225,9 @@ else:
                 test_duration += parse_test(line)
 
     # Archive results and update global metrics
-    if not os.path.exists('archives'):
-        os.mkdir('archives')
-    archive = os.path.join('archives', JOB + "_" + BUILD)
+    if not os.path.exists(archives):
+        os.mkdir(archives)
+    archive = os.path.join(archives, JOB + "_" + BUILD)
     print "Creating archive file: %s" % archive
     with open(archive, "w") as f:
         f.write("Build=%s\nBuiltOn=%s\n"
