@@ -131,6 +131,8 @@ if JOB is None:
         print "No archives!"
         sys.exit(1)
     print "Rebuild metrics from archives"
+    os.remove('metrics')
+    os.remove('metrics-raw')
     for root, dirs, filenames in os.walk('archives'):
         for f in filenames:
             print "Reading %s..." % f
