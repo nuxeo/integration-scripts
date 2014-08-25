@@ -162,12 +162,28 @@ metrics = ("%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s"
                                JOB + "/" + BUILD, builtOn)
 metrics_file = os.path.join(os.getcwd(), 'metrics')
 if not os.path.exists(metrics_file):
-    with open('metrics', "w") as f:
+    with open(metrics_file, "w") as f:
         print "Creating metrics file: %s" % metrics_file
         f.write(header)
 else:
     print "Updating metrics file: %s" % metrics_file
-with open('metrics', "a") as f:
+with open(metrics_file, "a") as f:
     f.write(metrics)
-
 print header, metrics
+
+header_raw = ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n") % (
+              "Result", "Queuing", "Total", "Init", "Build", "Finalize",
+              "Download", "Test")
+metrics_raw = ("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n") % (
+               result, queuingDuration / 1000, duration / 1000, init,
+               maven_build, finalize, download_duration, test_duration)
+metrics_raw_file = os.path.join(os.getcwd(), 'metrics-raw')
+if not os.path.exists(metrics_raw_file):
+    with open(metrics_raw_file, "w") as f:
+        print "Creating metrics raw file: %s" % metrics_raw_file
+        f.write(header_raw)
+else:
+    print "Updating metrics raw file: %s" % metrics_raw_file
+with open(metrics_raw_file, "a") as f:
+    f.write(metrics_raw)
+
