@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.5-build/lastSuccessfulBuild/artifact/trunk/release/archives}
 HERE=$(cd $(dirname $0); pwd -P)
