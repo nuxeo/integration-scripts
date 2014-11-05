@@ -7,8 +7,7 @@ HERE=$(cd $(dirname $0); pwd -P)
 UPLOAD_URL=${UPLOAD_URL:-}
 SRC_URL=${SRC_URL:-download}
 if [ ! -z "$UPLOAD_URL" ]; then
-    ls $SRC_URL/*HF*.zip >/dev/null 2>&1
-    [ $? = 0 ] && exit 0
+    ls $SRC_URL/*HF*.zip >/dev/null 2>&1 && exit 0 || true
     date
     scp -C $SRC_URL/*.zip* $UPLOAD_URL || true
     mkdir -p $HERE/download/mp
