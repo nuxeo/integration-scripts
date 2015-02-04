@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# (C) Copyright 2009-2014 Nuxeo SA (http://nuxeo.com/) and contributors.
+# (C) Copyright 2009-2015 Nuxeo SA (http://nuxeo.com/) and contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the GNU Lesser General Public License
@@ -42,14 +42,14 @@ rm -rf $WORKSPACE/archives/
 
 # retrieve release scripts
 for file in release.py nxutils.py terminalsize.py IndentedHelpFormatterWithNL.py ; do
-  wget --no-check-certificate https://raw.github.com/nuxeo/nuxeo/master/scripts/$file -O $file || exit 1
+  wget --no-check-certificate https://raw.githubusercontent.com/nuxeo/nuxeo/master/scripts/$file -O $file || exit 1
 done
 chmod +x *.py
 
 # retrieve utility file for task using jenkins_perform.py, in case release is not
 # performed right away
 for file in jenkins_perform.sh; do
-  wget --no-check-certificate https://raw.github.com/nuxeo/integration-scripts/master/release/$file -O $file || exit 1
+  wget --no-check-certificate https://raw.githubusercontent.com/nuxeo/integration-scripts/master/release/$file -O $file || exit 1
 done
 chmod +x *.sh
 
