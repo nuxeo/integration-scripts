@@ -1,10 +1,10 @@
-set terminal png transparent nocrop enhanced font arial 8 size 640,480
-#set terminal png  nocrop enhanced font arial 8 size 640,480
+#set terminal png transparent nocrop enhanced font arial 8 size 1280,1024
+#set terminal png  nocrop enhanced font arial 8 size 1280,1024
 set output 'ci-stat.png'
 
 set border 3 front linetype -1 linewidth 1.000
-set boxwidth 0.75 absolute
-set style fill solid 0.75 border -1
+set boxwidth 0 absolute
+set style fill solid 0 noborder
 set grid nopolar
 set grid noxtics nomxtics ytics nomytics noztics nomztics \
   nox2tics nomx2tics noy2tics nomy2tics nocbtics nomcbtics
