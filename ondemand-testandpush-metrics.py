@@ -62,6 +62,8 @@ def parse_download(line):
     if line[1] == "B":
         size = size / 1024
     speed = float(line[3])
+    if speed == 0:
+        return 0
     return size / speed
 
 def parse_test(line):
