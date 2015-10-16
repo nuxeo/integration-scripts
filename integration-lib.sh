@@ -295,7 +295,7 @@ stop_server() {
     echo "### 10 most frequent errors --------------"
     grep " ERROR \[" "$SERVER_HOME"/log/server.log | sed "s/^.\{24\}//g" | sort | uniq -c | sort -nr | head
     echo "### 10 first errors ----------------------"
-    grep -nTm 10 " ERROR " "$SERVER_HOME"/log/server.log
+    grep -nm 10 " ERROR " "$SERVER_HOME"/log/server.log
     echo "### --------------------------------------"
     gzip "$SERVER_HOME"/log/*.log
     gzip -cd  "$SERVER_HOME"/log/server.log.gz 2>/dev/null > "$SERVER_HOME"/log/server.log
