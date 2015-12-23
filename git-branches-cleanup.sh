@@ -64,7 +64,11 @@ analyze() {
 			fi
 		done
 
-		author=$(git log -1 --no-merges --grep="Merge branch '.*' from multiple repositories" --invert-grep --pretty=format:'%aE' $branch)
+		if $INVERT_GREP; then
+			author=$(git log -1 --no-merges --grep="Merge branch '.*' from multiple repositories" --invert-grep --pretty=format:'%aE' $branch)
+		else
+			author=$(git log -20 --format=%H $branch | grep -v -f <(git log -20 --format=%H "--grep=Merge branch '.*' from multiple repositories" $branch) | git log -1 --pretty=format:'%aE' --stdin --no-walk)
+		fi
 		if [ -z "$(git log -1 --since='3 months ago' --oneline $branch)" ]; then
 		    jira=$(echo "$branch" | awk -v jira_pattern="($JIRA_PROJECTS)-[0-9]+" 'match($0, jira_pattern) {print substr($0,RSTART,RLENGTH)}')
 			if [ -z "$jira" ]; then
@@ -126,7 +130,11 @@ test() {
 	branch=$1
 	echo ">> Get author..."
 	set -x
-	git log -1 --no-merges --grep="Merge branch '.*' from multiple repositories" --invert-grep --pretty=format:'%aE' $branch
+	if $INVERT_GREP; then
+		git log -1 --no-merges --grep="Merge branch '.*' from multiple repositories" --invert-grep --pretty=format:'%aE' $branch
+	else
+		git log -20 --format=%H $branch | grep -v -f <(git log -20 --format=%H "--grep=Merge branch '.*' from multiple repositories" $branch) | git log -1 --pretty=format:'%aE' --stdin --no-walk
+	fi
 	{ set +x; } 2>/dev/null
 
 	echo -e "\n>> Extract JIRA reference..."
@@ -166,6 +174,10 @@ elif [ "$1" = "help" ]; then
 fi
 [ -d .git ] || git rev-parse --git-dir >/dev/null 2>&1 || die "Not a Git repository"
 git config remote.origin.url >/dev/null || die "No remote named 'origin'"
+git help log |grep 'invert-grep' >/dev/null 2>&1 && INVERT_GREP=true || INVERT_GREP=false
+if ! $INVERT_GREP ; then
+	echo "You should upgrade Git!"
+fi
 if [ "$1" = "analyze" ]; then
 	analyze
 elif [ "$1" = "full" ]; then
