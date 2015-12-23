@@ -112,7 +112,8 @@ perform() {
 	branches=""
 	while read line; do
 		[[ $line =~ ^"#" ]] && continue
-		branch=${line#* }
+		branch=$(echo $line|tr "\t" " ")
+		branch=${branch#* }
 		branch=${branch#*origin/}
 		branch=${branch%% *}
 		branches+=" $branch"
