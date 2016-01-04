@@ -26,6 +26,11 @@ PATTERNS='^origin/master$ \
  ^origin/[0-9]+(\.[0-9]+)+-HF[0-9]+-SNAPSHOT$ \
  ^origin/[0-9]+(\.[0-9]+)+$ \
  5.4.2-I20110404_0115'
+DEPRECATED_PATTERNS='^origin/1\.[0-9](\.[0-9])?$ \
+ ^origin/5\.[0-7](\.[0-9])*$ \
+ ^origin/5\.9\..*$ \
+ ^origin/[1-7](\.[0-9]+)+-SNAPSHOT$'
+
 # Output files
 basedir=${PWD##*/}
 FILE_LIST=/tmp/cleanup-$basedir-complete
@@ -59,6 +64,12 @@ analyze() {
     count=$(( $count + 1 ))
     printf "\r\e[K(%3d/%d) Analyzing branch %s ..." $count $nb_complete $branch
     echo "$branch" >> $FILE_LIST
+    for pattern in $DEPRECATED_PATTERNS; do
+      if [[ $branch =~ $pattern ]]; then
+        printf "%-20s\t%-80s\t%s\n" "system" $branch "(deprecated pattern '$pattern')" >> $FILE_DELETE
+        continue 2
+      fi
+    done
     for pattern in $PATTERNS; do
       if [[ $branch =~ $pattern ]]; then
         printf "%-20s\t%-80s\t%s\n" "system" $branch "(pattern '$pattern')" >> $FILE_KEEP
@@ -175,6 +186,7 @@ elif [ "$1" = "help" ]; then
   usage
   exit 0
 fi
+echo "Working on $PWD"
 [ -d .git ] || git rev-parse --git-dir >/dev/null 2>&1 || die "Not a Git repository"
 git config remote.origin.url >/dev/null || die "No remote named 'origin'"
 git help log |grep 'invert-grep' >/dev/null 2>&1 && INVERT_GREP=true || INVERT_GREP=false
