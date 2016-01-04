@@ -47,9 +47,10 @@ die() {
 analyze() {
   echo "# Branches analyzed" > $FILE_LIST
   rm -f $FILE_UNKNOWN $FILE_DELETE $FILE_KEEP
+  touch $FILE_UNKNOWN $FILE_DELETE $FILE_KEEP
 
   git fetch --prune
-  complete=`git branch -r --list "origin/*"`
+  complete=`git ls-remote --heads -q origin|cut -f 2|sed "s,refs/heads,origin,g"`
   nb_complete=`echo $complete|wc -w`
 
   echo "Nb branches before cleanup: $nb_complete"
