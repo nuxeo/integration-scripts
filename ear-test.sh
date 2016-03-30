@@ -4,7 +4,7 @@ CURRENT_DEV_VERSION="5.6-SNAPSHOT"
 
 # JBoss location:
 JBOSS_ZIP_FILE=${JBOSS_ZIP_FILE:-}
-JBOSS_REPO_URL=${JBOSS_REPO_URL:-"http://maven.in.nuxeo.com/nexus/"}
+JBOSS_REPO_URL=${JBOSS_REPO_URL:-"http://mavenin.nuxeo.com/nexus/"}
 JBOSS_GROUPID=${JBOSS_GROUPID:-"org.jboss"}
 JBOSS_ARTIFACTID=${JBOSS_ARTIFACTID:-"jboss-as"}
 JBOSS_VERSION=${JBOSS_VERSION:-"5.1.0.GA"}
@@ -13,7 +13,7 @@ JBOSS_PACKAGING="zip"
 
 # EAR location:
 EAR_ZIP_FILE=${EAR_ZIP_FILE:-}
-EAR_REPO_URL=${EAR_REPO_URL:-"http://maven.in.nuxeo.com/nexus/,http://maven.in.nuxeo.com/nexus/content/repositories/daily-snapshots/"}
+EAR_REPO_URL=${EAR_REPO_URL:-"http://mavenin.nuxeo.com/nexus/,http://mavenin.nuxeo.com/nexus/content/repositories/daily-snapshots/"}
 EAR_GROUPID=${EAR_GROUPID:-"org.nuxeo.ecm.distribution"}
 EAR_ARTIFACTID=${EAR_ARTIFACTID:-"nuxeo-distribution-jboss"}
 EAR_VERSION=${EAR_VERSION:-$CURRENT_DEV_VERSION}
