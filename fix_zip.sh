@@ -48,9 +48,13 @@ for zip in nuxeo-cap-*-tomcat.zip nuxeo-cap-*-tomcat-sdk.zip ; do
   cd -
   mv /tmp/$DIR.zip $zip
   md5sum $zip>$zip.md5
+  shasum -a 256 $zip>$zip.sha256
 done
 
-for file in nuxeo-*-sources.zip; do md5sum $file > $file.md5; done
+for file in nuxeo-*-sources.zip; do
+    md5sum $file > $file.md5
+    shasum -a 256 $file > $file.sha256
+done
 
 cd ..
 mv archives/*.bak.zip archives.bak/
