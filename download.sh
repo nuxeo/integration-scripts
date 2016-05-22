@@ -4,7 +4,7 @@ PRODUCT=${PRODUCT:-cap}
 SERVER=${SERVER:-tomcat}
 HERE=$(cd $(dirname $0); pwd -P)
 
-LASTBUILD_URL=${LASTBUILD_URL:https://qa.nuxeo.org/jenkins/job/Deploy/job/IT-nuxeo-master-build/lastSuccessfulBuild/artifact/archives}
+LASTBUILD_URL=${LASTBUILD_URL:-https://qa.nuxeo.org/jenkins/job/Deploy/job/IT-nuxeo-master-build/lastSuccessfulBuild/artifact/archives}
 ZIP_FILE=${ZIP_FILE:-}
 SKIP_FUNKLOAD=${SKIP_FUNKLOAD:-}
 
