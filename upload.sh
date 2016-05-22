@@ -12,7 +12,7 @@ if [ ! -z "$UPLOAD_URL" ]; then
     scp -C $SRC_URL/*.zip* $UPLOAD_URL || true
     mkdir -p $HERE/download/mp
     cd $HERE/download/mp
-    links=`lynx --dump $LASTBUILD_URL/mp | grep -E -o 'http:.*archives\/((nuxeo-.*(-sdk)*.zip(.md5)*)|packages.xml)' | sort -u`
+    links=`lynx --dump $LASTBUILD_URL/mp | grep -E -o 'https?:.*archives\/((nuxeo-.*(-sdk)*.zip(.md5)*)|packages.xml)' | sort -u`
     if [ ! -z "$links" ]; then
         wget -nv $links
         scp -C $SRC_URL/mp/* $UPLOAD_URL/mp/ || true

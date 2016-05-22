@@ -2,7 +2,7 @@
 
 HERE=$(cd $(dirname $0); pwd -P)
 . $HERE/integration-lib.sh
-LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-master-build/lastSuccessfulBuild/artifact/archives/}
+LASTBUILD_URL=${LASTBUILD_URL:-https://qa.nuxeo.org/hudson/job/Deploy/job/IT-nuxeo-master-build/lastSuccessfulBuild/artifact/archives/}
 UPLOAD_URL=${UPLOAD_URL:-}
 ZIP_FILE=${ZIP_FILE:-}
 PRODUCT=${PRODUCT:-cap}
@@ -17,7 +17,7 @@ mkdir ./results ./download /tmp/cluster-binaries || exit 1
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*nuxeo\-cap.*.zip" | grep jboss | sort -u | grep -v ear | grep -v sdk | grep -v online`
+    links=`lynx --dump $LASTBUILD_URL | grep -o "https?:.*nuxeo\-cap.*.zip" | grep jboss | sort -u | grep -v ear | grep -v sdk | grep -v online`
 
     # Download and unpack the latest builds
     for link in $links; do

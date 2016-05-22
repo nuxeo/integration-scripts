@@ -13,7 +13,7 @@ mkdir ./download || exit 1
 cd download
 if [ -z $ZIP_FILE ]; then
     # extract list of links
-    links=`lynx --dump $LASTBUILD_URL | grep -o "http:.*nuxeo\-.*.zip\(.md5\)*" | sort -u`
+    links=`lynx --dump $LASTBUILD_URL | grep -o "https?:.*nuxeo\-.*.zip\(.md5\)*" | sort -u`
     # Download and unpack the lastest builds
     for link in $links; do
         wget -nv $link || exit 1
