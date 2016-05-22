@@ -25,7 +25,7 @@ export SOURCES_ZIP_FILE=`dirname $ZIP_FILE`/nuxeo-*-sources.zip
 if [ ! -e "$SOURCES_ZIP_FILE" ]; then
     cd download
     # extract link
-    link=`lynx --dump $LASTBUILD_URL |grep -o "https?:.*archives\/.*sources.*\.zip"| sort -u`
+    link=`lynx --dump $LASTBUILD_URL |grep -o -E "https?:.*archives\/.*sources.*\.zip"| sort -u`
     wget -nv $link || exit 1
     export SOURCES_ZIP_FILE=$PWD/$(ls *sources*.zip)
     cd ..
