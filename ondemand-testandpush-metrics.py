@@ -38,7 +38,7 @@ if '/' not in JOB:
     BUILD_DIR = os.getenv('BUILD_DIR', './../../%s/builds/%s' % (JOB, BUILD))
 else:
     FOLDER, JOB = JOB.split('/')
-    BUILD_DIR = os.getenv('BUILD_DIR', './../../%s/jobs/%s/builds/%s' % (FOLDER, JOB, BUILD))
+    BUILD_DIR = os.getenv('BUILD_DIR', './../../../../%s/jobs/%s/builds/%s' % (FOLDER, JOB, BUILD))
 
 
 def print_datetime(seconds=0, milliseconds=0):
