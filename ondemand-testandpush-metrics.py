@@ -34,7 +34,11 @@ from xml.dom.minidom import parse
 
 JOB = os.getenv('JOB', None)
 BUILD = os.getenv('BUILD', None)
-BUILD_DIR = os.getenv('BUILD_DIR', './../../%s/builds/%s' % (JOB, BUILD))
+if '/' not in JOB:
+    BUILD_DIR = os.getenv('BUILD_DIR', './../../%s/builds/%s' % (JOB, BUILD))
+else:
+    FOLDER, JOB = JOB.split('/')
+    BUILD_DIR = os.getenv('BUILD_DIR', './../../%s/jobs/%s/builds/%s' % (FOLDER, JOB, BUILD))
 
 
 def print_datetime(seconds=0, milliseconds=0):
