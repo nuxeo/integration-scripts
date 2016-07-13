@@ -42,14 +42,14 @@ for kind in nuxeo-server nuxeo-cap; do
   featured=$(xmlstarlet sel -t -m '//packageDefinitions/package' -i "not(@virtual='true')" -v '@id' -n $PACKAGES_XML)
 
   # Loop on all uploaded marketplace packages and the nuxeo-jsf-ui one prepared for the release
-  for file in $(grep uploaded ../nuxeo/marketplace/release.ini | cut -d ' ' -f 4) $NUXEO_JSF_UI-*.zip; do
-      name=$(unzip -p $file package.xml | xmlstarlet sel -t -v 'package/@name')
-      if [[ $featured =~ (^|[[:space:]])"$name"($|[[:space:]]) ]]; then
-	cp $file $MP/$name.zip
-	xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'filename' -v "$name.zip" $PACKAGES_XML
-	md5=$(md5 $MP/$name.zip)
-	xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'md5' -v "$md5" $PACKAGES_XML
-      fi
+  for file in $(grep uploaded ../nuxeo/marketplace/release.ini | cut -d ' ' -f 4-) $NUXEO_JSF_UI-*.zip; do
+    name=$(unzip -p $file package.xml | xmlstarlet sel -t -v 'package/@name') || echo ERROR: package.xml parsing failed on $file >&2
+    if [[ $featured =~ (^|[[:space:]])"$name"($|[[:space:]]) ]]; then
+      cp $file $MP/$name.zip
+      xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'filename' -v "$name.zip" $PACKAGES_XML
+      md5=$(md5 $MP/$name.zip)
+      xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'md5' -v "$md5" $PACKAGES_XML
+    fi
   done
 
   # Update ZIP archives
@@ -67,8 +67,8 @@ for kind in nuxeo-server nuxeo-cap; do
     chmod +x $DIR/bin/*ctl $DIR/bin/*.sh $DIR/bin/*.command $DIR/*.command
     cp $OLDPWD/$PACKAGES_XML $DIR/setupWizardDownloads/
     for file in $OLDPWD/$MP/*.zip; do
-	md5=$(md5 $file)
-	cp $file $DIR/setupWizardDownloads/$md5
+  md5=$(md5 $file)
+  cp $file $DIR/setupWizardDownloads/$md5
     done
     zip -r $DIR.zip $DIR/
     rm -rf $DIR/
@@ -80,8 +80,8 @@ for kind in nuxeo-server nuxeo-cap; do
 done
 
 for file in nuxeo-*-sources.zip; do
-    md5sum $file > $file.md5
-    sha256sum $file > $file.sha256
+  md5sum $file > $file.md5
+  sha256sum $file > $file.sha256
 done
 
 cd ..
