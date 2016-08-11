@@ -66,11 +66,6 @@ if [ ! -z $PGPASSWORD ]; then
     setup_postgresql_database
 fi
 
-# Disable single datasource mode
-cat >> "$NUXEO_CONF" <<EOF || exit 1
-nuxeo.db.singleDataSource=
-EOF
-
 # Start Nuxeo
 start_server 127.0.0.1
 
