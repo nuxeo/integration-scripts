@@ -15,7 +15,7 @@ wget https://raw.githubusercontent.com/nuxeo/integration-scripts/fix-NXP-20105-r
 #mkdir $WORKSPACE/scripts
 
 for file in release_mp.py nxutils.py terminalsize.py IndentedHelpFormatterWithNL.py gitfunctions.sh; do
-  wget --no-check-certificate https://raw.githubusercontent.com/nuxeo/scripts/$file -O $WORKSPACE/scripts/$file
+  wget --no-check-certificate https://raw.githubusercontent.com/nuxeo/nuxeo/master/scripts/$file -O $WORKSPACE/scripts/$file
 done
 
 chmod +x ./scripts/*
