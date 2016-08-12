@@ -12,8 +12,8 @@ pwd
 
 echo Prepare Marketplace Packages
 cd $WORKSPACE
-mkdir $WORKSPACE/scripts
-wget https://raw.githubusercontent.com/nuxeo/integration-scripts/fix-NXP-20105-release-marketplace-addon-without-cap-nxr/$PACKAGES_NAME -O $WORKSPACE/marketplace-partial.ini
+mkdir -p $WORKSPACE/scripts
+#wget https://raw.githubusercontent.com/nuxeo/integration-scripts/fix-NXP-20105-release-marketplace-addon-without-cap-nxr/$PACKAGES_NAME -O $WORKSPACE/marketplace-partial.ini
 
 
 for file in release_mp.py release.py nxutils.py terminalsize.py IndentedHelpFormatterWithNL.py gitfunctions.sh; do
@@ -27,7 +27,10 @@ chmod +x ./scripts/*
 
 ./scripts/gitfunctions.sh
 rm -rf marketplace || true
-./scripts/release_mp.py clone -m file://$WORKSPACE/marketplace-partial.ini
+./scripts/release_mp.py clone -m https://raw.githubusercontent.com/nuxeo/integration-scripts/fix-NXP-20105-release-marketplace-addon-without-cap-nxr/marketplace-partialRelease.ini
+
+exit
+
 cd marketplace
 ./scripts/release_mp.py prepare
 echo CHECK PREPARE
