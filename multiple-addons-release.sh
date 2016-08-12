@@ -6,13 +6,15 @@ export M2_HOME=/opt/build/tools/maven3
 export PATH=$M2_HOME/bin:$PATH
 
 rm -rf $WORKSPACE/archives/
+rm -rf $WORKSPACE/scripts/
 
 pwd
 
 echo Prepare Marketplace Packages
 cd $WORKSPACE
+mkdir $WORKSPACE/scripts
 wget https://raw.githubusercontent.com/nuxeo/integration-scripts/fix-NXP-20105-release-marketplace-addon-without-cap-nxr/$PACKAGES_NAME -O $WORKSPACE/marketplace-partial.ini
-#mkdir $WORKSPACE/scripts
+
 
 for file in release_mp.py release.py nxutils.py terminalsize.py IndentedHelpFormatterWithNL.py gitfunctions.sh; do
   wget --no-check-certificate https://raw.githubusercontent.com/nuxeo/nuxeo/master/scripts/$file -O $WORKSPACE/scripts/$file
