@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PRODUCT=${PRODUCT:-cap}
+PRODUCT=${PRODUCT:-server}
 SERVER=${SERVER:-tomcat}
 HERE=$(cd $(dirname $0); pwd -P)
 
