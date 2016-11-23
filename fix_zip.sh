@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for zip in $* ; do
+for zip in "$*" ; do
   if [ ! -e $zip ]; then
     echo Ignore non existing $zip!
     continue
