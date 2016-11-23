@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 for zip in "$*" ; do
   if [ ! -e $zip ]; then
