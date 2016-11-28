@@ -15,7 +15,7 @@ mkdir ./download || exit 1
 if [ -z "$ZIP_FILE" ]; then
     cd download
     # extract link
-    link=`lynx --dump $LASTBUILD_URL | grep -E -o "http:.*archives\/nuxeo-.*(-sdk)*.zip(.md5)*" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v ear`
+    link=`lynx --dump $LASTBUILD_URL | grep -E -o "http[s]?:.*archives\/nuxeo-.*(-sdk)?.zip(.md5)?" | sort -u |grep $PRODUCT-[0-9]|grep $SERVER|grep -v ear`
     wget -nv $link || exit 1
     export ZIP_FILE=$PWD/$(ls nuxeo-$PRODUCT*$SERVER.zip)
     export SDK_ZIP_FILE=$PWD/$(ls nuxeo-$PRODUCT*$SERVER-sdk.zip 2>/dev/null)
@@ -25,7 +25,7 @@ export SOURCES_ZIP_FILE=`dirname $ZIP_FILE`/nuxeo-*-sources.zip
 if [ ! -e "$SOURCES_ZIP_FILE" ]; then
     cd download
     # extract link
-    link=`lynx --dump $LASTBUILD_URL |grep -o "http:.*archives\/.*sources.*\.zip"| sort -u`
+    link=`lynx --dump $LASTBUILD_URL |grep -E -o "http[s]?:.*archives\/.*sources.*\.zip"| sort -u`
     wget -nv $link || exit 1
     export SOURCES_ZIP_FILE=$PWD/$(ls *sources*.zip)
     cd ..
