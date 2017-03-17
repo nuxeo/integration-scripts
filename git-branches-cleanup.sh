@@ -84,7 +84,7 @@ analyze() {
       author=$(git log -20 --format=%H $branch | grep -v -f <(git log -20 --format=%H "--grep=Merge branch '.*' from multiple repositories" $branch) | git log -1 --pretty=format:'%aE' --stdin --no-walk)
     fi
     if [ -z "$(git log -1 --since='3 months ago' --oneline $branch)" ]; then
-        jira=$(echo "$branch" | awk -v jira_pattern="($JIRA_PROJECTS)-[0-9]+" 'match($0, jira_pattern) {print substr($0,RSTART,RLENGTH)}')
+        jira=$(echo "$branch" | awk -v jira_pattern="($JIRA_PROJECTS)-[0-9]+" 'match(toupper($0), jira_pattern) {print substr($0,RSTART,RLENGTH)}')
       if [ -z "$jira" ]; then
         printf "%-20s\t%-80s\t%s\n" $author $branch "(unknown pattern)" >> $FILE_UNKNOWN
         continue
@@ -154,7 +154,7 @@ test() {
 
   echo -e "\n>> Extract JIRA reference..."
   set -x
-  jira=$(echo "$branch" | awk -v jira_pattern="($JIRA_PROJECTS)-[0-9]+" 'match($0, jira_pattern) {print substr($0,RSTART,RLENGTH)}')
+  jira=$(echo "$branch" | awk -v jira_pattern="($JIRA_PROJECTS)-[0-9]+" 'match(toupper($0), jira_pattern) {print substr($0,RSTART,RLENGTH)}')
   { set +x; } 2>/dev/null
 
   echo -e "\n>> Check JIRA reference exists (and is public), get its status and optional tags..."
@@ -213,5 +213,3 @@ else
   exit 1
 fi
 exit 0
-
-
