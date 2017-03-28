@@ -301,3 +301,45 @@ stop_server() {
     gzip -cd  "$SERVER_HOME"/log/server.log.gz 2>/dev/null > "$SERVER_HOME"/log/server.log
 }
 
+# Downloads a file and retries x times after a wait period of y seconds (in case of failure)
+#
+# It does not overwrite a file if it already exists (return code 2)
+# It does not resume download in case of failure but rather restarts it
+#
+# L_URL the url of the file to download [MANDATORY]
+# L_COUNTER number of retries (minimum 1, default is 5 times) [OPTIONAL]
+# L_DELAY time to wait before retrying (minimum 1, default is 3 seconds) [OPTIONAL]
+#
+# examples:
+#   downloadWithRetry "http://community.nuxeo.com/static/releases/nuxeo-5.3.1/nuxeo-shell-5.3.1.zip" 4 2
+#   downloadWithRetry "http://community.nuxeo.com/static/releases/nuxeo-8.10/nuxeo-8.10-vm-vbox.zip"
+#   downloadWithRetry "http://community.nuxeo.com/static/releases/nuxeo-5.3.1/nuxeo-shell-5.3.1.zip" "" 2
+#   downloadWithRetry "http://community.nuxeo.com/static/releases/nuxeo-5.3.1/nuxeo-shell-5.3.1.zip.md5" 7
+downloadWithRetry() {
+    local L_URL=$1
+    local L_COUNTER=${2:-5}
+    local L_DELAY=${3:-3}
+    local L_FILENAME=${L_URL##*/} # last part of a url
+
+    [[ $L_COUNTER =~ ^[1-9][0-9]*$ ]] || L_COUNTER=5 # if counter not > 0 then default value
+    [[ $L_DELAY =~ ^[1-9][0-9]*$ ]] || L_DELAY=3 # if delay is not > 0 then default value
+
+    if [ ! -f "$L_FILENAME" ]; then
+        until [ $L_COUNTER -lt 1 ]; do
+            L_CURL_RETR=0
+            L_HTTP_RES=$(curl -ns -w "%{http_code}" -o "$L_FILENAME" -C - "$L_URL") || L_CURL_RETR=$?
+            if [ "$L_CURL_RETR" -eq "0" ] && [ "$L_HTTP_RES" -eq "200" ]; then
+                return 0
+            fi
+            echo "FAILED: could not retrieve $L_FILENAME, HTTP code is $L_HTTP_RES, RETURN code is $L_CURL_RETR"
+            rm -f "$L_FILENAME"
+            L_COUNTER=$((L_COUNTER - 1))
+            sleep $L_DELAY
+        done
+        echo "ERROR: could not retrieve $L_URL"
+        return 1
+    else
+        echo "ERROR: $L_FILENAME already exists."
+        return 2
+    fi
+}
