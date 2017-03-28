@@ -28,6 +28,7 @@ oneTimeSetUp() {
 
 killCURLProcesses() {
   # killing remaining curl processes in case of test failure
+  local dlPID
   dlPID=$(pgrep curl)
   if [ -n "${dlPID}" ]; then
     kill -9 "${dlPID}"
@@ -58,14 +59,15 @@ tearDown() {
 }
 
 function killDownloadInLoop() {
-  local L_MAX_TRIES=$1
-  local L_DELAY=$2
+  local MAX_TRIES=$1
+  local DELAY=$2
+  local dlPID
 
-  for i in $(seq 1 ${L_MAX_TRIES}); do
-    echo -ne "\t[Downloading ${bigFileName}] attempt ${i}/${L_MAX_TRIES}\n"
-    sleep ${L_DELAY}
+  for i in $(seq 1 ${MAX_TRIES}); do
+    echo -ne "\t[Downloading ${bigFileName}] attempt ${i}/${MAX_TRIES}\n"
+    sleep ${DELAY}
     dlPID=$(pgrep curl)
-    assertEquals "curl should be running at least ${L_MAX_TRIES} times -> stopped when i=${i}" "0" "$?" || return 1
+    assertEquals "curl should be running at least ${MAX_TRIES} times -> stopped when i=${i}" "0" "$?" || return 1
     assertTrue "no file was downloaded" "[ -f ${bigFileName} ]" || return 1
     kill -9 ${dlPID}
   done
@@ -74,13 +76,14 @@ function killDownloadInLoop() {
 }
 
 function killAndCheckDelay() {
-  local L_DELAY=$1
+  local DELAY=$1
+  local dlPID
 
   echo -ne "\tChecking the delay is neither too short...\n"
   dlPID=$(pgrep curl)
   assertEquals "curl should be running before killing it" "0" "$?" || return 1
   kill ${dlPID}
-  sleep $((L_DELAY - 1))
+  sleep $((DELAY - 1))
   echo -ne "\tNor too long...\n"
   dlPID=$(pgrep curl)
   assertNotEquals "curl should not be running before the wait period" "0" "$?" || return 1
@@ -93,146 +96,148 @@ function killAndCheckDelay() {
 }
 
 testInvalidZeroCounter() {
-#  fail "DISABLED" || return
-  local L_EXPECTED_RETRIES=0
-  local L_EXPECTED_DELAY=1
-  local L_KILL_RETRIES=5
-  local L_KILL_DELAY=$((L_EXPECTED_DELAY + 1))
+  # fail "DISABLED" || return
+  local EXPECTED_RETRIES=0
+  local EXPECTED_DELAY=1
+  local KILL_RETRIES=5
+  local KILL_DELAY=$((EXPECTED_DELAY + 1))
 
-  downloadWithRetry ${bigFileUrl} ${L_EXPECTED_RETRIES} ${L_EXPECTED_DELAY} 2>${stderr} 1>${stdout}&
-  killDownloadInLoop ${L_KILL_RETRIES} ${L_KILL_DELAY} || return
-  sleep ${L_KILL_DELAY}
+  downloadWithRetry ${bigFileUrl} ${EXPECTED_RETRIES} ${EXPECTED_DELAY} 2>${stderr} 1>${stdout}&
+  killDownloadInLoop ${KILL_RETRIES} ${KILL_DELAY} || return
+  sleep ${KILL_DELAY}
   pgrep curl
-  assertNotEquals "curl should not be running more than ${L_KILL_RETRIES} times" "0" "$?" || return
+  assertNotEquals "curl should not be running more than ${KILL_RETRIES} times" "0" "$?" || return
 }
 
 testInvalidNegativeCounter() {
-#  fail "DISABLED" || return
-  local L_EXPECTED_RETRIES="-5"
-  local L_EXPECTED_DELAY=1
-  local L_KILL_RETRIES=5
-  local L_KILL_DELAY=$((L_EXPECTED_DELAY + 1))
+  # fail "DISABLED" || return
+  local EXPECTED_RETRIES="-5"
+  local EXPECTED_DELAY=1
+  local KILL_RETRIES=5
+  local KILL_DELAY=$((EXPECTED_DELAY + 1))
 
-  downloadWithRetry ${bigFileUrl} ${L_EXPECTED_RETRIES} ${L_EXPECTED_DELAY} 2>${stderr} 1>${stdout}&
-  killDownloadInLoop ${L_KILL_RETRIES} ${L_KILL_DELAY} || return
-  sleep ${L_KILL_DELAY}
+  downloadWithRetry ${bigFileUrl} ${EXPECTED_RETRIES} ${EXPECTED_DELAY} 2>${stderr} 1>${stdout}&
+  killDownloadInLoop ${KILL_RETRIES} ${KILL_DELAY} || return
+  sleep ${KILL_DELAY}
   pgrep curl
-  assertNotEquals "curl should not be running more than ${L_KILL_RETRIES} times" "0" "$?" || return
+  assertNotEquals "curl should not be running more than ${KILL_RETRIES} times" "0" "$?" || return
 }
 
 testDefaultCounter() {
-#  fail "DISABLED" || return
-  local L_EXPECTED_RETRIES=5
-  local L_EXPECTED_DELAY=3
-  local L_KILL_RETRIES=${L_EXPECTED_RETRIES}
-  local L_KILL_DELAY=$((L_EXPECTED_DELAY + 1))
+  # fail "DISABLED" || return
+  local EXPECTED_RETRIES=5
+  local EXPECTED_DELAY=3
+  local KILL_RETRIES=${EXPECTED_RETRIES}
+  local KILL_DELAY=$((EXPECTED_DELAY + 1))
 
   downloadWithRetry ${bigFileUrl} 2>${stderr} 1>${stdout}&
-  killDownloadInLoop ${L_KILL_RETRIES} ${L_KILL_DELAY} || return
-  sleep ${L_KILL_DELAY}
+  killDownloadInLoop ${KILL_RETRIES} ${KILL_DELAY} || return
+  sleep ${KILL_DELAY}
   pgrep curl
-  assertNotEquals "curl should not be running more than ${L_KILL_RETRIES} times" "0" "$?" || return
+  assertNotEquals "curl should not be running more than ${KILL_RETRIES} times" "0" "$?" || return
 }
 
 testValidCounter() {
-#  fail "DISABLED" || return
-  local L_EXPECTED_RETRIES=4
-  local L_EXPECTED_DELAY=1
-  local L_KILL_RETRIES=${L_EXPECTED_RETRIES}
-  local L_KILL_DELAY=$((L_EXPECTED_DELAY + 1))
+  # fail "DISABLED" || return
+  local EXPECTED_RETRIES=4
+  local EXPECTED_DELAY=1
+  local KILL_RETRIES=${EXPECTED_RETRIES}
+  local KILL_DELAY=$((EXPECTED_DELAY + 1))
 
-  downloadWithRetry ${bigFileUrl} ${L_EXPECTED_RETRIES} ${L_EXPECTED_DELAY}  2>${stderr} 1>${stdout}&
-  killDownloadInLoop ${L_KILL_RETRIES} ${L_KILL_DELAY} || return
-  sleep ${L_KILL_DELAY}
+  downloadWithRetry ${bigFileUrl} ${EXPECTED_RETRIES} ${EXPECTED_DELAY}  2>${stderr} 1>${stdout}&
+  killDownloadInLoop ${KILL_RETRIES} ${KILL_DELAY} || return
+  sleep ${KILL_DELAY}
   pgrep curl
-  assertNotEquals "curl should not be running more than ${L_KILL_RETRIES} times" "0" "$?" || return
+  assertNotEquals "curl should not be running more than ${KILL_RETRIES} times" "0" "$?" || return
 }
 
 testDefaultDelay() {
-#  fail "DISABLED" || return
-  local L_EXPECTED_RETRIES=2
-  local L_EXPECTED_DELAY=3
+  # fail "DISABLED" || return
+  local EXPECTED_RETRIES=2
+  local EXPECTED_DELAY=3
 
-  downloadWithRetry ${bigFileUrl} ${L_EXPECTED_RETRIES} 2>${stderr} 1>${stdout}&
-  killAndCheckDelay ${L_EXPECTED_DELAY}
+  downloadWithRetry ${bigFileUrl} ${EXPECTED_RETRIES} 2>${stderr} 1>${stdout}&
+  killAndCheckDelay ${EXPECTED_DELAY}
 }
 
 testSpecificDelay() {
-#  fail "DISABLED" || return
-  local L_EXPECTED_RETRIES=2
-  local L_EXPECTED_DELAY=7
+  # fail "DISABLED" || return
+  local EXPECTED_RETRIES=2
+  local EXPECTED_DELAY=7
 
-  downloadWithRetry ${bigFileUrl} ${L_EXPECTED_RETRIES} ${L_EXPECTED_DELAY} 2>${stderr} 1>${stdout}&
-  killAndCheckDelay ${L_EXPECTED_DELAY}
+  downloadWithRetry ${bigFileUrl} ${EXPECTED_RETRIES} ${EXPECTED_DELAY} 2>${stderr} 1>${stdout}&
+  killAndCheckDelay ${EXPECTED_DELAY}
 }
 
 
 testNegativeDelay() {
-#  fail "DISABLED" || return
-  local L_EXPECTED_RETRIES=2
-  local L_EXPECTED_DELAY="-8"
-  local L_KILL_DELAY=3
+  # fail "DISABLED" || return
+  local EXPECTED_RETRIES=2
+  local EXPECTED_DELAY="-8"
+  local KILL_DELAY=3
 
-  downloadWithRetry ${bigFileUrl} ${L_EXPECTED_RETRIES} ${L_EXPECTED_DELAY} 2>${stderr} 1>${stdout}&
-  killAndCheckDelay ${L_KILL_DELAY}
+  downloadWithRetry ${bigFileUrl} ${EXPECTED_RETRIES} ${EXPECTED_DELAY} 2>${stderr} 1>${stdout}&
+  killAndCheckDelay ${KILL_DELAY}
 }
 
 testZeroDelay() {
-#  fail "DISABLED" || return
-  local L_EXPECTED_RETRIES=2
-  local L_EXPECTED_DELAY=0
-  local L_KILL_DELAY=3
+  # fail "DISABLED" || return
+  local EXPECTED_RETRIES=2
+  local EXPECTED_DELAY=0
+  local KILL_DELAY=3
 
-  downloadWithRetry ${bigFileUrl} ${L_EXPECTED_RETRIES} ${L_EXPECTED_DELAY} 2>${stderr} 1>${stdout}&
-  killAndCheckDelay ${L_KILL_DELAY}
+  downloadWithRetry ${bigFileUrl} ${EXPECTED_RETRIES} ${EXPECTED_DELAY} 2>${stderr} 1>${stdout}&
+  killAndCheckDelay ${KILL_DELAY}
 }
 
 testHostUnreachable() {
-#  fail "DISABLED" || return
-  local L_EXPECTED_RETRIES=2
-  local L_EXPECTED_DELAY=1
-  local L_TARGET_URL="http://10.255.255.1/${bigFileName}"
+  # fail "DISABLED" || return
+  local EXPECTED_RETRIES=2
+  local EXPECTED_DELAY=1
+  local TARGET_URL="http://10.255.255.1/${bigFileName}"
+  local DOWNLOAD_OUTPUT
 
-  echo -ne "\tTrying to download ${L_TARGET_URL}...\n"
+  echo -ne "\tTrying to download ${TARGET_URL}...\n"
   echo -ne "\tThis test may take some time...\n"
-  DL_OUT=$(downloadWithRetry ${L_TARGET_URL} ${L_EXPECTED_RETRIES} ${L_EXPECTED_DELAY})
+  DOWNLOAD_OUTPUT=$(downloadWithRetry ${TARGET_URL} ${EXPECTED_RETRIES} ${EXPECTED_DELAY})
   assertEquals "incorrect result code" "1" "$?" || return
-  echo "$DL_OUT" | grep "FAILED: could not retrieve ${bigFileName}" | wc -l | grep "^\s*2\s*$" 2>${stderr} 1>${stdout}
-  assertEquals "there should be ${L_EXPECTED_RETRIES} failed statements" "0" "$?" || return
-  echo "$DL_OUT" | grep "ERROR: could not retrieve ${L_TARGET_URL}" 2>${stderr} 1>${stdout}
+  echo "$DOWNLOAD_OUTPUT" | grep "FAILED: could not retrieve ${bigFileName}" | wc -l | grep "^\s*2\s*$" 2>${stderr} 1>${stdout}
+  assertEquals "there should be ${EXPECTED_RETRIES} failed statements" "0" "$?" || return
+  echo "$DOWNLOAD_OUTPUT" | grep "ERROR: could not retrieve ${TARGET_URL}" 2>${stderr} 1>${stdout}
   assertEquals "there should be an ERROR statement" "0" "$?" || return
 }
 
 testIfFileExists() {
-#  fail "DISABLED" || return
-  local L_EXPECTED_RETRIES=1
-  local L_EXPECTED_DELAY=1
+  # fail "DISABLED" || return
+  local DOWNLOAD_OUTPUT
 
   assertFalse "${smallFileName} should not exist" "[ -f ${smallFileName} ]" || return
   touch ${smallFileName}
 
   echo -ne "\tTrying to download ${smallFileName}...\n"
-  DL_OUT=$(downloadWithRetry ${smallFileUrl})
+  DOWNLOAD_OUTPUT=$(downloadWithRetry ${smallFileUrl})
   assertEquals "incorrect result code" "2" "$?" || return
-  echo "$DL_OUT" | grep "ERROR: ${smallFileName} already exists." 2>${stderr} 1>${stdout}
+  echo "$DOWNLOAD_OUTPUT" | grep "ERROR: ${smallFileName} already exists." 2>${stderr} 1>${stdout}
   assertEquals "there should be an ERROR statement" "0" "$?" || return
 }
 
 testSuccessfulDownload() {
-#  fail "DISABLED" || return
+  # fail "DISABLED" || return
+  local DOWNLOAD_OUTPUT
+
   assertFalse "${smallFileName} should not exist" "[ -f ${smallFileName} ]" || return
   assertFalse "${smallFileMD5Name} should not exist" "[ -f ${smallFileMD5Name} ]" || return
 
   echo -ne "\tTrying to download ${smallFileName}...\n"
-  DL_OUT=$(downloadWithRetry ${smallFileUrl})
+  DOWNLOAD_OUTPUT=$(downloadWithRetry ${smallFileUrl})
   assertEquals "incorrect result code" "0" "$?" || return
-  echo "$DL_OUT" | sed '/^$/d' | wc -l | grep "^\s*0\s*$" 2>${stderr} 1>${stdout}
+  echo "$DOWNLOAD_OUTPUT" | sed '/^$/d' | wc -l | grep "^\s*0\s*$" 2>${stderr} 1>${stdout}
   assertEquals "there should be no output generated" "0" "$?" || return
 
   echo -ne "\tTrying to download ${smallFileMD5Name}...\n"
-  DL_OUT=$(downloadWithRetry ${smallFileMD5Url})
+  DOWNLOAD_OUTPUT=$(downloadWithRetry ${smallFileMD5Url})
   assertEquals "incorrect result code" "0" "$?" || return
-  echo "$DL_OUT" | sed '/^$/d' | wc -l | grep "^\s*0\s*$" 2>${stderr} 1>${stdout}
+  echo "$DOWNLOAD_OUTPUT" | sed '/^$/d' | wc -l | grep "^\s*0\s*$" 2>${stderr} 1>${stdout}
   assertEquals "there should be no output generated" "0" "$?" || return
 
   echo -ne "\tChecking download integrity...\n"
@@ -243,11 +248,14 @@ testSuccessfulDownload() {
 
 testSuccessfulRetriedDownload() {
   # fail "DISABLED" || return
+  local dlPID
+  local DOWNLOAD_OUTPUT
+
   assertFalse "${smallFileName} should not exist" "[ -f ${smallFileName} ]" || return
   assertFalse "${smallFileMD5Name} should not exist" "[ -f ${smallFileMD5Name} ]" || return
 
   echo -ne "\tTrying to download ${smallFileName}...\n"
-  DL_OUT=$(downloadWithRetry ${smallFileUrl} 2>${stderr} 1>${stdout}&)
+  DOWNLOAD_OUTPUT=$(downloadWithRetry ${smallFileUrl} 2>${stderr} 1>${stdout}&)
   dlPID=$(pgrep curl)
   assertEquals "curl should be running" "0" "$?" || return
   echo -ne "\tCurl is runnning, killing it and waiting 2 seconds\n"
@@ -261,9 +269,9 @@ testSuccessfulRetriedDownload() {
   assertNotEquals "curl should have finished downloading" "0" "$?" || return
 
   echo -ne "\tTrying to download ${smallFileMD5Name}...\n"
-  DL_OUT=$(downloadWithRetry ${smallFileMD5Url})
+  DOWNLOAD_OUTPUT=$(downloadWithRetry ${smallFileMD5Url})
   assertEquals "incorrect result code" "0" "$?" || return
-  echo "$DL_OUT" | sed '/^$/d' | wc -l | grep "^\s*0\s*$" 2>${stderr} 1>${stdout}
+  echo "$DOWNLOAD_OUTPUT" | sed '/^$/d' | wc -l | grep "^\s*0\s*$" 2>${stderr} 1>${stdout}
   assertEquals "there should be no output generated" "0" "$?" || return
 
   echo -ne "\tChecking download integrity...\n"
