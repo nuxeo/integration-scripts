@@ -58,6 +58,40 @@ tearDown() {
   killCURLProcesses
 }
 
+function waitForProcessUp() {
+  local PROCESS_NAME=$1
+  local MAX_WAIT=$2
+  local dlPID=$(pgrep ${PROCESS_NAME})
+  local WAIT_COUNTER=0
+
+  until [ -n "$dlPID" ]; do
+    sleep 1
+    WAIT_COUNTER=$((WAIT_COUNTER + 1))
+    [ $WAIT_COUNTER -lt $MAX_WAIT ] || return 1
+    dlPID=$(pgrep ${PROCESS_NAME})
+  done
+
+  echo ${dlPID}
+  return 0
+}
+
+function waitForProcessDown() {
+  local PROCESS_NAME=$1
+  local MAX_WAIT=$2
+  local dlPID=(pgrep ${PROCESS_NAME})
+  local WAIT_COUNTER=0
+
+  until [ -z "$dlPID" ]; do
+    sleep 1
+    WAIT_COUNTER=$((WAIT_COUNTER + 1))
+    [ $WAIT_COUNTER -lt $MAX_WAIT ] || return 1
+    dlPID=$(pgrep ${PROCESS_NAME})
+  done
+
+  echo ${dlPID}
+  return 0
+}
+
 function killDownloadInLoop() {
   local MAX_TRIES=$1
   local DELAY=$2
@@ -80,7 +114,7 @@ function killAndCheckDelay() {
   local dlPID
 
   echo -ne "\tChecking the delay is neither too short...\n"
-  dlPID=$(pgrep curl)
+  dlPID=$(waitForProcessUp curl 3)
   assertEquals "curl should be running before killing it" "0" "$?" || return 1
   kill ${dlPID}
   sleep $((DELAY - 1))
@@ -256,17 +290,17 @@ testSuccessfulRetriedDownload() {
 
   echo -ne "\tTrying to download ${smallFileName}...\n"
   DOWNLOAD_OUTPUT=$(downloadWithRetry ${smallFileUrl} 2>${stderr} 1>${stdout}&)
-  dlPID=$(pgrep curl)
+  dlPID=$(waitForProcessUp curl 3)
   assertEquals "curl should be running" "0" "$?" || return
   echo -ne "\tCurl is runnning, killing it and waiting 2 seconds\n"
   kill -9 ${dlPID}
   sleep 2
   pgrep curl
   assertNotEquals "curl should not be running" "0" "$?" || return
-  echo -ne "\tCurl is not runnning, waiting 10 seconds for download to finish...\n"
-  sleep 10
-  pgrep curl
-  assertNotEquals "curl should have finished downloading" "0" "$?" || return
+  echo -ne "\tCurl is not runnning, waiting (60 seconds max) for download to finish...\n"
+  sleep 2
+  dlPID=$(waitForProcessDown curl 60)
+  assertEquals "curl should have finished downloading" "0" "$?" || return
 
   echo -ne "\tTrying to download ${smallFileMD5Name}...\n"
   DOWNLOAD_OUTPUT=$(downloadWithRetry ${smallFileMD5Url})
