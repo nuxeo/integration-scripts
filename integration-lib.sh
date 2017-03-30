@@ -301,3 +301,46 @@ stop_server() {
     gzip -cd  "$SERVER_HOME"/log/server.log.gz 2>/dev/null > "$SERVER_HOME"/log/server.log
 }
 
+# Downloads a file and retries x times after a wait period of y seconds (in case of failure)
+#
+# It does not overwrite a file if it already exists (return code 2)
+# It does not resume download in case of failure but rather restarts it
+#
+# DOWNLOAD_URL the url of the file to download [MANDATORY]
+# RETRY_COUNTER number of retries (minimum 1, default is 5 times) [OPTIONAL]
+# RETRY_DELAY time to wait before retrying (minimum 1, default is 3 seconds) [OPTIONAL]
+#
+# examples:
+#   downloadWithRetry "http://community.nuxeo.com/static/releases/nuxeo-5.3.1/nuxeo-shell-5.3.1.zip" 4 2
+#   downloadWithRetry "http://community.nuxeo.com/static/releases/nuxeo-8.10/nuxeo-8.10-vm-vbox.zip"
+#   downloadWithRetry "http://community.nuxeo.com/static/releases/nuxeo-5.3.1/nuxeo-shell-5.3.1.zip" "" 2
+#   downloadWithRetry "http://community.nuxeo.com/static/releases/nuxeo-5.3.1/nuxeo-shell-5.3.1.zip.md5" 7
+downloadWithRetry() {
+    local DOWNLOAD_URL=$1
+    local RETRY_COUNTER=${2:-5}
+    local RETRY_DELAY=${3:-3}
+    local DOWNLOAD_FILENAME=${DOWNLOAD_URL##*/} # last part of a url
+
+    [[ $RETRY_COUNTER =~ ^[1-9][0-9]*$ ]] || RETRY_COUNTER=5 # if counter not > 0 then default value
+    [[ $RETRY_DELAY =~ ^[1-9][0-9]*$ ]] || RETRY_DELAY=3 # if delay is not > 0 then default value
+
+    if [ -f "$DOWNLOAD_FILENAME" ]; then
+        echo "ERROR: $DOWNLOAD_FILENAME already exists."
+        return 2
+    fi
+
+    until [ $RETRY_COUNTER -lt 1 ]; do
+        local CURL_ERR=0
+        local CURL_HTTP_RES=0
+        CURL_HTTP_RES=$(curl -ns -w "%{http_code}" -o "$DOWNLOAD_FILENAME" -C - "$DOWNLOAD_URL") || CURL_ERR=$?
+        if [ "$CURL_ERR" -eq 0 ] && [ "$CURL_HTTP_RES" -eq 200 ]; then
+            return 0
+        fi
+        echo "FAILED: could not retrieve $DOWNLOAD_FILENAME, HTTP code is $CURL_HTTP_RES, RETURN code is $CURL_ERR"
+        rm -f "$DOWNLOAD_FILENAME"
+        RETRY_COUNTER=$((RETRY_COUNTER - 1))
+        sleep $RETRY_DELAY
+    done
+    echo "ERROR: could not retrieve $DOWNLOAD_URL"
+    return 1
+}
