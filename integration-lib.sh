@@ -303,7 +303,7 @@ stop_server() {
 
 # Downloads a file and retries x times after a wait period of y seconds (in case of failure)
 #
-# It does not overwrite a file if it already exists (return code 2)
+# It does not overwrite a file if it already exists (return code 3)
 # It does not resume download in case of failure but rather restarts it
 #
 # DOWNLOAD_URL the url of the file to download [MANDATORY]
@@ -326,7 +326,7 @@ downloadWithRetry() {
 
     if [ -f "$DOWNLOAD_FILENAME" ]; then
         echo "ERROR: $DOWNLOAD_FILENAME already exists."
-        return 2
+        return 3
     fi
 
     until [ $RETRY_COUNTER -lt 1 ]; do
