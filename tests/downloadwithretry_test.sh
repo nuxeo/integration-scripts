@@ -250,7 +250,7 @@ testIfFileExists() {
 
   echo -ne "\tTrying to download ${smallFileName}...\n"
   DOWNLOAD_OUTPUT=$(downloadWithRetry ${smallFileUrl})
-  assertEquals "incorrect result code" "2" "$?" || return
+  assertEquals "incorrect result code" "3" "$?" || return
   echo "$DOWNLOAD_OUTPUT" | grep "ERROR: ${smallFileName} already exists." 2>${stderr} 1>${stdout}
   assertEquals "there should be an ERROR statement" "0" "$?" || return
 }
