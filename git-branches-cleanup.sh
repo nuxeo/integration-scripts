@@ -26,8 +26,7 @@ PATTERNS='^origin/master$ \
  ^origin/[0-9]+(\.[0-9]+)+-HF[0-9]+-SNAPSHOT$ \
  ^origin/[0-9]+(\.[0-9]+)+$ \
  5.4.2-I20110404_0115'
-DEPRECATED_PATTERNS='^origin/1\.[0-9](\.[0-9])?$ \
- ^origin/5\.[0-7](\.[0-9])*$ \
+DEPRECATED_PATTERNS='^origin/5\.[0-7](\.[0-9])*$ \
  ^origin/5\.9\..*$ \
  ^origin/[1-7](\.[0-9]+)+-SNAPSHOT$'
 
