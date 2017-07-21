@@ -117,6 +117,7 @@ git push --set-upstream origin $BRANCH_NAME
 
 # Create PR
 CONTENT_TYPE="Content-Type: application/json; charset=utf-8"
+AUTHORIZATION="Authorization: token $GITHUB_TOKEN"
 
 log "Checking no existing pull request on nuxeo"
 (curl -f -v -H "$CONTENT_TYPE" -n https://api.github.com/repos/$HOMEBREW_ORIGINAL/pulls | grep -B5 -i "\"title\": .*nuxeo" && {
@@ -130,4 +131,4 @@ PR_BODY="Update nuxeo formula to upgrade to version $NUXEO_VERSION."
 PR_HEAD="nuxeo:$BRANCH_NAME"
 PR_BASE="master"
 PR_DATA="{\"title\": \"$PR_TITLE\", \"body\": \"$PR_BODY\", \"head\": \"$PR_HEAD\", \"base\": \"$PR_BASE\"}"
-curl -f -v -H "$CONTENT_TYPE" -n -d "$PR_DATA" https://api.github.com/repos/$HOMEBREW_ORIGINAL/pulls
+curl -v -H "$CONTENT_TYPE" -H "$AUTHORIZATION" -n -d "$PR_DATA" https://api.github.com/repos/$HOMEBREW_ORIGINAL/pulls
