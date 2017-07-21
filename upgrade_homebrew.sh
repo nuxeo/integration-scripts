@@ -101,7 +101,7 @@ log "Git diff:"
 git diff
 
 # Execute tests with local brew (OSX needed)
-BREW="brew"
+BREW="/usr/local/bin/brew"
 $BREW uninstall nuxeo 2>/dev/null || true
 log "Install Nuxeo pre-release formula"
 $BREW install --verbose --debug $NUXEO_FORMULA
