@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-LASTBUILD_URL=${LASTBUILD_URL:-http://qa.nuxeo.org/hudson/job/IT-nuxeo-5.5-build/lastSuccessfulBuild/artifact/trunk/release/archives}
+LASTBUILD_URL=${LASTBUILD_URL:-https://qa.nuxeo.org/jenkins/job/Deploy/job/IT-nuxeo-master-build/lastSuccessfulBuild/artifact/archives}
 HERE=$(cd $(dirname $0); pwd -P)
 
 # Upload successfully tested package and sources on $UPLOAD_URL
@@ -10,13 +10,17 @@ if [ ! -z "$UPLOAD_URL" ]; then
     ls $SRC_URL/*HF*.zip >/dev/null 2>&1 && exit 0 || true
     date
     scp -C $SRC_URL/*.zip* $UPLOAD_URL || true
-    mkdir -p $HERE/download/mp
-    cd $HERE/download/mp
-    links=`lynx --dump $LASTBUILD_URL/mp | grep -E -o 'https?:.*archives\/((nuxeo-.*(-sdk)*.zip(.md5)*)|packages.xml)' | sort -u`
+    MP_DIR=$HERE/download/mp-nuxeo-server
+    mkdir -p $MP_DIR
+    cd $MP_DIR
+    links=`lynx --dump $LASTBUILD_URL/mp-nuxeo-server -listonly grep -E -o 'https?:.*archives\/mp[a-z-]+\/([a-z-]+\.zip|packages.xml|\.featured)' | sort -u`
     if [ ! -z "$links" ]; then
         wget -nv $links
-        scp -C $SRC_URL/mp/* $UPLOAD_URL/mp/ || true
     fi
+    for pkg in $(cat .featured); do
+        scp -C $pkg*.zip $UPLOAD_URL/mp-nuxeo-server/ || true
+    done
+    scp packages.xml $UPLOAD_URL/mp-nuxeo-server/ || true
     cd -
     date
 fi
