@@ -31,29 +31,39 @@ sha256sum() {
   echo "$(sha256 $1)  $(basename $1)"
 }
 
-NUXEO_JSF_UI=nuxeo-jsf-ui
 mkdir -p archives
 cd archives
-for kind in nuxeo-server nuxeo-cap; do
-MP=mp-$kind
-mkdir -p $MP
-PACKAGES_XML=$MP/packages.xml
-unzip -p $kind-*-tomcat.zip "**/setupWizardDownloads/packages.xml" > $PACKAGES_XML
-featured=$(xmlstarlet sel -t -m '//packageDefinitions/package' -i "not(@virtual='true')" -v '@id' -n $PACKAGES_XML)
+# already renamed and archived by release.py script
+ARCHIVED_PACKAGES="nuxeo-jsf-ui-*.zip"
+# package modules located under nuxeo-distribution
+DISTRIB_PACKAGES="../nuxeo/nuxeo-distribution/nuxeo-marketplace-dm/target/nuxeo-marketplace-dm-*.zip"
+# packages managed by release_mp.py script
+RELEASED_PACKAGES=$(grep uploaded ../nuxeo/marketplace/release.ini | cut -d ' ' -f 4-)
 
-# Loop on all uploaded marketplace packages and the nuxeo-jsf-ui one prepared for the release
-for file in $(grep uploaded ../nuxeo/marketplace/release.ini | cut -d ' ' -f 4-) $NUXEO_JSF_UI-*.zip; do
+MP_DIR=mp-nuxeo-server
+mkdir -p $MP_DIR
+PACKAGES_XML=$MP_DIR/packages.xml
+unzip -p nuxeo-server-*-tomcat.zip "**/setupWizardDownloads/packages.xml" > $PACKAGES_XML
+featured=$(xmlstarlet sel -t -m '//packageDefinitions/package' -i "not(@virtual='true')" -v '@id' -n $PACKAGES_XML)
+echo "$featured" > $MP_DIR/.featured
+
+# Rename packages mentioned in the wizard; move all packages to $MP_DIR/
+for file in $ARCHIVED_PACKAGES $DISTRIB_PACKAGES $RELEASED_PACKAGES; do
   name=$(unzip -p $file package.xml | xmlstarlet sel -t -v 'package/@name') || echo ERROR: package.xml parsing failed on $file >&2
-  if [[ $featured =~ (^|[[:space:]])"$name"($|[[:space:]]) ]]; then
-    cp $file $MP/$name.zip
+  if [ -z "$name" ]; then
+    continue
+  elif [[ $featured =~ (^|[[:space:]])"$name"($|[[:space:]]) ]]; then
+    cp $file $MP_DIR/$name.zip
     xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'filename' -v "$name.zip" $PACKAGES_XML
-    md5=$(md5 $MP/$name.zip)
+    md5=$(md5 $MP_DIR/$name.zip)
     xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'md5' -v "$md5" $PACKAGES_XML
+  else
+    mv $file $MP_DIR/$name.zip
   fi
 done
 
 # Update ZIP archives
-for zip in $kind-*-tomcat.zip $kind-*-tomcat-sdk.zip ; do
+for zip in nuxeo-server-*-tomcat.zip nuxeo-server-*-tomcat-sdk.zip ; do
   if [ ! -e $zip ]; then
     echo Ignore non existing $zip!
     continue
@@ -66,7 +76,7 @@ for zip in $kind-*-tomcat.zip $kind-*-tomcat-sdk.zip ; do
   cd /tmp/
   chmod +x $DIR/bin/*ctl $DIR/bin/*.sh $DIR/bin/*.command $DIR/*.command
   cp $OLDPWD/$PACKAGES_XML $DIR/setupWizardDownloads/
-  for file in $OLDPWD/$MP/*.zip; do
+  for file in $OLDPWD/$MP_DIR/*.zip; do
     md5=$(md5 $file)
     cp $file $DIR/setupWizardDownloads/$md5
   done
@@ -77,7 +87,6 @@ for zip in $kind-*-tomcat.zip $kind-*-tomcat-sdk.zip ; do
   md5sum $zip > $zip.md5
   sha256sum $zip > $zip.sha256
 done
-done
 
 for file in nuxeo-*-sources.zip; do
   md5sum $file > $file.md5
@@ -87,4 +96,3 @@ done
 cd ..
 mkdir -p archives.bak
 mv archives/*.bak.zip archives.bak/
-mv archives/$NUXEO_JSF_UI-*.zip archives.bak/
