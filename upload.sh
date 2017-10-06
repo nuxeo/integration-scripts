@@ -13,7 +13,7 @@ if [ ! -z "$UPLOAD_URL" ]; then
     MP_DIR=$HERE/download/mp-nuxeo-server
     mkdir -p $MP_DIR
     cd $MP_DIR
-    links=`lynx --dump $LASTBUILD_URL/mp-nuxeo-server -listonly grep -E -o 'https?:.*archives\/mp[a-z-]+\/([a-z-]+\.zip|packages.xml|\.featured)' | sort -u`
+    links=`lynx --dump -listonly $LASTBUILD_URL/mp-nuxeo-server | grep -E -o 'https?:.*archives\/mp[a-z-]+\/([a-z-]+\.zip|packages.xml|\.featured)' | sort -u`
     if [ ! -z "$links" ]; then
         wget -nv $links
     fi
