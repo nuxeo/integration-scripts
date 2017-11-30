@@ -1,83 +1,78 @@
-class ReleaseBuild implements Serializable {
-    def projectName
-    def buildNumber
-
-    ReleaseBuild(def releaseBuild) {
-        projectName = releaseBuild.project.fullName
-        buildNumber = releaseBuild.number as String
-    }
-}
-
-@NonCPS
-String checkForBranch(String owner, String repository, String branch, String fallback = 'master') {
-    withCredentials([usernamePassword(credentialsId: 'eea4e470-2c5e-468f-ab3a-e6c81fde94c0', passwordVariable: 'GITHUB_PASSWD', usernameVariable: 'GITHUB_TOKEN')]) {
-        def connection = (HttpURLConnection) "https://api.github.com/repos/${owner}/${repository}/branches/${branch}".toURL().openConnection()
-        connection.setRequestProperty('Authorization', "${env.GITHUB_TOKEN}:${env.GITHUB_PASSWD}")
-
-        switch(connection.responseCode) {
-            case HttpURLConnection.HTTP_OK:
-                return branch
-            default:
-                return fallback
-        }
-    }
-}
+@Library('nuxeo@fix-NXP-23257-release-private-packages')
+import org.nuxeo.ci.jenkins.pipeline.GithubUtils
+import org.nuxeo.ci.jenkins.pipeline.ReleaseBuild
 
 timestamps {
     timeout(300) {
         def releaseJob = "Deploy/" + (params.RELEASE_TYPE == "release" ? "IT-release-on-demand-build" : "IT-nuxeo-master-build")
+        def repository
+        def nodeLabel
 
-        node('SLAVE') {
-            stage('clone') {
-                def releaseBuild = new ReleaseBuild(input(message: 'Select the distribution to release against:', parameters: [
-                        [$class: 'RunParameterDefinition', filter: 'SUCCESSFUL', name: 'RELEASE_BUILD', projectName: releaseJob]
-                ]))
-                checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: checkForBranch('nuxeo', 'nuxeo', params.BRANCH, 'master')]],
-                        browser: [$class: 'GithubWeb', repoUrl: 'https://github.com/nuxeo/nuxeo'],
-                        extensions: [
-                                [$class: 'RelativeTargetDirectory', relativeTargetDir: 'nuxeo'],
-                                [$class: 'PerBuildTag'],
-                                [$class: 'WipeWorkspace'],
-                                [$class: 'CloneOption', depth: 0, noTags: false, reference: '', shallow: false, timeout: 60],
-                                [$class: 'CheckoutOption', timeout: 60]
-                        ],
-                        userRemoteConfigs: [[url: 'git@github.com:nuxeo/nuxeo.git']]
-                ])
-                step([
-                        $class: 'CopyArtifact',
-                        filter: 'release-nuxeo.log',
-                        fingerprintArtifacts: true,
-                        projectName: releaseBuild.projectName,
-                        selector: [$class: 'SpecificBuildSelector', buildNumber: releaseBuild.buildNumber]
-                ])
-                sh('curl -n -H "Accept: application/vnd.github.v3.raw" -o packages.ini $MARKETPLACE_INI?ref=' +
-                        checkForBranch('nuxeo', 'nuxeo', params.BRANCH, 'master'))
-            }
-            stage('clone packages') {
-                dir('nuxeo') {
-                    sh """#!/bin/bash -ex
+        withCredentials([usernamePassword(
+                credentialsId: 'eea4e470-2c5e-468f-ab3a-e6c81fde94c0',
+                passwordVariable: 'GITHUB_PASSWD',
+                usernameVariable: 'GITHUB_TOKEN')]) {
+
+            repository = GithubUtils.getRepositoryFromBlob(env.MARKETPLACE_INI, env.GITHUB_TOKEN, env.GITHUB_PASSWD)
+
+            nodeLabel = repository.isPrivate?'IT_PRIV':'IT'
+
+            node(nodeLabel) {
+                stage('clone') {
+                    def releaseBuild = new ReleaseBuild(input(message: 'Select the distribution to release against:', parameters: [
+                            [$class: 'RunParameterDefinition', filter: 'SUCCESSFUL', name: 'RELEASE_BUILD', projectName: releaseJob]
+                    ]))
+                    checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: GithubUtils.checkForBranch('nuxeo', 'nuxeo', params.BRANCH, env.GITHUB_TOKEN, env.GITHUB_PASSWD, 'master')]],
+                            browser: [$class: 'GithubWeb', repoUrl: 'https://github.com/nuxeo/nuxeo'],
+                            extensions: [
+                                    [$class: 'RelativeTargetDirectory', relativeTargetDir: 'nuxeo'],
+                                    [$class: 'PerBuildTag'],
+                                    [$class: 'WipeWorkspace'],
+                                    [$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: false, timeout: 60],
+                                    [$class: 'CheckoutOption', timeout: 60]
+                            ],
+                            userRemoteConfigs: [[url: 'git@github.com:nuxeo/nuxeo.git']]
+                    ])
+                    step([
+                            $class: 'CopyArtifact',
+                            filter: 'release-nuxeo.log',
+                            fingerprintArtifacts: true,
+                            projectName: releaseBuild.projectName,
+                            selector: [$class: 'SpecificBuildSelector', buildNumber: releaseBuild.buildNumber]
+                    ])
+                    sh('curl -n -H "Accept: application/vnd.github.v3.raw" -o packages.ini $MARKETPLACE_INI?ref=' +
+                            GithubUtils.checkForBranch(repository.owner, repository.name, params.BRANCH, env.GITHUB_TOKEN, env.GITHUB_PASSWD, 'master'))
+                }
+                stage('clone packages') {
+                    dir('nuxeo') {
+                        sh """#!/bin/bash -ex
                     ./scripts/release_mp.py clone -m file://$WORKSPACE/packages.ini -d $WORKSPACE/release-nuxeo.log
                     """
+                    }
                 }
-            }
-            stage('prepare packages') {
-                dir('nuxeo/marketplace') {
-                    sh """#!/bin/bash -ex
+                stage('prepare packages') {
+                    dir('nuxeo/marketplace') {
+                        sh """#!/bin/bash -ex
                     ../scripts/release_mp.py prepare
                     """
+                    }
                 }
-            }
-            stage('check') {
-                dir('nuxeo/marketplace') {
-                    sh """#!/bin/bash -ex
+                stage('check') {
+                    dir('nuxeo/marketplace') {
+                        sh """#!/bin/bash -ex
                     . ../scripts/gitfunctions.sh
                     gitf show -s --pretty=format:'%h%d'
                     for release in release-*; do echo \$release: ; cat \$release ; echo ; done
                     grep -C5 'skip = Failed' release.ini || true
                     grep uploaded release.ini"""
+                    }
                 }
+
+                stash name: 'prepared_sources', includes: 'nuxeo/marketplace/**/*', useDefaultExcludes: false
+                stash name: 'packages_ini', includes: 'packages.ini'
+                stash name: 'release_log', includes: 'release-nuxeo.log, nuxeo/marketplace/release*'
             }
         }
         checkpoint 'prepared'
@@ -88,13 +83,31 @@ timestamps {
             ]
 
             if('Yes' == doPerform.trim()) {
-                node('SLAVE') {
+                node(nodeLabel) {
+                    checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: GithubUtils.checkForBranch('nuxeo', 'nuxeo', params.BRANCH, env.GITHUB_TOKEN, env.GITHUB_PASSWD, 'master')]],
+                            browser: [$class: 'GithubWeb', repoUrl: 'https://github.com/nuxeo/nuxeo'],
+                            extensions: [
+                                    [$class: 'RelativeTargetDirectory', relativeTargetDir: 'nuxeo'],
+                                    [$class: 'PerBuildTag'],
+                                    [$class: 'WipeWorkspace'],
+                                    [$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: false, timeout: 60],
+                                    [$class: 'CheckoutOption', timeout: 60]
+                            ],
+                            userRemoteConfigs: [[url: 'git@github.com:nuxeo/nuxeo.git']]
+                    ])
+
+                    unstash 'prepared_sources'
+                    unstash 'packages_ini'
+                    unstash 'release_log'
+
                     dir('nuxeo/marketplace') {
                         sh """#!/bin/bash -ex
-                        ../scripts/release_mp.py perform
-                        grep -C5 'Fail' release.ini || true
-                        grep uploaded release.ini
-                        """
+                            ../scripts/release_mp.py perform
+                            grep -C5 'Fail' release.ini || true
+                            grep uploaded release.ini
+                            """
                     }
                 }
             }
