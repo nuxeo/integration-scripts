@@ -1,10 +1,25 @@
 @Library('nuxeo@fix-NXP-23257-release-private-packages')
 import org.nuxeo.ci.jenkins.pipeline.GithubUtils
-import org.nuxeo.ci.jenkins.pipeline.ReleaseBuild
+
+class ReleaseBuild implements Serializable {
+    def projectName
+    def buildNumber
+
+    ReleaseBuild(def releaseBuild) {
+        projectName = releaseBuild.project.fullName
+        buildNumber = releaseBuild.number as String
+    }
+}
 
 timestamps {
     timeout(300) {
-        def releaseJob = "Deploy/" + (params.RELEASE_TYPE == "release" ? "IT-release-on-demand-build" : "IT-nuxeo-master-build")
+        def releaseJob
+        if (params.RELEASE_TYPE == "release") {
+            releaseJob = "IT-release-on-demand-build"
+        } else {
+            releaseJob = Jenkins.instance.getItemByFullName("Deploy/IT-nuxeo-${params.BRANCH}-build") ?
+                    "Deploy/IT-nuxeo-${params.BRANCH}-build" : "Deploy/IT-nuxeo-master-build"
+        }
         def repository
         def nodeLabel
 
