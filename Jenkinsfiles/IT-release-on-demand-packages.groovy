@@ -13,15 +13,14 @@ class ReleaseBuild implements Serializable {
 
 timestamps {
     timeout(300) {
-        def releaseJob
+        def releaseJob, repository, nodeLabel
+
         if (params.RELEASE_TYPE == "release") {
             releaseJob = "IT-release-on-demand-build"
         } else {
             releaseJob = Jenkins.instance.getItemByFullName("Deploy/IT-nuxeo-${params.BRANCH}-build") ?
                     "Deploy/IT-nuxeo-${params.BRANCH}-build" : "Deploy/IT-nuxeo-master-build"
         }
-        def repository
-        def nodeLabel
 
         withCredentials([usernamePassword(
                 credentialsId: 'eea4e470-2c5e-468f-ab3a-e6c81fde94c0',
@@ -30,7 +29,11 @@ timestamps {
 
             repository = GithubUtils.getRepositoryFromBlob(env.MARKETPLACE_INI, env.GITHUB_TOKEN, env.GITHUB_PASSWD)
 
-            nodeLabel = repository.isPrivate?'IT_PRIV':'IT'
+            if('auto' == params.SLAVE) {
+                nodeLabel = repository.isPrivate?'IT_PRIV':'IT'
+            } else {
+                nodeLabel = params.SLAVE
+            }
 
             node(nodeLabel) {
                 stage('clone') {
@@ -52,7 +55,8 @@ timestamps {
                     ])
                     step([
                             $class: 'CopyArtifact',
-                            filter: 'release-nuxeo.log',
+                            filter: 'nuxeo/marketplace/release.ini',
+                            flatten: true,
                             fingerprintArtifacts: true,
                             projectName: releaseBuild.projectName,
                             selector: [$class: 'SpecificBuildSelector', buildNumber: releaseBuild.buildNumber]
@@ -63,14 +67,38 @@ timestamps {
                 stage('clone packages') {
                     dir('nuxeo') {
                         sh """#!/bin/bash -ex
-                    ./scripts/release_mp.py clone -m file://$WORKSPACE/packages.ini -d $WORKSPACE/release-nuxeo.log
+                    ./scripts/release_mp.py clone -m file://$WORKSPACE/packages.ini
                     """
                     }
                 }
                 stage('prepare packages') {
+                    sh """#!/usr/bin/env python
+import ConfigParser
+
+print 'Input: ${env.WORKSPACE}/packages.ini'
+print 'Input: ${env.WORKSPACE}/release.ini'
+print 'Output: ${env.WORKSPACE}/merge.ini'
+
+packages = ConfigParser.SafeConfigParser()
+packages.read('${env.WORKSPACE}/packages.ini')
+
+merge = ConfigParser.SafeConfigParser()
+merge.read('${env.WORKSPACE}/packages.ini')
+
+release = ConfigParser.SafeConfigParser()
+release.read('${env.WORKSPACE}/release.ini')
+
+with open('${env.WORKSPACE}/merge.ini', 'w') as dest_conf:
+    for key, value in release.items('DEFAULT', True):
+        value = packages.get('DEFAULT', key, True) if packages.has_option('DEFAULT', key) else value
+        merge.set('DEFAULT', key, value)
+    merge.write(dest_conf)
+    
+print 'Done'
+                    """
                     dir('nuxeo/marketplace') {
                         sh """#!/bin/bash -ex
-                    ../scripts/release_mp.py prepare
+                    ../scripts/release_mp.py prepare -m file://$WORKSPACE/merge.ini
                     """
                     }
                 }
@@ -86,7 +114,7 @@ timestamps {
                 }
 
                 stash name: 'prepared_sources', includes: 'nuxeo/marketplace/**/*', useDefaultExcludes: false
-                stash name: 'packages_ini', includes: 'packages.ini'
+                stash name: 'packages_ini', includes: 'packages.ini, release.ini, merge.ini'
                 stash name: 'release_log', includes: 'release-nuxeo.log, nuxeo/marketplace/release*'
             }
         }
