@@ -1,4 +1,4 @@
-# integration-scripts-priv/tests
+# integration-scripts/tests
 
 ## Setting up testing environment
 
