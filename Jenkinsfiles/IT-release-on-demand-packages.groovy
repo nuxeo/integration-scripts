@@ -1,4 +1,4 @@
-@Library('nuxeo@fix-NXP-23257-release-private-packages')
+@Library('nuxeo')
 import org.nuxeo.ci.jenkins.pipeline.GithubUtils
 
 class ReleaseBuild implements Serializable {
@@ -16,7 +16,7 @@ timestamps {
         def releaseJob, repository, nodeLabel
 
         if (params.RELEASE_TYPE == "release") {
-            releaseJob = "IT-release-on-demand-build"
+            releaseJob = "Deploy/IT-release-on-demand-build"
         } else {
             releaseJob = Jenkins.instance.getItemByFullName("Deploy/IT-nuxeo-${params.BRANCH}-build") ?
                     "Deploy/IT-nuxeo-${params.BRANCH}-build" : "Deploy/IT-nuxeo-master-build"
