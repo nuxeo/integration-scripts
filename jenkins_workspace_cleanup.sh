@@ -39,3 +39,6 @@ find /opt/jenkins/workspace*/ -maxdepth 2 -type d -execdir test -d {}/.git \; -m
 
 # Remove Git repositories parent folders older than 2 days and bigger than 100M
 find /opt/jenkins/workspace*/ -maxdepth 2 -type d -execdir test -d {}/.git \; -mtime +2 -prune -print |xargs du -sh |sort -hr|grep -P "^(.*G|\d{3}M)\t" |cut -d$'\t' -f 2-|xargs rm -r --
+
+# Remove files that the Workspace Cleanup plugin has no permission to delete (NXBT-2205, JENKINS-24824)
+find /opt/jenkins/workspace*/ -path '*/*ws-cleanup*' ! -perm -u+w -prune -exec chmod u+w {} + -exec rm -r -- {} +
