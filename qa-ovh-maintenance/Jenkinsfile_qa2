@@ -1,0 +1,54 @@
+import hudson.FilePath;
+import hudson.model.Node;
+import hudson.model.Slave;
+import jenkins.model.Jenkins;
+import groovy.time.*;
+
+def axis = [];
+for (slave in jenkins.model.Jenkins.instance.getNodes()) {
+  if ((slave.getNodeName().contains('windb') == false) &&
+     (slave.getNodeName().contains('Docker-slave-') == false) &&
+     (slave.getNodeName().contains('rainforest') == false) &&
+     (slave.getNodeName().contains('MultiDB') == false) &&
+     (slave.getNodeName().contains('mac') == false) &&
+     (slave.getNodeName().contains('twang') == false) &&
+     (slave.toComputer().isOnline()) &&
+     (slave.getComputer().countBusy()==0)) {
+    //axis += slave.getDisplayName();
+    axis.add(slave.getDisplayName());
+  }
+ }
+
+node('master') {
+
+    timeout(time: 1, unit: 'HOURS') {
+        timestamps {
+            checkout([$class: 'GitSCM', branches: [[name: '*/feature-NXBT-1513-CICD-docker-hosts']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [[$class: 'CleanBeforeCheckout']],
+                submoduleCfg: [],
+                userRemoteConfigs: [[credentialsId: '4691426b-aa51-428b-901d-4e851ee37b01',
+                url: 'git@github.com:nuxeo/integration-scripts.git']]])
+
+            sh """
+            #!/bin/bash
+
+            cd qa-ovh-maintenance/qa-ovh01/
+            for i in 1 2 3
+            do
+                cd ../qa-ovh0"\${i}"/
+                ssh -tt jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ./pull_images.sh
+                for slave in ${axis}:
+                do
+                    slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
+                    echo "\$axis"
+                    ssh -tt jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ./kill_test.sh
+
+                done
+                ssh -tt jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ./start_test.sh
+                ssh -tt jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ./start_test_priv.sh
+            done
+            """
+        }
+    }
+}
