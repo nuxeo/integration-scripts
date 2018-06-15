@@ -72,7 +72,7 @@ for file in $ARCHIVED_PACKAGES $DISTRIB_PACKAGES $RELEASED_PACKAGES; do
     xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'filename' -v "$name.zip" $PACKAGES_XML
     md5=$(md5 $MP_DIR/$name.zip)
     xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'md5' -v "$md5" $PACKAGES_XML
-  elif [ "${FINAL}" = "False" ]; then # don't include unneeded addons for releases
+  elif [ "${FINAL}" = "False" ]; then # embed all addons only for non final releases
     mv $file $MP_DIR/$name.zip
   fi
 done
