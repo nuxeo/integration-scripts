@@ -52,6 +52,8 @@ ARCHIVED_PACKAGES="nuxeo-jsf-ui-*.zip"
 DISTRIB_PACKAGES="../nuxeo/nuxeo-distribution/nuxeo-marketplace-dm/target/nuxeo-marketplace-dm-*.zip"
 # packages managed by release_mp.py script
 RELEASED_PACKAGES=$(grep uploaded ../nuxeo/marketplace/release.ini | cut -d ' ' -f 4-)
+# adding a default value just in case it is not defined upfront
+FINAL=${FINAL:-False}
 
 MP_DIR=mp-nuxeo-server
 mkdir -p $MP_DIR
@@ -70,7 +72,7 @@ for file in $ARCHIVED_PACKAGES $DISTRIB_PACKAGES $RELEASED_PACKAGES; do
     xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'filename' -v "$name.zip" $PACKAGES_XML
     md5=$(md5 $MP_DIR/$name.zip)
     xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'md5' -v "$md5" $PACKAGES_XML
-  else
+  elif [ "${FINAL}" = "False" ]; then # don't include unneeded addons for releases
     mv $file $MP_DIR/$name.zip
   fi
 done
