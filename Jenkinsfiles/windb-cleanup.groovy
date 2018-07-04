@@ -16,44 +16,32 @@
  * limitations under the License.
  *
  * Contributors:
- *     atimic
+ *     atimic, jcarsique
  *
- * NXBT-2300 windb cleanup job
- * - Iterates through windb1 to windb8 in order to cleanup workspaces
+ * NXBT-2300 windb cleanup job. It iterates idle 'windb' slaves to delete:
+ * - Nuxeo Maven artifacts
+ * - temporary folders and files
  */
 
-/**
-  Executes a PowerShell command instead of native Batch and without the powershell pipeline step
-
-  https://jenkins.io/doc/pipeline/steps/workflow-durable-task-step/#bat-windows-batch-script
-  https://stackoverflow.com/a/42576572/515973
-*/
-def PowerShell(cmd) {
-    cmd=cmd.replaceAll("%", "%%")
-    bat '''
-      powershell.exe -NonInteractive -Command "\$[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;
-        $cmd;
-        EXIT \$global:LastExitCode"
-    '''
-}
-
-def axis = [];
-for (slave in jenkins.model.Jenkins.instance.getNodes()) {
-    if ((slave.getNodeName().contains('windb')) && (slave.toComputer().isOnline()) && (slave.getComputer().countBusy() == 0)) {
-        axis += slave.getDisplayName();
+def winNodes = [];
+for (aNode in jenkins.model.Jenkins.instance.getNodes()) {
+   if ((aNode.getNodeName().contains('windb')) && (aNode.toComputer().isOnline()) && (aNode.toComputer().countBusy() == 0)) {
+       winNodes += aNode.getDisplayName();
     }
 }
-println(axis);
-for (winnode in axis) {
-    node("${winnode}") {
+println("Cleaning $winNodes...");
+
+for (winNode in winNodes) {
+    node("${winNode}") {
         timestamps {
             timeout(5) {
-                PowerShell('set-executionpolicy unrestricted')
-                PowerShell('Remove-Item C:\\m2\\repository\\org\\nuxeo -force -recurse')
-                PowerShell('Remove-Item C:\\tmp -force -recurse')
-                PowerShell('New-Item -ItemType directory C:\\tmp')
-                PowerShell('Remove-Item C:\\Users\\jenkins\\AppData\\Local\\temp -force -recurse')
-                PowerShell('New-Item -ItemType directory C:\\Users\\jenkins\\AppData\\Local\\temp')
+                sh """#!/bin/bash -xe
+                    rm -rvf C:/m2/repository/org/nuxeo
+                    rm -rvf C:/tmp
+                    mkdir c:/tmp
+                    rm -rvf C:/Users/jenkins/AppData/Local/temp
+                    mkdir C:/Users/jenkins/AppData/Local/temp
+                """
             }
         }
     }
