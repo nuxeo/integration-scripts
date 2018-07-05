@@ -23,16 +23,27 @@
  * - temporary folders and files
  */
 
+import jenkins.model.Jenkins
+
 def winNodes = [];
-for (aNode in jenkins.model.Jenkins.instance.getNodes()) {
-   if ((aNode.getNodeName().contains('windb')) && (aNode.toComputer().isOnline()) && (aNode.toComputer().countBusy() == 0)) {
-       winNodes += aNode.getDisplayName();
+for (slave in Jenkins.instance.getNodes()) {
+    def nodeName = slave.getNodeName()
+    if (!nodeName.contains('windb')) {
+        continue
+    }
+    def computer = slave.toComputer()
+    if (!computer.isOnline()) {
+        println "Node '$nodeName' is offline - skip cleanup"
+    } else if (computer.isIdle()) {
+        winNodes.add(nodeName)
+    } else {
+        println "Node '$nodeName' is busy - skip cleanup"
     }
 }
 println("Cleaning $winNodes...");
 
 for (winNode in winNodes) {
-    node("${winNode}") {
+    node(winNode) {
         timestamps {
             timeout(5) {
                 sh """#!/bin/bash -xe
