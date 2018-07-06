@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -xe
 
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-it

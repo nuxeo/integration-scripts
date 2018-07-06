@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 dir=$(dirname $0)
 ${dir}/pull_images

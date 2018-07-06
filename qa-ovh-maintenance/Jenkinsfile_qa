@@ -6,18 +6,16 @@ import groovy.time.*;
 
 def axis = [];
 for (slave in jenkins.model.Jenkins.instance.getNodes()) {
-  if ((slave.getNodeName().contains('windb') == false) &&
-     (slave.getNodeName().contains('Docker-slave-') == false) &&
-     (slave.getNodeName().contains('rainforest') == false) &&
-     (slave.getNodeName().contains('MultiDB') == false) &&
-     (slave.getNodeName().contains('mac') == false) &&
-     (slave.getNodeName().contains('twang') == false) &&
-     (slave.toComputer().isOnline()) &&
-     (slave.getComputer().countBusy()==0)) {
-    //axis += slave.getDisplayName();
-    axis.add(slave.getDisplayName());
-  }
- }
+    if ((slave.labelString.contains('IT') == true) ||
+       (slave.labelString.contains('MATRIX') == true) ||
+       (slave.labelString.contains('PRIVOVH') == true) ||
+       (slave.labelString.contains('SLAVEPRIV') == true) ||
+       (slave.labelString.contains('STATIC') == true) &&
+       (slave.toComputer().isOnline()) &&
+       (slave.toComputer().isIdle())) {
+        axis.add(slave.getDisplayName());
+    }
+}
 
 node('master') {
 
@@ -42,14 +40,18 @@ node('master') {
                 do
                     slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
                     echo "\$axis"
-                    ssh -tt jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ./kill_test.sh
+                    ssh -tt jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ./kill_remote.sh
 
                 done
-                ssh -tt jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ./start_test.sh
-                ssh -tt jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ./start_test_priv.sh
+                ssh -tt jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ./start_remote.sh
+                ssh -tt jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ./start_remote_priv.sh
             done
-            curl -I -X POST "https://jenkins:${JENKINS_TOKEN}@qa2.nuxeo.org/jenkins/job/System/job/update_static_slaves/build?token=gJE3.qfxkOmY6MZ"
             """
+            withCredentials([string(credentialsId: 'jenkins-api-token', variable: 'JENKINS_TOKEN'), string(credentialsId: 'QA2_Static_Slave_Token', variable: 'QA2_TOKEN')]) {
+                sh """
+                curl -I -X POST "https://jenkins:${JENKINS_TOKEN}@qa2.nuxeo.org/jenkins/job/System/job/update_static_slaves/build?token=${QA2_TOKEN}"
+                """
+            }
         }
     }
 }
