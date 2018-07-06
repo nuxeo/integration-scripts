@@ -1,5 +1,4 @@
-#!/bin/bash -x
-#
+#!/bin/bash -xe
 #
 # (C) Copyright 2018 Nuxeo (http://nuxeo.com/) and others.
 #
@@ -16,8 +15,8 @@
 # limitations under the License.
 #
 # Contributors:
-#     mguillaume
-#     atimic
+#     alexis timic
+#
 #
 
 slave=$1
@@ -36,5 +35,4 @@ matrixup=$(docker ps -f "status=running" -f "name=matrix" --format "{{.ID}}")
 if [ -z "$matrixup" ]; then
     docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h matrix --name=matrix -p 2302:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
 fi
-
 exit 0

@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -xe
 #
 # (C) Copyright 2018 Nuxeo (http://nuxeo.com/) and others.
 #
@@ -24,7 +24,7 @@ slave=$(docker ps -f "status=running" -f "name=$1" --format "{{.ID}}")
 echo "$slave"
 if [ -n "$slave" ];
 then
-        /usr/bin/docker kill "$slave" && /usr/bin/docker rm -v "$slave"
-        else echo "$slave appears to be already offline"
-        fi
+	/usr/bin/docker kill "$slave" && /usr/bin/docker rm -v "$slave"
+	else echo "$slave appears to be already offline"
+	fi
 exit 0
