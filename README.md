@@ -128,39 +128,40 @@ TODO
 # `qa-ovh-maintenance`
 
 ```qa-ovh-maintenance/
+qa-ovh-maintenance
 ├── Jenkinsfile_qa
 ├── Jenkinsfile_qa2
-├── jenkins_workspace_cleanup.sh
-├── kill_privslaves.sh
-├── kill_slaves.sh
-├── pull_images
 ├── qa-ovh01
-│   ├── kill_test.sh
+│   ├── kill_remote.sh
 │   ├── pull_images.sh
-│   ├── start_test_priv.sh
-│   └── start_test.sh
+│   ├── start_remote_priv.sh
+│   └── start_remote.sh
 ├── qa-ovh02
 │   ├── jenkins_workspace_cleanup.sh
 │   ├── kill_privslaves.sh
+│   ├── kill_remote.sh
 │   ├── kill_slaves.sh
-│   ├── kill_test.sh
 │   ├── pull_images.sh
 │   ├── start_priv_slaves.sh
-│   ├── start_slaves.sh
-│   ├── start_test_priv.sh
-│   └── start_test.sh
-├── qa-ovh03
-│   ├── jenkins_workspace_cleanup.sh
-│   ├── kill_privslaves.sh
-│   ├── kill_slaves.sh
-│   ├── kill_test.sh
-│   ├── pull_images.sh
-│   ├── start_priv_slaves.sh
-│   ├── start_slaves.sh
-│   ├── start_test_priv.sh
-│   └── start_test.sh
-├── start_priv_slaves.sh
-└── start_slaves.sh
+│   ├── start_remote_priv.sh
+│   ├── start_remote.sh
+│   └── start_slaves.sh
+└── qa-ovh03
+    ├── jenkins_workspace_cleanup.sh
+    ├── kill_privslaves.sh
+    ├── kill_remote.sh
+    ├── kill_slaves.sh
+    ├── pull_images.sh
+    ├── start_priv_slaves.sh
+    ├── start_remote_priv.sh
+    ├── start_remote.sh
+    └── start_slaves.sh
+
+Retrieve static slaves by label on jenkins masters and verify that they are idling and online.
+It then runs `pull_images.sh` to retrieve latest slaves docker images, match the previous slaves we
+got by label against the static slaves running on jenkins masters and kill them one by one
+with `kill_remotes.sh` script. `start_remote.sh` and `start_remote_priv.sh` are then launched to
+instantiate the new docker images.
 ```
 
 TODO
