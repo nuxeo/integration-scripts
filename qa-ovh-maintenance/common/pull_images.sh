@@ -18,7 +18,8 @@
 #     mguillaume
 #     atimic
 #
-
+# Pull slave images commonly used for static slaves
+#
 
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-it

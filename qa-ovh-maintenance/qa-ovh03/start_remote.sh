@@ -19,22 +19,22 @@
 #     mguillaume
 #     atimic
 #
+# Start remote slaves on qa-ovh03
+#
 
-slave=$1
-
-staticup=$(docker ps -f "status=running" -f "name=static" --format "{{.ID}}")
-if [ -z "$staticup" ]; then
-    docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h static --name=static -p 2201:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
+slaveup=$(docker ps -f "status=running" -f "name=static03" --format "{{.ID}}")
+if [ -z "$slaveup" ]; then
+    docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h static03 --name=static03 -p 2201:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
 fi
 
-itslaveup=$(docker ps -f "status=running" -f "name=itslave$" --format "{{.ID}}")
-if [ -z "$itslaveup" ]; then
-    docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h itslave --name=itslave -p 2301:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-it
+slaveup=$(docker ps -f "status=running" -f "name=itslave03$" --format "{{.ID}}")
+if [ -z "$slaveup" ]; then
+    docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h itslave03 --name=itslave03 -p 2301:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-it
 fi
 
-matrixup=$(docker ps -f "status=running" -f "name=matrix" --format "{{.ID}}")
-if [ -z "$matrixup" ]; then
-    docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h matrix --name=matrix -p 2302:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
+slaveup=$(docker ps -f "status=running" -f "name=matrix03" --format "{{.ID}}")
+if [ -z "$slaveup" ]; then
+    docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h matrix03 --name=matrix03 -p 2302:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
 fi
 
 exit 0

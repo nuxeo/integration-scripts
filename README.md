@@ -49,7 +49,7 @@ Refines the released distribution: repackage, fix details, finalize for easy-use
 
 ## Usage
 
-[QA/System/git-branches-cleanup](https://qa.nuxeo.org/jenkins/job/System/job/git-branches-cleanup/) job runs 
+[QA/System/git-branches-cleanup](https://qa.nuxeo.org/jenkins/job/System/job/git-branches-cleanup/) job runs
 `git-branches-cleanup.sh` following [CORG/Git Usage](https://doc.nuxeo.com/corg/git-usage/#main-rules-and-good-practices).
 
 The principle is to delete Git branches older than 3 months and which JIRA ticket is resolved or closed, and with no `backport-*` tag.
@@ -128,43 +128,84 @@ TODO
 # `qa-ovh-maintenance`
 
 ```qa-ovh-maintenance/
-qa-ovh-maintenance
-├── Jenkinsfile_qa
-├── Jenkinsfile_qa2
-├── qa-ovh01
+├── qa.groovy                           // Development [QA](https://qa.nuxeo.org/jenkins/)
+├── qa2.groovy                          // Maintenance [QA2](https://qa2.nuxeo.org/jenkins/)
+├── update_static_slaves.groovy         // main update script
+├── common
+│   ├── jenkins_workspace_cleanup.sh
 │   ├── kill_remote.sh
-│   ├── pull_images.sh
+│   └── pull_images.sh
+├── qa-ovh01                            // Host qa-ovh01
+│   ├── manual                          // Legacy local maintenance scripts
 │   ├── start_remote_priv.sh
 │   └── start_remote.sh
-├── qa-ovh02
-│   ├── jenkins_workspace_cleanup.sh
-│   ├── kill_privslaves.sh
-│   ├── kill_remote.sh
-│   ├── kill_slaves.sh
-│   ├── pull_images.sh
-│   ├── start_priv_slaves.sh
+├── qa-ovh02                            // Host qa-ovh02
+│   ├── manual                          // Legacy local maintenance scripts
 │   ├── start_remote_priv.sh
-│   ├── start_remote.sh
-│   └── start_slaves.sh
-└── qa-ovh03
-    ├── jenkins_workspace_cleanup.sh
-    ├── kill_privslaves.sh
-    ├── kill_remote.sh
-    ├── kill_slaves.sh
-    ├── pull_images.sh
-    ├── start_priv_slaves.sh
-    ├── start_remote_priv.sh
-    ├── start_remote.sh
-    └── start_slaves.sh
-
-Retrieve static slaves by label on jenkins masters and verify that they are idling and online.
-It then runs `pull_images.sh` to retrieve latest slaves docker images, match the previous slaves we
-got by label against the static slaves running on jenkins masters and kill them one by one
-with `kill_remotes.sh` script. `start_remote.sh` and `start_remote_priv.sh` are then launched to
-instantiate the new docker images.
+│   └── start_remote.sh
+└── qa-ovh03                            // Host qa-ovh03
+    ├── manual                          // Legacy local maintenance scripts
+    ├── start_remote_priv.sh
+    └── start_remote.sh
 ```
 
-TODO
+## Workspace cleanup
+
+`jenkins_workspace_cleanup.sh` Cleanup Jenkins hosts, Docker and workspaces:
+- Prune stopped images
+- Prune stopped volumes
+- Delete "exited" containers
+- Delete T&P jobs older than 3 days
+- Delete Nuxeo server ZIP files and unzipped folders older than 3 days
+- Remove Git repositories parent folders older than 5 days
+- Remove Git repositories parent folders older than 2 days and bigger than 100M
+- Remove files that the Workspace Cleanup plugin has no permission to delete (NXBT-2205, JENKINS-24824)
+
+## Static slave maintenance
+
+https://qa.nuxeo.org/jenkins/job/System/job/update_static_slaves/
+triggered by https://qa.nuxeo.org/jenkins/job/System/job/build-slave-images/ and co
+
+Fetch "static" slaves list by label from Jenkins masters [QA](https://qa.nuxeo.org/jenkins/), [QA2](https://qa2.nuxeo.org/jenkins/).
+
+Works on:
+- idle and online slaves
+- `STATIC` slaves
+ - qa-ovh01
+  - static01              2201
+  - itslave01             2301
+  - matrix01              2302
+  - priv-01-1 (QA)        3301
+  - priv-01-2 (QA)        3302
+  - priv2-01-1 (QA2)      4401
+  - itslavepriv01         3401
+ - qa-ovh02
+  - static710 (QA2)       2201
+  - static810 (QA2)       2202
+  - static910 (QA2)       2203
+  - itslave710 (QA2)      2301
+  - itslave810 (QA2)      2303
+  - itslave910 (QA2)      2304
+  - matrix02              2302
+  - privovh02-1 (QA)      3301
+  - privovh02-2 (QA)      3302
+  - priv2-02-1 (QA2)      4401
+  - slavepriv2-710-1 (QA2) 5501
+  - slavepriv2-810-1 (QA2) 5601
+  - slavepriv2-910-1 (QA2) 5701
+ - qa-ovh03
+  - static03              2201
+  - itslave03             2301
+  - matrix03              2302
+  - privovh03-1 (QA)      3301
+  - privovh03-2 (QA)      3302
+  - priv2-03-1 (QA2)      4401
+  - itslavepriv2 (QA2)    3401
+
+`update_static_slaves.groovy` will `pull_images.sh`, `kill_remotes.sh` slaves then `start_remote.sh` and `start_remote_priv`.
+
+See [getLabelsBySlaves.groovy](https://qa.nuxeo.org/jenkins/scriptler/runScript?id=getLabelsBySlaves.groovy) for the
+extraction of existing labels.
 
 ---
 
