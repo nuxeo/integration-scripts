@@ -163,49 +163,56 @@ TODO
 
 ## Static slave maintenance
 
-https://qa.nuxeo.org/jenkins/job/System/job/update_static_slaves/
-triggered by https://qa.nuxeo.org/jenkins/job/System/job/build-slave-images/ and co
+[/System/update_static_slaves](https://qa.nuxeo.org/jenkins/job/System/job/update_static_slaves/) is triggered by [/System/build-slave-images](https://qa.nuxeo.org/jenkins/job/System/job/build-slave-images/) and co
 
 Fetch "static" slaves list by label from Jenkins masters [QA](https://qa.nuxeo.org/jenkins/), [QA2](https://qa2.nuxeo.org/jenkins/).
 
-Works on:
-- idle and online slaves
-- `STATIC` slaves
- - qa-ovh01
-  - static01              2201
-  - itslave01             2301
-  - matrix01              2302
-  - priv-01-1 (QA)        3301
-  - priv-01-2 (QA)        3302
-  - priv2-01-1 (QA2)      4401
-  - itslavepriv01         3401
- - qa-ovh02
-  - static710 (QA2)       2201
-  - static810 (QA2)       2202
-  - static910 (QA2)       2203
-  - itslave710 (QA2)      2301
-  - itslave810 (QA2)      2303
-  - itslave910 (QA2)      2304
-  - matrix02              2302
-  - privovh02-1 (QA)      3301
-  - privovh02-2 (QA)      3302
-  - priv2-02-1 (QA2)      4401
-  - slavepriv2-710-1 (QA2) 5501
-  - slavepriv2-810-1 (QA2) 5601
-  - slavepriv2-910-1 (QA2) 5701
- - qa-ovh03
-  - static03              2201
-  - itslave03             2301
-  - matrix03              2302
-  - privovh03-1 (QA)      3301
-  - privovh03-2 (QA)      3302
-  - priv2-03-1 (QA2)      4401
-  - itslavepriv2 (QA2)    3401
+Works on *idle* and *online* slaves labelled *`STATIC`*.
 
-`update_static_slaves.groovy` will `pull_images.sh`, `kill_remotes.sh` slaves then `start_remote.sh` and `start_remote_priv`.
+`update_static_slaves.groovy` will `pull_images.sh` and `kill_remotes.sh` static slaves then `start_remote.sh` and `start_remote_priv`.
 
-See [getLabelsBySlaves.groovy](https://qa.nuxeo.org/jenkins/scriptler/runScript?id=getLabelsBySlaves.groovy) for the
-extraction of existing labels.
+See [getLabelsBySlaves.groovy](https://qa.nuxeo.org/jenkins/scriptler/runScript?id=getLabelsBySlaves.groovy) for the extraction of existing labels.
+
+## List of static Slaves
+
+Naming convention is not yet enforced but tends to pattern like `prefix[n]-<host>[-<ID>]` to interprete as:
+- `[n]`: if dedicated to qa<n>.nuxeo.org instead of default qa.nuxeo.org
+- `<host>`: the Docker host within the Docker swarm, ie `qa-ovh01.nuxeo.com`, `qa-ovh02.nuxeo.com`...
+- `[-<ID>]`: increment when there are multiple instance with the same name
+
+```
+$ docker -H tcp://swarm-qa.nuxeo.org:4000 ps -a --format "table {{.Names}}\t{{.Ports}}\t{{.Image}}"|sort
+NAMES                                  PORTS                          IMAGE
+qa-ovh01/itslave01           51.254.42.78:2301->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-it
+qa-ovh01/itslavepriv01       51.254.42.78:3401->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-itpriv
+qa-ovh01/matrix01            51.254.42.78:2302->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
+qa-ovh01/priv-01-1           51.254.42.78:3311->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+qa-ovh01/priv-01-2           51.254.42.78:3312->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+qa-ovh01/priv2-01-1          51.254.42.78:4401->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+qa-ovh01/static01            51.254.42.78:2201->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
+
+qa-ovh02/itslave710          51.254.197.210:2301->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-7.10
+qa-ovh02/itslave810          51.254.197.210:2303->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-8.10
+qa-ovh02/itslave910          51.254.197.210:2304->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-9.10
+qa-ovh02/matrix02            51.254.197.210:2302->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
+qa-ovh02/priv-02-1           51.254.197.210:3301->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+qa-ovh02/priv-02-2           51.254.197.210:3302->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+qa-ovh02/priv2-02-1          51.254.197.210:4401->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+qa-ovh02/slavepriv2-710-1    51.254.197.210:5501->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-7.10
+qa-ovh02/slavepriv2-810-1    51.254.197.210:5601->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-8.10
+qa-ovh02/slavepriv2-910-1    51.254.197.210:5701->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-9.10
+qa-ovh02/static710           51.254.197.210:2201->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-7.10
+qa-ovh02/static810           51.254.197.210:2202->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-8.10
+qa-ovh02/static910           51.254.197.210:2203->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-9.10
+
+qa-ovh03/itslave03           151.80.31.37:2301->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-it
+qa-ovh03/itslavepriv03       151.80.31.37:3401->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-itpriv
+qa-ovh03/matrix03            151.80.31.37:2302->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
+qa-ovh03/priv-03-1           151.80.31.37:3301->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+qa-ovh03/priv-03-2           151.80.31.37:3302->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+qa-ovh03/priv2-03-1          151.80.31.37:4401->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+qa-ovh03/static03            151.80.31.37:2201->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
+```
 
 ---
 
