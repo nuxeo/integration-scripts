@@ -47,7 +47,7 @@ def update_static_slaves(boolean doConfirm=true) {
         input(message: "Are you wishing to update the following slaves?\n$staticSlaves")
       }
       stage('Execute') {
-        sh """#!/bin/bash
+        sh """#!/bin/bash -xe
           for i in 1 2 3; do
             cd $WORKSPACE/qa-ovh-maintenance/qa-ovh0"\${i}"/
             ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ../common/pull_images.sh
