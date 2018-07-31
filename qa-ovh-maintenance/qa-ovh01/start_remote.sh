@@ -20,8 +20,6 @@
 # Start remote slaves on qa-ovh01
 #
 
-slave=$1
-
 slaveup=$(docker ps -f "status=running" -f "name=static01" --format "{{.ID}}")
 if [ -z "$slaveup" ]; then
     docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h static01 --name=static01 -p 2201:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
