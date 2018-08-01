@@ -23,7 +23,7 @@
 node('master') {
   checkout scm
   def externalMethod = load("qa-ovh-maintenance/update_static_slaves.groovy")
-  externalMethod.update_static_slaves(true)
+  externalMethod.update_static_slaves()
 
   withCredentials([string(credentialsId: 'update_static_slaves', variable: 'QA2_TOKEN')]) {
     sh """
