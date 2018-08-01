@@ -23,5 +23,5 @@
 node('master') {
   checkout scm
   def externalMethod = load("qa-ovh-maintenance/update_static_slaves.groovy")
-  externalMethod.update_static_slaves(false)
+  externalMethod.update_static_slaves()
 }

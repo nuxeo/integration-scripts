@@ -20,15 +20,12 @@
  * QA OVH
  */
 
-import hudson.FilePath;
-import hudson.model.Node;
-import hudson.model.Slave;
+import hudson.model.Cause;
 import jenkins.model.Jenkins;
-import groovy.time.*;
 
-def update_static_slaves(boolean doConfirm=true) {
+def update_static_slaves(boolean doConfirm=false) {
   def staticSlaves = [];
-  for (slave in jenkins.model.Jenkins.instance.getNodes()) { // iterate on all slaves
+  for (slave in Jenkins.instance.getNodes()) { // iterate on all slaves
     for (label in slave.getLabelString().split()) { // look for a known "static" label
       if ("STATIC".equalsIgnoreCase(label)) {
           if (slave.toComputer().isOnline() && slave.toComputer().isIdle()) {
@@ -43,7 +40,8 @@ def update_static_slaves(boolean doConfirm=true) {
 
   timeout(time: 1, unit: 'HOURS') {
     timestamps {
-      if (doConfirm) {
+      def isStartedByUser = currentBuild.rawBuild.getCause(Cause$UserIdCause) != null
+      if (doConfirm || isStartedByUser) {
         input(message: "Are you wishing to update the following slaves?\n$staticSlaves")
       }
       stage('Execute') {
