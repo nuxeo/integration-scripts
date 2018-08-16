@@ -80,7 +80,7 @@ def parse_test(line):
     seconds = line[idx + len(marker1):line.find(marker2, idx)]
     if seconds:
         if ',' in seconds:
-            seconds = seconds.replace(',', '.')
+            seconds = seconds.replace(',', '')
         try:
             return float(seconds)
         except ValueError:
