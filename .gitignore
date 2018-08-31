@@ -6,4 +6,6 @@ nuxeo-platform-importer
 resources
 results
 twiddle.log
+.project
+.pydevproject
 
