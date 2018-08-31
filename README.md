@@ -2,6 +2,19 @@
 
 Scripts to manage tools used for integration automation.
 
+For every new script, add a section to the README:
+
+    ---
+
+    # `<SCRIPT NAME>`
+
+    ## Usage
+
+    ## QA
+
+    ## Resources (Documentation and other links)
+
+
 ---
 
 # `download.sh`
@@ -228,6 +241,29 @@ TODO
 
 ---
 
+# `Jenkinsfiles/aws-keys-rotation.groovy`
+
+## Usage
+
+[QA/System/aws-keys-rotation](https://qa.nuxeo.org/jenkins/job/System/job/aws-keys-rotation/) job runs
+`aws-keys-rotation.groovy` following ["Maintain AWS Security with AWS Keys Rotation" blog](https://www.nuxeo.com/blog/maintain-aws-security-with-aws-keys-rotation/).
+
+> Jenkins usually needs to do some operation on the cloud, such as push an artifact to an S3 bucket or launch an Ansible script.
+> There is a plugin aws-credentials-plugin that handles the storage of keys for you and also does the assumeRole operation if you specify a roleArn.
+> So you can have basically one AccessKey that is mapped to several AWS Jenkins credentials with different roles.
+> But we still need to rotate those AccessKeys, and update all the credentials that use these accessKeys.
+
+## QA
+
+https://qa.nuxeo.org/jenkins/job/System/job/aws-keys-rotation/
+
+## Resources (Documentation and other links)
+
+https://jira.nuxeo.com/browse/NXBT-2449
+https://www.nuxeo.com/blog/maintain-aws-security-with-aws-keys-rotation/
+
+---
+
 # Release tooling
 
 ```release/
@@ -239,16 +275,6 @@ TODO
 TODO
 
 ---
----
-
-# `script`
-
-## Usage
-
-## QA
-
-## Resources (Documentation and other links)
-
 ---
 
 # DOC TODO

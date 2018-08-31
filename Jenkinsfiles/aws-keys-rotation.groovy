@@ -1,7 +1,10 @@
+#!/usr/bin/env groovy
+
 import com.cloudbees.jenkins.plugins.awscredentials.AWSCredentialsImpl;
 import com.cloudbees.plugins.credentials.domains.*;
 
-node {
+@NonCPS
+def rotateKeys() {
     // Load all the AWSCredentials from Jenkins
     def creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
         com.cloudbees.jenkins.plugins.awscredentials.AWSCredentialsImpl.class,
@@ -22,9 +25,9 @@ node {
         accessKey = it.value[0].accessKey
         secret = it.value[0].secretKey.getPlainText()
         withEnv(["AWS_ACCESS_KEY_ID=${accessKey}","AWS_SECRET_ACCESS_KEY=${secret}"]) {
-            newKeyRaw = sh(returnStdout: true, script: "${aws_bin} iam create-access-key").trim()
+            newKeyRaw = sh(returnStdout: true, script: "aws iam create-access-key").trim()
             newKey = readJSON(text: newKeyRaw)
-            sh(script: "${aws_bin} iam delete-access-key --access-key-id=${accessKey}")
+            sh(script: "aws iam delete-access-key --access-key-id=${accessKey}")
             println("Rotate key ${accessKey} to ${newKey.AccessKey.AccessKeyId}")
         }
         // Now that the accessKey has been rotated on AWS, we need to update all credentials using it
@@ -51,4 +54,8 @@ node {
             }
         }
     }
+}
+
+node('SLAVE') {
+    rotateKeys()
 }
