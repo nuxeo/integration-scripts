@@ -26,7 +26,7 @@
 for i in 1 2; do
     slaveup=$(docker ps -f "status=running" -f "name=priv-03-$i" --format "{{.ID}}")
     if [ -z "$slaveup" ]; then
-        docker run --privileged -d --restart=always --add-host mavenpriv.in.nuxeo.com:176.31.235.109 --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace-priv:/opt/jenkins/workspace:rw -h priv-03-$i --name=priv-03-$i -p 330$i:22 -t -e NX_DB_HOST=127.0.0.1 -e NX_MONGODB_SERVER=127.0.0.1 dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+        docker run --cpu-period=100000 --cpu-quota=200000 --privileged -d --restart=always --add-host mavenpriv.in.nuxeo.com:176.31.235.109 --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace-priv:/opt/jenkins/workspace:rw -h priv-03-$i --name=priv-03-$i -p 330$i:22 -t -e NX_DB_HOST=127.0.0.1 -e NX_MONGODB_SERVER=127.0.0.1 dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
     fi
 done
 
@@ -34,13 +34,13 @@ done
 for i in 1; do
     slaveup=$(docker ps -f "status=running" -f "name=priv2-03-$i" --format "{{.ID}}")
     if [ -z "$slaveup" ]; then
-        docker run --privileged -d --restart=always --add-host mavenpriv.in.nuxeo.com:176.31.235.109 --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace-priv:/opt/jenkins/workspace:rw -h priv2-03-$i --name=priv2-03-$i -p 440$i:22 -t -e NX_DB_HOST=127.0.0.1 -e NX_MONGODB_SERVER=127.0.0.1 dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
+        docker run --cpu-period=100000 --cpu-quota=200000 --privileged -d --restart=always --add-host mavenpriv.in.nuxeo.com:176.31.235.109 --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace-priv:/opt/jenkins/workspace:rw -h priv2-03-$i --name=priv2-03-$i -p 440$i:22 -t -e NX_DB_HOST=127.0.0.1 -e NX_MONGODB_SERVER=127.0.0.1 dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
     fi
 done
 
 slaveup=$(docker ps -f "status=running" -f "name=itslavepriv03" --format "{{.ID}}")
    if [ -z "$slaveup" ]; then
-       docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h itslavepriv03 --name=itslavepriv03 -p 3401:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-itpriv
+       docker run --cpu-period=100000 --cpu-quota=200000 --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h itslavepriv03 --name=itslavepriv03 -p 3401:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-itpriv
 fi
 
 exit 0
