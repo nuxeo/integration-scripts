@@ -73,7 +73,7 @@ def parse_download(line):
 def parse_test(line):
     # Tests run: (...), Time elapsed: 0.063 sec - in (...)
     marker1 = "Time elapsed: "
-    marker2 = " sec "
+    marker2 = " s"
     idx = line.find(marker1)
     if idx == -1:
         return 0
