@@ -176,7 +176,7 @@ See [getLabelsBySlaves.groovy](https://qa.nuxeo.org/jenkins/scriptler/runScript?
 ## List of static Slaves
 
 Naming convention is not yet enforced but tends to pattern like `prefix[n]-<host>[-<ID>]` to interprete as:
-- `[n]`: if dedicated to qa<n>.nuxeo.org instead of default qa.nuxeo.org
+- `[n]`: if dedicated to `qa<n>.nuxeo.org` instead of default `qa.nuxeo.org`
 - `<host>`: the Docker host within the Docker swarm, ie `qa-ovh01.nuxeo.com`, `qa-ovh02.nuxeo.com`...
 - `[-<ID>]`: increment when there are multiple instance with the same name
 
