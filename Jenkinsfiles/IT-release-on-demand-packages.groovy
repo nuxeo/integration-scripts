@@ -46,7 +46,6 @@ timestamps {
                             browser: [$class: 'GithubWeb', repoUrl: 'https://github.com/nuxeo/nuxeo'],
                             extensions: [
                                     [$class: 'RelativeTargetDirectory', relativeTargetDir: 'nuxeo'],
-                                    [$class: 'PerBuildTag'],
                                     [$class: 'WipeWorkspace'],
                                     [$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: false, timeout: 60],
                                     [$class: 'CheckoutOption', timeout: 60]
