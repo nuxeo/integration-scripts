@@ -36,6 +36,7 @@ timestamps {
             }
 
             node(nodeLabel) {
+                env.JAVA_HOME="${tool 'java-8-oracle'}"
                 stage('clone') {
                     def releaseBuild = new ReleaseBuild(input(message: 'Select the distribution to release against:', parameters: [
                             [$class: 'RunParameterDefinition', filter: 'SUCCESSFUL', name: 'RELEASE_BUILD', projectName: releaseJob]
@@ -126,6 +127,7 @@ print 'Done'
 
             if('Yes' == doPerform.trim()) {
                 node(nodeLabel) {
+                    env.JAVA_HOME="${tool 'java-8-oracle'}"
                     checkout([
                             $class: 'GitSCM',
                             branches: [[name: GithubUtils.checkForBranch('nuxeo', 'nuxeo', params.BRANCH, env.GITHUB_TOKEN, env.GITHUB_PASSWD, 'master')]],
