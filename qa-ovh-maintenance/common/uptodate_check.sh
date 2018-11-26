@@ -1,16 +1,17 @@
 #!/bin/bash -x
 
+SLAVE_NAME=${1}
 
-slave=$(docker ps -f "status=running" -f "name=$1" --format "{{.ID}}")
-echo "$slave"
-if [ -n "$slave" ]; then
-  children_image_id=$(docker inspect ${1} --format '{{.Image}}' | awk -F':' '{print substr($2,1,12)}')
-  echo ${children_image_id}
-  if docker images |grep ${children_image_id} |awk -F' ' '{print $2}'|grep '<none>'; then
-    echo "$1 must be put offline to be update"
-    /usr/bin/docker kill "$slave" && /usr/bin/docker rm -v "$slave"
+SLAVE_ID=$(docker ps -f "status=running" -f "name=${SLAVE_NAME}" --format "{{.ID}}")
+echo "${SLAVE_ID}"
+if [ -n "$SLAVE_ID" ]; then
+  CHILD_IMAGE_ID=$(docker inspect ${SLAVE_NAME} --format '{{.Image}}' | awk -F':' '{print substr($2,1,12)}')
+  echo ${CHILD_IMAGE_ID}
+  if docker images |grep ${CHILD_IMAGE_ID} |awk -F' ' '{print $2}'|grep '<none>'; then
+    echo "${SLAVE_NAME} will be killed and updated"
+    /usr/bin/docker kill "${SLAVE_NAME}" && /usr/bin/docker rm -v "${SLAVE_NAME}"
   fi
   else
-    echo "$1 is up to date"
+    echo "${SLAVE_NAME} is up to date"
 fi
 
