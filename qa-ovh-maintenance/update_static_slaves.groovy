@@ -25,24 +25,27 @@ import jenkins.model.Jenkins;
 
 def update_static_slaves(boolean doConfirm=false) {
   def staticSlaves = [];
+  def offlineIdleSlaves = [];
+  def onlineBusySlaves = [];
   for (slave in Jenkins.instance.getNodes()) { // iterate on all slaves
     if (slave.toComputer().getConnectTime() > 0) {
       for (label in slave.getLabelString().split()) { // look for a known "static" label
         if ("STATIC".equalsIgnoreCase(label)) {
           if (slave.toComputer().isOffline()) {
             if (slave.toComputer().isIdle()) {
-              // Upgrade
-              println(slave.getDisplayName() + " is offline and idle : It need to be upgraded \n")
+              offlineIdleSlaves.add(slave.getDisplayName());
+              staticSlaves.add(slave.getDisplayName());
             }
           }
           if (slave.toComputer().isOnline() && slave.toComputer().countBusy() > 0) {
-            // Set Offline
-            println(slave.getDisplayName() + " is Online and is busy : It needs to be set offline")
+            slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
+            onlineBusySlaves.add(slave.getDisplayName());
           }
           if (slave.toComputer().isOnline() && slave.toComputer().isIdle()) {
             staticSlaves.add(slave.getDisplayName());
-          } else {
-            println 'Ignore unavailable slave ' + slave.getDisplayName()
+          }
+          if (slave.getDisplayName() in staticSlaves == false && slave.getDisplayName() in offlineIdleSlaves == false && slave.getDisplayName() in onlineBusySlaves == false)  {
+            println 'Ignore unavailable slave ' + slave.getDisplayName();
           }
           break
         }
@@ -54,8 +57,11 @@ def update_static_slaves(boolean doConfirm=false) {
   timeout(time: 1, unit: 'HOURS') {
     timestamps {
       def isStartedByUser = currentBuild.rawBuild.getCause(Cause$UserIdCause) != null
+      println("List of offline idle slaves\n" + offlineIdleSlaves + "\n")
+      println("List of online busy slaves\n" + onlineBusySlaves + "\nThose one will be set offline once build finish")
+      println("List of needeed slaves update\n" + staticSlaves + "\n")
       if (doConfirm || isStartedByUser) {
-        input(message: "Are you wishing to update the following slaves?\n$staticSlaves")
+        input(message: "Are you wishing to update the following slaves?\n$staticSlaves \n$offlineIdleSlaves")
       }
       stage('Execute') {
         sh """#!/bin/bash -xe
