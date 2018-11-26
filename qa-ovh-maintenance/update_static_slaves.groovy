@@ -26,17 +26,30 @@ import jenkins.model.Jenkins;
 def update_static_slaves(boolean doConfirm=false) {
   def staticSlaves = [];
   for (slave in Jenkins.instance.getNodes()) { // iterate on all slaves
-    for (label in slave.getLabelString().split()) { // look for a known "static" label
-      if ("STATIC".equalsIgnoreCase(label)) {
+    if (slave.toComputer().getConnectTime() > 0) {
+      for (label in slave.getLabelString().split()) { // look for a known "static" label
+        if ("STATIC".equalsIgnoreCase(label)) {
+          if (slave.toComputer().isOffline()) {
+            if (slave.toComputer().isIdle()) {
+              // Upgrade
+              println(slave.getDisplayName() + " is offline and idle : It need to be upgraded \n")
+            }
+          }
+          if (slave.toComputer().isOnline() && slave.toComputer().countBusy() > 0) {
+            // Set Offline
+            println(slave.getDisplayName() + " is Online and is busy : It needs to be set offline")
+          }
           if (slave.toComputer().isOnline() && slave.toComputer().isIdle()) {
-              staticSlaves.add(slave.getDisplayName());
+            staticSlaves.add(slave.getDisplayName());
           } else {
-              println 'Ignore unavailable slave ' + slave.getDisplayName()
+            println 'Ignore unavailable slave ' + slave.getDisplayName()
           }
           break
+        }
       }
     }
   }
+
 
   timeout(time: 1, unit: 'HOURS') {
     timestamps {
@@ -52,7 +65,7 @@ def update_static_slaves(boolean doConfirm=false) {
             for slave in ${staticSlaves}; do
               slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
               echo "\$slave"
-              ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ../common/kill_remote.sh
+              ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ../common/uptodate_check.sh
             done
             ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote.sh
             ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote_priv.sh
