@@ -31,9 +31,10 @@ if [ -n "$SLAVE_ID" ]; then
   echo ${CHILD_IMAGE_ID}
   if docker images |grep ${CHILD_IMAGE_ID} |awk -F' ' '{print $2}'|grep '<none>'; then
     echo "${SLAVE_NAME} is outdated"
-    return 1
+    exit 1
   fi
   else
     echo "${SLAVE_NAME} is up to date"
-    return 0
+    exit 0
 fi
+
