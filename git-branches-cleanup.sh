@@ -20,15 +20,21 @@
 #
 # NXBT-736: cleanup deprecated branches
 
-JIRA_PROJECTS="NXP|NXBT|APG|NXDRIVE|NXROADMAP|NXS|NXMOB|NXDOC"
-PATTERNS='^origin/master$ \
- ^origin/[0-9]+(\.[0-9]+)+-SNAPSHOT$ \
- ^origin/[0-9]+(\.[0-9]+)+-HF[0-9]+-SNAPSHOT$ \
- ^origin/[0-9]+(\.[0-9]+)+$ \
- 5.4.2-I20110404_0115'
-DEPRECATED_PATTERNS='^origin/5\.[0-7](\.[0-9])*$ \
- ^origin/5\.9\..*$ \
- ^origin/[1-7](\.[0-9]+)+-SNAPSHOT$'
+JIRA_PROJECTS=${JIRA_PROJECTS:-"NXP|NXBT|APG|NXDRIVE|NXROADMAP|NXS|NXMOB|NXDOC"}
+PATTERNS=${PATTERNS:-'^origin/master$
+ ^origin/[0-9]+(\.[0-9]+)+-SNAPSHOT$
+ ^origin/[0-9]+(\.[0-9]+)+-HF[0-9]+-SNAPSHOT$
+ ^origin/[0-9]+(\.[0-9]+)+$
+ 5.4.2-I20110404_0115'}
+DEPRECATED_PATTERNS=${DEPRECATED_PATTERNS:-'^origin/5\.[0-7](\.[0-9])*$
+ ^origin/5\.9\..*$
+ ^origin/[1-7](\.[0-9]+)+-SNAPSHOT$'}
+
+echo ---
+echo JIRA_PROJECTS=$JIRA_PROJECTS
+echo PATTERNS=$PATTERNS
+echo DEPRECATED_PATTERNS=$DEPRECATED_PATTERNS
+echo ---
 
 # Output files
 basedir=${PWD##*/}
@@ -83,7 +89,7 @@ analyze() {
       author=$(git log -20 --format=%H $branch | grep -v -f <(git log -20 --format=%H "--grep=Merge branch '.*' from multiple repositories" $branch) | git log -1 --pretty=format:'%aE' --stdin --no-walk)
     fi
     if [ -z "$(git log -1 --since='3 months ago' --oneline $branch)" ]; then
-        jira=$(echo "$branch" | awk -v jira_pattern="($JIRA_PROJECTS)-[0-9]+" 'match(toupper($0), jira_pattern) {print substr($0,RSTART,RLENGTH)}')
+      jira=$(echo "$branch" | awk -v jira_pattern="($JIRA_PROJECTS)-[0-9]+" 'match(toupper($0), jira_pattern) {print substr($0,RSTART,RLENGTH)}')
       if [ -z "$jira" ]; then
         printf "%-20s\t%-80s\t%s\n" $author $branch "(unknown pattern)" >> $FILE_UNKNOWN
         continue
@@ -154,9 +160,12 @@ test() {
   echo -e "\n>> Extract JIRA reference..."
   set -x
   jira=$(echo "$branch" | awk -v jira_pattern="($JIRA_PROJECTS)-[0-9]+" 'match(toupper($0), jira_pattern) {print substr($0,RSTART,RLENGTH)}')
+  if [ -z "$jira" ]; then
+    printf "%-20s\t%-80s\t%s\n" $author $branch "(unknown pattern)" >> $FILE_UNKNOWN
+    return
+  fi
   { set +x; } 2>/dev/null
-
-  echo -e "\n>> Check JIRA reference exists (and is public), get its status and optional tags..."
+  echo -e "\n>> Check JIRA reference '$jira' exists (and is public), get its status and optional tags..."
   set -x
   curl -I -o /dev/null -w "%{http_code}\n" -s https://jira.nuxeo.com/rest/api/2/issue/$jira
   curl -s https://jira.nuxeo.com/rest/api/2/issue/$jira?fields=status|python -c 'import sys, json; print json.load(sys.stdin)["fields"]["status"]["id"]'
