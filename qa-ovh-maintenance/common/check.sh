@@ -35,6 +35,6 @@ if [ -n "$SLAVE_ID" ]; then
   fi
   else
     echo "${SLAVE_NAME} is up to date"
-    exit 42
+    bash -c 'exit 1'
 fi
 
