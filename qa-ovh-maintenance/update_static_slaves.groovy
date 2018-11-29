@@ -1,7 +1,10 @@
+
 import hudson.model.Cause;
 import jenkins.model.Jenkins;
 
 def update_static_slaves(boolean doConfirm=false) {
+
+  // Get All static slaves
   def staticSlaves = [];
   def offlineIdleSlaves = [];
   def onlineBusySlaves = [];
@@ -17,6 +20,7 @@ def update_static_slaves(boolean doConfirm=false) {
       }
     }
   }
+  // Check if those slaves are outdated | if yes, write slave name to result.txt
   sh """ #!bin/bash -x
   rm -f result.txt
   for i in 1 2 3; do
@@ -32,20 +36,18 @@ def update_static_slaves(boolean doConfirm=false) {
         echo "\$slave is already up to date";
       fi;
     done
-    echo "\$slave" >> ../../result.txt
   done
   """
-  /*
+  // if all slaves are up to date, finish build on success
   resultExist = fileExists 'result.txt'
   if (resultExist == false) {
     currentBuild.result = 'SUCCESS'
     return
   }
-  */
+  // Compare and create new array filled with outdated static slaves
   availableSlaves = []
   results = readFile ('result.txt'.trim());
   result = results.readLines();
-  //println("\n\n\n" + results);
   for (validatedSlave in result) {
       for (slave in staticSlaves) {
         if (validatedSlave == slave.getDisplayName()) {
@@ -53,19 +55,19 @@ def update_static_slaves(boolean doConfirm=false) {
         }
       }
   }
+  // Parse and output slaves depending of their states
   staticSlaves = [];
   availableSlaves.unique();
   println(availableSlaves);
   for (slave in availableSlaves) {
           if (slave.toComputer().isOffline()) {
             if (slave.toComputer().isIdle()) {
-              // Upgrade
               offlineIdleSlaves.add(slave.getDisplayName());
               staticSlaves.add(slave.getDisplayName());
             }
           }
           if (slave.toComputer().isOnline() && slave.toComputer().countBusy() > 0) {
-            //slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
+            slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
             onlineBusySlaves.add(slave.getDisplayName());
           }
           if (slave.toComputer().isOnline() && slave.toComputer().isIdle()) {
@@ -80,8 +82,8 @@ def update_static_slaves(boolean doConfirm=false) {
   timeout(time: 1, unit: 'HOURS') {
     timestamps {
       def isStartedByUser = currentBuild.rawBuild.getCause(Cause$UserIdCause) != null
-      println("List of offline idle slaves\n" + offlineIdleSlaves + "\n")
-      println("List of online busy slaves\n" + onlineBusySlaves + "\nThose one will be set offline once build finish")
+      println("List of offline outdated idle slaves\n" + offlineIdleSlaves + "\n")
+      println("List of online outdated busy slaves\n" + onlineBusySlaves + "\nThose one will be set offline once build finish")
       println("List of needeed slaves update\n" + staticSlaves + "\n")
       if (doConfirm || isStartedByUser) {
         input(message: "Are you wishing to update the following slaves?\n$staticSlaves $offlineIdleSlaves")
@@ -94,7 +96,7 @@ def update_static_slaves(boolean doConfirm=false) {
             for slave in ${staticSlaves}; do
               slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
               echo "\$slave"
-              ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ../common/uptodate_check.sh
+              ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ../common/kill_remote.sh
             done
             ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote.sh
             ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote_priv.sh
@@ -103,9 +105,10 @@ def update_static_slaves(boolean doConfirm=false) {
       }
     }
   }
-  // if (offlineIdleSlaves.size() > 0) {
-    //  build job: 'update_static_slaves', propagate: false, quietPeriod: 3600
-  //}
+  // trigger this job again if we have set slaves offline
+  if (onlineBusySlaves.size() > 0) {
+    build job: 'update_static_slaves', propagate: false, quietPeriod: 3600
+  }
 }
 
 return this
