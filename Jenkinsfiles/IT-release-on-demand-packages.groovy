@@ -93,13 +93,24 @@ with open('${env.WORKSPACE}/merge.ini', 'w') as dest_conf:
         value = packages.get('DEFAULT', key, True) if packages.has_option('DEFAULT', key) else value
         merge.set('DEFAULT', key, value)
     merge.write(dest_conf)
-    
+
 print 'Done'
                     """
-                    dir('nuxeo/marketplace') {
-                        sh """#!/bin/bash -ex
-                    ../scripts/release_mp.py prepare -m file://$WORKSPACE/merge.ini
-                    """
+                    withCredentials([file(credentialsId: 'NETRC_RELEASE', variable: 'NETRC_FILE')]) {
+                        def NETRC_FILE_BAK=".netrc.bak-${BUILD_TAG}"
+                        dir('nuxeo/marketplace') {
+                            try {
+                                sh '''#!/bin/bash -ex
+                                    mv ~/.netrc ~/"${NETRC_FILE_BAK}" || true
+                                    mv ${NETRC_FILE} ~/.netrc
+                                    ../scripts/release_mp.py prepare -m file://$WORKSPACE/merge.ini
+                                '''
+                            } finally {
+                                sh '''#!/bin/bash -ex
+                                    mv ~/"${NETRC_FILE_BAK}" ~/.netrc || rm ~/.netrc
+                                '''
+                            }
+                        }
                     }
                 }
                 stage('check') {
@@ -145,12 +156,23 @@ print 'Done'
                     unstash 'packages_ini'
                     unstash 'release_log'
 
-                    dir('nuxeo/marketplace') {
-                        sh """#!/bin/bash -ex
-                            ../scripts/release_mp.py perform
-                            grep -C5 'Fail' release.ini || true
-                            grep uploaded release.ini
-                            """
+                    withCredentials([file(credentialsId: 'NETRC_RELEASE', variable: 'NETRC_FILE')]) {
+                        def NETRC_FILE_BAK=".netrc.bak-${BUILD_TAG}"
+                        dir('nuxeo/marketplace') {
+                            try {
+                                sh '''#!/bin/bash -ex
+                                    mv ~/.netrc ~/"${NETRC_FILE_BAK}" || true
+                                    mv ${NETRC_FILE} ~/.netrc
+                                    ../scripts/release_mp.py perform
+                                    grep -C5 'Fail' release.ini || true
+                                    grep uploaded release.ini
+                                '''
+                            } finally {
+                                sh '''#!/bin/bash -ex
+                                    mv ~/"${NETRC_FILE_BAK}" ~/.netrc || rm ~/.netrc
+                                '''
+                            }
+                        }
                     }
                 }
             }
