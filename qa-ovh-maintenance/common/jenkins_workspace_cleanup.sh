@@ -20,25 +20,27 @@
 #
 # Cleanup Jenkins hosts: Docker and workspaces
 
-# Prune stopped images
+echo "### Prune stopped images"
 docker image prune -f > /dev/null
-# Prune stopped volumes
+echo "### Prune stopped volumes"
 docker volume prune -f > /dev/null
-# Delete "exited" containers
+echo "### Delete "exited" containers"
 docker ps -a | awk '/Exited.*(hours|days|weeks) ago/ {print $1}' | xargs --no-run-if-empty docker rm -v > /dev/null 2>&1
 
-# Delete T&P jobs older than 3 days
+echo "### Delete T&P jobs older than 3 days"
 find /opt/jenkins/workspace/TestAndPush -maxdepth 1 -mindepth 1 -type d -mtime +3 -exec rm -r -- {} +
 
-# Delete Nuxeo server ZIP files and unzipped folders older than 3 days
+echo "### Delete Nuxeo server ZIP files and unzipped folders older than 3 days"
 find /opt/jenkins/workspace*/ -name 'nuxeo-server-tomcat-*.zip' -o -name 'nuxeo-cap-*.zip' -mtime +3 -exec rm -- {} +
 find /opt/jenkins/workspace*/ -path '*/target/tomcat' -type d -prune -mtime +3 -exec rm -r -- {} +
 
-# Remove Git repositories parent folders older than 5 days
+echo "### Remove Git repositories parent folders older than 5 days"
 find /opt/jenkins/workspace*/ -maxdepth 2 -type d -execdir test -d {}/.git \; -mtime +5 -prune -print -exec rm -r -- {} +
 
-# Remove Git repositories parent folders older than 2 days and bigger than 100M
+echo "### Remove Git repositories parent folders older than 2 days and bigger than 100M"
 find /opt/jenkins/workspace*/ -maxdepth 2 -type d -execdir test -d {}/.git \; -mtime +2 -prune -print |xargs du -sh |sort -hr|grep -P "^(.*G|\d{3}M)\t" |cut -d$'\t' -f 2-|xargs rm -r --
 
-# Remove files that the Workspace Cleanup plugin has no permission to delete (NXBT-2205, JENKINS-24824)
+echo "### Remove files that the Workspace Cleanup plugin has no permission to delete (NXBT-2205, JENKINS-24824)"
 find /opt/jenkins/workspace*/ -path '*/*ws-cleanup*' ! -perm -u+w -prune -exec chmod u+w {} + -exec rm -r -- {} +
+
+
