@@ -21,7 +21,7 @@ def update_static_slaves(boolean doConfirm=false) {
     }
   }
   // Check if those slaves are outdated | if yes, write slave name to result.txt
-  sh """ #!bin/bash -x
+  sh """ #!bin/bash -xe
   rm -f result.txt
   for i in 1 2 3; do
     cd $WORKSPACE/qa-ovh-maintenance/qa-ovh0"\${i}"/
@@ -47,11 +47,10 @@ def update_static_slaves(boolean doConfirm=false) {
   }
   // Compare and create new array filled with outdated static slaves
   availableSlaves = []
-  results = readFile ('result.txt'.trim());
-  result = results.readLines();
-  for (validatedSlave in result) {
+  results = readFile('result.txt'.trim()).readLines();
+  for (slaveToUpdate in results) {
       for (slave in staticSlaves) {
-        if (validatedSlave == slave.getDisplayName()) {
+        if (slaveToUpdate == slave.getDisplayName()) {
             availableSlaves.add(slave);
         }
       }
