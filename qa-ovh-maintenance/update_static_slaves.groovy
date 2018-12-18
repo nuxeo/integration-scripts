@@ -25,6 +25,7 @@ def update_static_slaves(boolean doConfirm=false) {
   rm -f result.txt
   for i in 1 2 3; do
     cd $WORKSPACE/qa-ovh-maintenance/qa-ovh0"\${i}"/
+    ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ../common/pull_images.sh
     for slave in ${availableSlaves}; do
       slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
       echo "\$slave"
@@ -92,7 +93,6 @@ def update_static_slaves(boolean doConfirm=false) {
         sh """#!/bin/bash -xe
           for i in 1 2 3; do
             cd $WORKSPACE/qa-ovh-maintenance/qa-ovh0"\${i}"/
-            ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ../common/pull_images.sh
             for slave in ${staticSlaves}; do
               slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
               echo "\$slave"
