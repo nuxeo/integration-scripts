@@ -51,5 +51,5 @@ docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-10.10
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-test-preprod
 
 # Clean dangling images
-docker images dockerpriv.nuxeo.com:443/nuxeo/* -f "dangling=true" -q | sort -u | xargs -r docker rmi -f
+#docker images dockerpriv.nuxeo.com:443/nuxeo/* -f "dangling=true" -q | sort -u | xargs -r docker rmi -f
 exit 0
