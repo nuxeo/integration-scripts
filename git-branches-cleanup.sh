@@ -30,12 +30,6 @@ DEPRECATED_PATTERNS=${DEPRECATED_PATTERNS:-'^origin/5\.[0-7](\.[0-9])*$
  ^origin/5\.9\..*$
  ^origin/[1-7](\.[0-9]+)+-SNAPSHOT$'}
 
-echo ---
-echo JIRA_PROJECTS=$JIRA_PROJECTS
-echo PATTERNS=$PATTERNS
-echo DEPRECATED_PATTERNS=$DEPRECATED_PATTERNS
-echo ---
-
 # Output files
 basedir=${PWD##*/}
 FILE_LIST=/tmp/cleanup-$basedir-complete
@@ -185,23 +179,42 @@ Commands:\n\
 \tfull\n\
 \t\tAnalyze and delete\n\
 \ttest <branch>\n\
-\t\tTest analysis of the given branch\n"
+\t\tTest analysis of the given branch\n\
+Environment variables:\n\
+\tJIRA_PROJECTS\n\
+\t\tJIRA project refs (pipe-separated; ie: "NXP\|NXBT").\n\
+\tPATTERNS\n\
+\t\tRegEx patterns of branches to keep.\n\
+\tDEPRECATED_PATTERNS\n\
+\t\tRegEx deprecated patterns of branches to delete.\n"
+}
+
+info() {
+  echo ---
+  echo "Working on $PWD"
+  echo JIRA_PROJECTS=$JIRA_PROJECTS
+  echo PATTERNS=$PATTERNS
+  echo DEPRECATED_PATTERNS=$DEPRECATED_PATTERNS
+  echo ---
 }
 
 if [ "$#" -eq 0 -o "$1" = "test" -a -z "$2" ]; then
   usage
+  info
   exit 1
 elif [ "$1" = "help" ]; then
   usage
+  info
   exit 0
 fi
-echo "Working on $PWD"
 [ -d .git ] || git rev-parse --git-dir >/dev/null 2>&1 || die "Not a Git repository"
 git config remote.origin.url >/dev/null || die "No remote named 'origin'"
 git help log |grep 'invert-grep' >/dev/null 2>&1 && INVERT_GREP=true || INVERT_GREP=false
 if ! $INVERT_GREP ; then
   echo "You should upgrade Git!"
 fi
+
+info
 if [ "$1" = "analyze" ]; then
   analyze
 elif [ "$1" = "full" ]; then
