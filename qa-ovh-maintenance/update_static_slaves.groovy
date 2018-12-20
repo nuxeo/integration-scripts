@@ -37,6 +37,8 @@ def update_static_slaves(boolean doConfirm=false) {
         echo "\$slave is already up to date";
       fi;
     done
+    ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote.sh
+    ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote_priv.sh
   done
   """
   // if all slaves are up to date, finish build on success
