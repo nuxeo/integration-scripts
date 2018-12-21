@@ -1,0 +1,19 @@
+ /*
+ * (C) Copyright 2018 Nuxeo (http://nuxeo.com/).
+ * This is unpublished proprietary source code of Nuxeo SA. All rights reserved.
+ * Notice of copyright on this source code does not indicate publication.
+ *
+ * Contributors:
+ *     atimic
+ */
+
+
+#!/bin/bash -e
+
+# See http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html#cli-signup
+
+
+cd $(dirname $0)
+
+cat id_rsa_*.pub > authorized_keys
+aws s3 cp --region=eu-west-1 authorized_keys s3://nuxeo-jenkins-resources/ansible/linux/qa-config/common/jenkins_home/.ssh/authorized_keys
