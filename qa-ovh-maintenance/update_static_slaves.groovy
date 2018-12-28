@@ -31,7 +31,7 @@ def update_static_slaves(boolean doConfirm=false) {
   for slave in ${availableSlaves}; do
     slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
     echo "\$slave"
-    ../common/swarm_check.sh
+    ../common/swarm_check.sh \${slave}
     if [ \$? -eq 1 ]; then
       echo "\${slave} must be updated";
       echo "\$slave" >> ../../result.txt
