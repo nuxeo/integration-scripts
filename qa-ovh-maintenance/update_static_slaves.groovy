@@ -1,4 +1,3 @@
-
 import hudson.model.Cause;
 import jenkins.model.Jenkins;
 
@@ -26,19 +25,19 @@ def update_static_slaves(boolean doConfirm=false) {
   for i in 1 2 3; do
     cd $WORKSPACE/qa-ovh-maintenance/qa-ovh0"\${i}"/
     ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ../common/pull_images.sh
-    for slave in ${availableSlaves}; do
-      slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
-      echo "\$slave"
-      ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < . ../common/check.sh
-      if [ \$? -eq 1 ]; then
-        echo "\${slave} must be updated";
-        echo "\$slave" >> ../../result.txt
-      else
-        echo "\$slave is already up to date";
-      fi;
-    done
     ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote.sh
     ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote_priv.sh
+  done
+  for slave in ${availableSlaves}; do
+    slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
+    echo "\$slave"
+    ../common/swarm_check.sh
+    if [ \$? -eq 1 ]; then
+      echo "\${slave} must be updated";
+      echo "\$slave" >> ../../result.txt
+    else
+      echo "\$slave is already up to date";
+    fi;
   done
   """
   // if all slaves are up to date, finish build on success
