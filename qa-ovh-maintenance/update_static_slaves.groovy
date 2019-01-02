@@ -54,7 +54,7 @@ def update_static_slaves(boolean doConfirm=false) {
     slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
     echo "\$slave"
     . ../common/swarm_check.sh \${slave}
-    if [ \${retvalue} -eq 1 ]; then
+    if [ \${retval} -eq 1 ]; then
       echo "\${slave} must be updated";
       echo "\$slave" >> ../../result.txt
     else
