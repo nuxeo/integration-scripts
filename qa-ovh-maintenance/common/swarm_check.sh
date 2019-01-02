@@ -21,4 +21,3 @@ if [ -n "$SLAVE_ID" ]; then
     SLAVE_IMAGE_ID=$(docker -H ${SLAVE_HOST}.nuxeo.com:4243 inspect ${SLAVE_NAME} --format '{{.Image}}' | awk -F':' '{print substr($2,1,12)}')
     check_update
 fi
-
