@@ -53,8 +53,8 @@ def update_static_slaves(boolean doConfirm=false) {
   for slave in ${availableSlaves}; do
     slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
     echo "\$slave"
-    bash -s ../common/swarm_check.sh \${slave}
-    if [ \$? -eq 1 ]; then
+    . ../common/swarm_check.sh \${slave}
+    if [ \${retvalue} -eq 1 ]; then
       echo "\${slave} must be updated";
       echo "\$slave" >> ../../result.txt
     else
@@ -72,6 +72,7 @@ def update_static_slaves(boolean doConfirm=false) {
   // Compare and create new array filled with outdated static slaves
   availableSlaves = []
   results = readFile('result.txt'.trim()).readLines();
+  println("Fichier results.txt : " + results)
   for (slaveToUpdate in results) {
       for (slave in staticSlaves) {
         if (slaveToUpdate == slave.getDisplayName()) {
@@ -79,10 +80,9 @@ def update_static_slaves(boolean doConfirm=false) {
         }
       }
   }
+  println("New array filled with with slave to be updated : " + availableSlaves)
   // Parse and output slaves depending of their states
   staticSlaves = [];
-  availableSlaves.unique();
-  println(availableSlaves);
   for (slave in availableSlaves) {
           if (slave.toComputer().isOffline()) {
             if (slave.toComputer().isIdle()) {
