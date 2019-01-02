@@ -4,7 +4,7 @@ function check_update()
 {
      if docker -H $SLAVE_HOST.nuxeo.com:4243 images |grep ${SLAVE_IMAGE_ID} |awk -F' ' '{print $2}'|grep '<none>'; then
         echo "${SLAVE_NAME} is outdated"
-        return 1
+        return 100
     else
         echo "${SLAVE_NAME} is up to date"
         return 0
