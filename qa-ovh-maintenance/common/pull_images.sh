@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 #
-# (C) Copyright 2018 Nuxeo (http://nuxeo.com/) and others.
+# (C) Copyright 2018-2019 Nuxeo (http://nuxeo.com/) and others.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 # Contributors:
 #     mguillaume
 #     atimic
+#     jcarsique
 #
 # Pull slave images commonly used for static slaves
 #
@@ -27,12 +28,6 @@ docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-ondemand
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-check
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-multidb
-
-docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-7.10
-docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-7.10
-docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-ondemand-7.10
-docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-check-7.10
-docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-7.10
 
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-8.10
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-8.10

@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
 #
-# (C) Copyright 2018 Nuxeo (http://nuxeo.com/) and others.
+# (C) Copyright 2018-2019 Nuxeo (http://nuxeo.com/) and others.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,14 +17,10 @@
 #
 # Contributors:
 #     alexis timic
+#     jcarsique
 #
 # Start remote slaves on qa-ovh02
 #
-
-slaveup=$(docker ps -f "status=running" -f "name=static710" --format "{{.ID}}")
-if [ -z "$slaveup" ]; then
-    docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h static710 --name=static710 -p 2201:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-7.10
-fi
 
 slaveup=$(docker ps -f "status=running" -f "name=static810" --format "{{.ID}}")
 if [ -z "$slaveup" ]; then
@@ -34,11 +30,6 @@ fi
 slaveup=$(docker ps -f "status=running" -f "name=static910" --format "{{.ID}}")
 if [ -z "$slaveup" ]; then
     docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h static910 --name=static910 -p 2203:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-9.10
-fi
-
-slaveup=$(docker ps -f "status=running" -f "name=itslave710" --format "{{.ID}}")
-if [ -z "$slaveup" ]; then
-    docker run --restart=always --privileged -d --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace:/opt/jenkins/workspace:rw -h itslave710 --name=itslave710 -p 2301:22 -t dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-7.10
 fi
 
 slaveup=$(docker ps -f "status=running" -f "name=itslave810" --format "{{.ID}}")
