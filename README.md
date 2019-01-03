@@ -191,17 +191,14 @@ qa-ovh01/priv-01-2           51.254.42.78:3312->22/tcp      dockerpriv.nuxeo.com
 qa-ovh01/priv2-01-1          51.254.42.78:4401->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
 qa-ovh01/static01            51.254.42.78:2201->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
 
-qa-ovh02/itslave710          51.254.197.210:2301->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-7.10
 qa-ovh02/itslave810          51.254.197.210:2303->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-8.10
 qa-ovh02/itslave910          51.254.197.210:2304->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-9.10
 qa-ovh02/matrix02            51.254.197.210:2302->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
 qa-ovh02/priv-02-1           51.254.197.210:3301->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
 qa-ovh02/priv-02-2           51.254.197.210:3302->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
 qa-ovh02/priv2-02-1          51.254.197.210:4401->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
-qa-ovh02/slavepriv2-710-1    51.254.197.210:5501->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-7.10
 qa-ovh02/slavepriv2-810-1    51.254.197.210:5601->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-8.10
 qa-ovh02/slavepriv2-910-1    51.254.197.210:5701->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-9.10
-qa-ovh02/static710           51.254.197.210:2201->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-7.10
 qa-ovh02/static810           51.254.197.210:2202->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-8.10
 qa-ovh02/static910           51.254.197.210:2203->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-9.10
 

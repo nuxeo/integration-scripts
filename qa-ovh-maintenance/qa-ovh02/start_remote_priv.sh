@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 #
-# (C) Copyright 2018 Nuxeo (http://nuxeo.com/) and others.
+# (C) Copyright 2018-2019 Nuxeo (http://nuxeo.com/) and others.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #
 # Contributors:
 #     alexis timic
+#     jcarsique
 #
 # Start remote private slaves on qa-ovh02
 #
@@ -33,12 +34,6 @@ for i in 1; do
     slaveup=$(docker ps -f "status=running" -f "name=priv2-02-$i" --format "{{.ID}}")
     if [ -z "$slaveup" ]; then
         docker run --privileged -d --restart=always --add-host mavenpriv.in.nuxeo.com:176.31.235.109 --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace-priv:/opt/jenkins/workspace:rw -h priv2-02-$i --name=priv2-02-$i -p 440$i:22 -t -e NX_DB_HOST=127.0.0.1 -e NX_MONGODB_SERVER=127.0.0.1 dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
-    fi
-done
-for i in 1; do
-    slaveup=$(docker ps -f "status=running" -f "name=slavepriv2-710-$i" --format "{{.ID}}")
-    if [ -z "$slaveup" ]; then
-        docker run --privileged -d --restart=always --add-host mavenpriv.in.nuxeo.com:176.31.235.109 --add-host mavenin.nuxeo.com:176.31.239.50 -v /var/run/docker.sock:/var/run/docker.sock:rw -v /opt/jenkins/workspace-priv:/opt/jenkins/workspace:rw -h slavepriv2-710-$i --name=slavepriv2-710-$i -p 550$i:22 -t -e NX_DB_HOST=127.0.0.1 -e NX_MONGODB_SERVER=127.0.0.1 dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-7.10
     fi
 done
 for i in 1; do
