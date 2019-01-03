@@ -85,56 +85,56 @@ def update_static_slaves(boolean doConfirm=false) {
       // Parse and output slaves depending of their states
       staticSlaves = [];
       for (slave in availableSlaves) {
-              if (slave.toComputer().isOffline()) {
-                if (slave.toComputer().isIdle()) {
-                  offlineIdleSlaves.add(slave.getDisplayName());
-                  staticSlaves.add(slave.getDisplayName());
-                }
-              }
-              if (slave.toComputer().isOnline() && !slave.toComputer().isIdle()) {
-                slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
-                onlineBusySlaves.add(slave.getDisplayName());
-              }
-              if (slave.toComputer().isOnline() && slave.toComputer().isIdle()) {
-                slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
-                staticSlaves.add(slave.getDisplayName());
-              }
-             // offline && idle
-             // online && busy
-             // online && idle
-             // offline && busy
-              if (slave.getDisplayName() in staticSlaves == false && slave.getDisplayName() in offlineIdleSlaves == false && slave.getDisplayName() in onlineBusySlaves == false)  {
-                println 'Ignore unavailable slave ' + slave.getDisplayName();
-              }
+          if (slave.toComputer().isOffline()) {
+            if (slave.toComputer().isIdle()) {
+              offlineIdleSlaves.add(slave.getDisplayName());
+              staticSlaves.add(slave.getDisplayName());
             }
-
-          def isStartedByUser = currentBuild.rawBuild.getCause(Cause$UserIdCause) != null
-          println("List of offline outdated idle slaves\n" + offlineIdleSlaves + "\n")
-          println("List of online outdated busy slaves\n" + onlineBusySlaves + "\nThose one will be set offline once build finish")
-          println("List of needeed slaves update\n" + staticSlaves + "\n")
-          if (doConfirm || isStartedByUser) {
-            input(message: "Are you wishing to update the following slaves?\n$staticSlaves $offlineIdleSlaves")
           }
-          stage('Execute') {
-            sh """#!/bin/bash -xe
-              for i in 1 2 3; do
-                cd $WORKSPACE/qa-ovh-maintenance/qa-ovh0"\${i}"/
-                for slave in ${staticSlaves}; do
-                  slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
-                  echo "\$slave"
-                  ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ../common/kill_remote.sh
-                done
-                ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote.sh
-                ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote_priv.sh
-              done
-            """
+          if (slave.toComputer().isOnline() && !slave.toComputer().isIdle()) {
+            slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
+            onlineBusySlaves.add(slave.getDisplayName());
           }
-          // trigger this job again if we have set slaves offline
-          if (onlineBusySlaves.size() > 0) {
-            build job: 'update_static_slaves', propagate: false, quietPeriod: 3600
+          if (slave.toComputer().isOnline() && slave.toComputer().isIdle()) {
+            slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
+            staticSlaves.add(slave.getDisplayName());
+          }
+         // offline && idle
+         // online && busy
+         // online && idle
+         // offline && busy
+          if (slave.getDisplayName() in staticSlaves == false && slave.getDisplayName() in offlineIdleSlaves == false && slave.getDisplayName() in onlineBusySlaves == false)  {
+            println 'Ignore unavailable slave ' + slave.getDisplayName();
           }
         }
+
+      def isStartedByUser = currentBuild.rawBuild.getCause(Cause$UserIdCause) != null
+      println("List of offline outdated idle slaves\n" + offlineIdleSlaves + "\n")
+      println("List of online outdated busy slaves\n" + onlineBusySlaves + "\nThose one will be set offline once build finish")
+      println("List of needeed slaves update\n" + staticSlaves + "\n")
+      if (doConfirm || isStartedByUser) {
+        input(message: "Are you wishing to update the following slaves?\n$staticSlaves $offlineIdleSlaves")
       }
+      stage('Execute') {
+        sh """#!/bin/bash -xe
+          for i in 1 2 3; do
+            cd $WORKSPACE/qa-ovh-maintenance/qa-ovh0"\${i}"/
+            for slave in ${staticSlaves}; do
+              slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
+              echo "\$slave"
+              ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s -- \${slave}" < ../common/kill_remote.sh
+            done
+            ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote.sh
+            ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote_priv.sh
+          done
+        """
+      }
+      // trigger this job again if we have set slaves offline
+      if (onlineBusySlaves.size() > 0) {
+        build job: 'update_static_slaves', propagate: false, quietPeriod: 3600
+      }
+    }
+  }
 }
 
 return this
