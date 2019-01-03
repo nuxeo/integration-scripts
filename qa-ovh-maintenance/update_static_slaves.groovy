@@ -130,7 +130,7 @@ def update_static_slaves(boolean doConfirm=false) {
             """
           }
           // trigger this job again if we have set slaves offline
-          if (onlineBusySlaves.size() > 0) {
+          if (onlineBusySlaves != null) {
             build job: 'update_static_slaves', propagate: false, quietPeriod: 3600
           }
         }
