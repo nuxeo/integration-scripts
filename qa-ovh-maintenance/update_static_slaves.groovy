@@ -63,8 +63,7 @@ def update_static_slaves(boolean doConfirm=false) {
   done
   """
   // if all slaves are up to date, finish build on success
-  resultExist = fileExists 'result.txt'
-  if (resultExist == false) {
+  if (!fileExists "result.txt") {
     println("All slaves are up to date .... Exiting ....");
     currentBuild.result = 'SUCCESS'
     return
@@ -98,6 +97,10 @@ def update_static_slaves(boolean doConfirm=false) {
             slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
             staticSlaves.add(slave.getDisplayName());
           }
+         // offline && idle
+         // online && busy
+         // online && idle
+         // offline && busy
           if (slave.getDisplayName() in staticSlaves == false && slave.getDisplayName() in offlineIdleSlaves == false && slave.getDisplayName() in onlineBusySlaves == false)  {
             println 'Ignore unavailable slave ' + slave.getDisplayName();
           }
