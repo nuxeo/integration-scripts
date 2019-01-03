@@ -26,6 +26,7 @@ SLAVE_ID=$(docker ps -f "status=running" -f "name=${SLAVE_NAME}" --format "{{.ID
 if [ -n "${SLAVE_ID}" ];
   then
     /usr/bin/docker kill "${SLAVE_NAME}" && /usr/bin/docker rm -v "${SLAVE_NAME}"
+    echo "${SLAVE_NAME} successfully killed"
   else
     echo "${SLAVE_NAME} appears to be already offline"
 fi
