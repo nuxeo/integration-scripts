@@ -65,10 +65,10 @@ def update_static_slaves(boolean doConfirm=false) {
       done
       """
       // if all slaves are up to date, finish build on success
-      if (!fileExists("result.txt")) {
+      if (!fileExists(file: "result.txt")) {
         println("All slaves are up to date .... Exiting ....");
-        currentBuild.result = 'SUCCESS'
-        return
+        currentBuild.result = 'SUCCESS';
+        return;
       }
       // Compare and create new array filled with outdated static slaves
       availableSlaves = []
@@ -130,7 +130,7 @@ def update_static_slaves(boolean doConfirm=false) {
             """
           }
           // trigger this job again if we have set slaves offline
-          if (onlineBusySlaves != null) {
+          if (onlineBusySlaves.size() > 0) {
             build job: 'update_static_slaves', propagate: false, quietPeriod: 3600
           }
         }
