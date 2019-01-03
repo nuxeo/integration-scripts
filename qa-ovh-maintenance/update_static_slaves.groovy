@@ -100,7 +100,6 @@ def update_static_slaves(boolean doConfirm=false) {
           if (slave.getDisplayName() in staticSlaves == false && slave.getDisplayName() in offlineIdleSlaves == false && slave.getDisplayName() in onlineBusySlaves == false)  {
             println 'Ignore unavailable slave ' + slave.getDisplayName();
           }
-          break
         }
 
   timeout(time: 1, unit: 'HOURS') {
