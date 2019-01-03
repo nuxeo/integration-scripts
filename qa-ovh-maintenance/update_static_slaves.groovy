@@ -65,7 +65,7 @@ def update_static_slaves(boolean doConfirm=false) {
       done
       """
       // if all slaves are up to date, finish build on success
-      if (!fileExists "result.txt") {
+      if (!fileExists("result.txt")) {
         println("All slaves are up to date .... Exiting ....");
         currentBuild.result = 'SUCCESS'
         return
