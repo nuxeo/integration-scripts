@@ -90,11 +90,12 @@ def update_static_slaves(boolean doConfirm=false) {
               staticSlaves.add(slave.getDisplayName());
             }
           }
-          if (slave.toComputer().isOnline() && slave.toComputer().countBusy() > 0) {
+          if (slave.toComputer().isOnline() && !slave.toComputer().isIdle()) {
             slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
             onlineBusySlaves.add(slave.getDisplayName());
           }
           if (slave.toComputer().isOnline() && slave.toComputer().isIdle()) {
+            slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
             staticSlaves.add(slave.getDisplayName());
           }
           if (slave.getDisplayName() in staticSlaves == false && slave.getDisplayName() in offlineIdleSlaves == false && slave.getDisplayName() in onlineBusySlaves == false)  {
