@@ -45,26 +45,39 @@ def update_static_slaves(boolean doConfirm=false) {
       }
       // Check if those slaves are outdated | if yes, write slave name to result.txt
       sh """ #!bin/bash -xe
-      rm -f result.txt
-      for i in 1 2 3; do
-        cd $WORKSPACE/qa-ovh-maintenance/qa-ovh0"\${i}"/
-        ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ../common/pull_images.sh
-        ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote.sh
-        ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote_priv.sh
-      done
-      for slave in ${availableSlaves}; do
-        slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
-        echo "\$slave"
-        . ../common/swarm_check.sh \${slave}
-        if [ \${retval} -eq 1 ]; then
-          echo "\${slave} must be updated";
-          echo "\$slave" >> ../../result.txt
-        else
-          echo "\$slave is already up to date";
-        fi;
-      done
+          rm -f result.txt ready.txt
+          for i in 1 2 3; do
+            cd $WORKSPACE/qa-ovh-maintenance/qa-ovh0"\${i}"/
+            ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ../common/pull_images.sh
+            ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote.sh
+            ssh jenkins@qa-ovh0"\${i}".nuxeo.com "bash -s" < ./start_remote_priv.sh
+          done
+          for slave in ${availableSlaves}; do
+            slave=\${slave/[/} && slave=\${slave/]/} && slave=\${slave/,/}
+            echo "\$slave"
+            . ../common/swarm_check.sh \${slave}
+            if [ \${retval} -eq 1 ]; then
+              echo "\${slave} must be updated";
+              echo "\$slave" >> ../../result.txt
+            else
+              echo "\$slave is already up to date";
+              echo "\$slave" >> ../../ready.txt
+            fi;
+          done
       """
+
+      // TODO JC: fix missing switch back online
+      toRestart = readFile('ready.txt'.trim()).readLines();
+      println("File ready.txt: " + toRestart)
+      for (slave in toRestart) {
+          computer = Jenkins.instance.getNode(slave).toComputer();
+          if (computer.isOffline() && "Slave update planned".equals(computer.getOfflineCauseReason())) {
+              computer.setTemporarilyOffline(false, null);
+          }
+      }
+
       // if all slaves are up to date, finish build on success
+      // TODO JC: (all slaves are up to date) and available?
       if (!fileExists(file: "result.txt")) {
         println("All slaves are up to date .... Exiting ....");
         currentBuild.result = 'SUCCESS';
@@ -73,7 +86,7 @@ def update_static_slaves(boolean doConfirm=false) {
       // Compare and create new array filled with outdated static slaves
       availableSlaves = []
       results = readFile('result.txt'.trim()).readLines();
-      println("Fichier results.txt : " + results)
+      println("File results.txt: " + results)
       for (slaveToUpdate in results) {
           for (slave in staticSlaves) {
             if (slaveToUpdate == slave.getDisplayName()) {
@@ -85,23 +98,23 @@ def update_static_slaves(boolean doConfirm=false) {
       // Parse and output slaves depending of their states
       staticSlaves = [];
       for (slave in availableSlaves) {
+         // offline && idle
           if (slave.toComputer().isOffline()) {
             if (slave.toComputer().isIdle()) {
               offlineIdleSlaves.add(slave.getDisplayName());
               staticSlaves.add(slave.getDisplayName());
             }
           }
+         // online && busy
           if (slave.toComputer().isOnline() && !slave.toComputer().isIdle()) {
             slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
             onlineBusySlaves.add(slave.getDisplayName());
           }
+         // online && idle
           if (slave.toComputer().isOnline() && slave.toComputer().isIdle()) {
             slave.toComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("Slave update planned"));
             staticSlaves.add(slave.getDisplayName());
           }
-         // offline && idle
-         // online && busy
-         // online && idle
          // offline && busy
           if (slave.getDisplayName() in staticSlaves == false && slave.getDisplayName() in offlineIdleSlaves == false && slave.getDisplayName() in onlineBusySlaves == false)  {
             println 'Ignore unavailable slave ' + slave.getDisplayName();
@@ -111,7 +124,7 @@ def update_static_slaves(boolean doConfirm=false) {
       def isStartedByUser = currentBuild.rawBuild.getCause(Cause$UserIdCause) != null
       println("List of offline outdated idle slaves\n" + offlineIdleSlaves + "\n")
       println("List of online outdated busy slaves\n" + onlineBusySlaves + "\nThose one will be set offline once build finish")
-      println("List of needeed slaves update\n" + staticSlaves + "\n")
+      println("List of needed slaves update\n" + staticSlaves + "\n")
       if (doConfirm || isStartedByUser) {
         input(message: "Are you wishing to update the following slaves?\n$staticSlaves $offlineIdleSlaves")
       }
