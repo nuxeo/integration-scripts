@@ -30,6 +30,7 @@ def update_static_slaves(boolean doConfirm=false) {
       // Get All static slaves
       def staticSlaves = [];
       def offlineIdleSlaves = [];
+      def offlineBusySlaves = [];
       def onlineBusySlaves = [];
       def availableSlaves = [];
       for (slave in Jenkins.instance.getNodes()) { // iterate on all slaves
@@ -117,7 +118,10 @@ def update_static_slaves(boolean doConfirm=false) {
           }
          // offline && busy
           if (slave.getDisplayName() in staticSlaves == false && slave.getDisplayName() in offlineIdleSlaves == false && slave.getDisplayName() in onlineBusySlaves == false)  {
-            println 'Ignore unavailable slave ' + slave.getDisplayName();
+              if ("Slave update planned".equals(slave.toComputer().getOfflineCauseReason())) {
+                  offlineBusySlaves.add(slave.getDisplayName());
+              }
+              println 'Ignore unavailable slave ' + slave.getDisplayName();
           }
         }
 
@@ -143,7 +147,7 @@ def update_static_slaves(boolean doConfirm=false) {
         """
       }
       // trigger this job again if we have set slaves offline
-      if (onlineBusySlaves.size() > 0) {
+      if (onlineBusySlaves || offlineBusySlaves) {
         build job: 'update_static_slaves', propagate: false, quietPeriod: 3600, wait: false
       }
     }
