@@ -41,6 +41,12 @@ docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-ondemand-9.10
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-check-9.10
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-9.10
 
+docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-10.10
+docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-10.10
+docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-ondemand-10.10
+docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-check-10.10
+docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-10.10
+
 # PREPROD Slave #
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-test-preprod
 
