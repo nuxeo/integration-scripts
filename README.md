@@ -39,8 +39,8 @@ Refines the released distribution: repackage, fix details, finalize for easy-use
 
 /Deploy/IT-release-on-demand-build
 /Deploy/IT-release-nuxeo.io
-/Deploy/IT-nuxeo-9.10-build
-/Deploy/IT-nuxeo-10.1-build
+/Deploy/IT-nuxeo-10.10-build
+/Deploy/IT-nuxeo-11.1-build
 /Deploy/IT-nuxeo-master-build
 
 ---
@@ -193,14 +193,17 @@ qa-ovh01/static01            51.254.42.78:2201->22/tcp      dockerpriv.nuxeo.com
 
 qa-ovh02/itslave810          51.254.197.210:2303->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-8.10
 qa-ovh02/itslave910          51.254.197.210:2304->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-9.10
+qa-ovh02/itslave1010          51.254.197.210:2304->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-10.10
 qa-ovh02/matrix02            51.254.197.210:2302->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave
 qa-ovh02/priv-02-1           51.254.197.210:3301->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
 qa-ovh02/priv-02-2           51.254.197.210:3302->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
 qa-ovh02/priv2-02-1          51.254.197.210:4401->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
 qa-ovh02/slavepriv2-810-1    51.254.197.210:5601->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-8.10
 qa-ovh02/slavepriv2-910-1    51.254.197.210:5701->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-9.10
+qa-ovh02/slavepriv2-1010-1    51.254.197.210:5701->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-10.10
 qa-ovh02/static810           51.254.197.210:2202->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-8.10
 qa-ovh02/static910           51.254.197.210:2203->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-9.10
+qa-ovh02/static1010           51.254.197.210:2203->22/tcp    dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-10.10
 
 qa-ovh03/itslave03           151.80.31.37:2301->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-it
 qa-ovh03/itslavepriv03       151.80.31.37:3401->22/tcp      dockerpriv.nuxeo.com:443/nuxeo/jenkins-itpriv
