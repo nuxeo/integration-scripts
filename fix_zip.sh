@@ -48,8 +48,6 @@ mkdir -p archives
 cd archives
 # already renamed and archived by release.py script
 ARCHIVED_PACKAGES="nuxeo-jsf-ui-*.zip"
-# package modules located under nuxeo-distribution
-DISTRIB_PACKAGES="../nuxeo/nuxeo-distribution/nuxeo-marketplace-dm/target/nuxeo-marketplace-dm-*.zip"
 # packages managed by release_mp.py script
 RELEASED_PACKAGES=$(grep uploaded ../nuxeo/marketplace/release.ini | cut -d ' ' -f 4-)
 # adding a default value just in case it is not defined upfront
@@ -63,7 +61,7 @@ featured=$(xmlstarlet sel -t -m '//packageDefinitions/package' -i "not(@virtual=
 echo "$featured" > $MP_DIR/.featured
 
 # Rename packages mentioned in the wizard; move all packages to $MP_DIR/
-for file in $ARCHIVED_PACKAGES $DISTRIB_PACKAGES $RELEASED_PACKAGES; do
+for file in $ARCHIVED_PACKAGES $RELEASED_PACKAGES; do
   name=$(unzip -p $file package.xml | xmlstarlet sel -t -v 'package/@name') || echo ERROR: package.xml parsing failed on $file >&2
   if [ -z "$name" ]; then
     continue
