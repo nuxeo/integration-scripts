@@ -50,6 +50,7 @@ cd archives
 ARCHIVED_PACKAGES="nuxeo-jsf-ui-*.zip"
 # packages managed by release_mp.py script
 RELEASED_PACKAGES=$(grep uploaded ../nuxeo/marketplace/release.ini | cut -d ' ' -f 4-)
+RELEASED_PACKAGES="$RELEASED_PACKAGES ../nuxeo/packages/nuxeo-*-package/target/nuxeo-*-package-*.zip"
 # adding a default value just in case it is not defined upfront
 FINAL=${FINAL:-False}
 
