@@ -52,7 +52,7 @@ Refines the released distribution: repackage, fix details, finalize for easy-use
 [QA/System/git-branches-cleanup](https://qa.nuxeo.org/jenkins/job/System/job/git-branches-cleanup/) job runs
 `git-branches-cleanup.sh` following [CORG/Git Usage](https://doc.nuxeo.com/corg/git-usage/#main-rules-and-good-practices).
 
-The principle is to delete Git branches older than 3 months and which JIRA ticket is resolved or closed, and with no `backport-*` tag.
+The principle is to delete Git branches older than 3 days and which JIRA ticket is resolved or closed, and with no `backport-*` tag.
 In case of doubt, the branch is kept forever.
 
 ## QA

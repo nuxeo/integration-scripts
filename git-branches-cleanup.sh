@@ -58,7 +58,7 @@ analyze() {
   echo "Nb commit objects before cleanup: $(git rev-list --objects --all|wc -l)"
   git count-objects -vH
 
-  echo "Looking for branches older than 3 months and which JIRA issue is resolved or closed, and with no 'backport-*' tag..."
+  echo "Looking for branches older than 3 days and which JIRA issue is resolved or closed, and with no 'backport-*' tag..."
   count=0
   for branch in $complete; do
     count=$(( $count + 1 ))
@@ -66,13 +66,13 @@ analyze() {
     echo "$branch" >> $FILE_LIST
     for pattern in $DEPRECATED_PATTERNS; do
       if [[ $branch =~ $pattern ]]; then
-        printf "%-20s\t%-80s\t%s\n" "system" $branch "(deprecated pattern '$pattern')" >> $FILE_DELETE
+        printf "%-20s\t%-80s\t%s\t%s\n" "system" $branch "(deprecated pattern '$pattern') stable" >> $FILE_DELETE
         continue 2
       fi
     done
     for pattern in $PATTERNS; do
       if [[ $branch =~ $pattern ]]; then
-        printf "%-20s\t%-80s\t%s\n" "system" $branch "(pattern '$pattern')" >> $FILE_KEEP
+        printf "%-20s\t%-80s\t%s\t%s\n" "system" $branch "(pattern '$pattern')" stable >> $FILE_KEEP
         continue 2
       fi
     done
@@ -82,20 +82,20 @@ analyze() {
     else
       author=$(git log -20 --format=%H $branch | grep -v -f <(git log -20 --format=%H "--grep=Merge branch '.*' from multiple repositories" $branch) | git log -1 --pretty=format:'%aE' --stdin --no-walk)
     fi
-    if [ -z "$(git log -1 --since='3 months ago' --oneline $branch)" ]; then
+    if [ -z "$(git log -1 --since='3 days ago' --oneline $branch)" ]; then
       jira=$(echo "$branch" | awk -v jira_pattern="($JIRA_PROJECTS)-[0-9]+" 'match(toupper($0), jira_pattern) {print substr($0,RSTART,RLENGTH)}')
       if [ -z "$jira" ]; then
         printf "%-20s\t%-80s\t%s\n" $author $branch "(unknown pattern)" >> $FILE_UNKNOWN
         continue
       fi
       # Check JIRA ref exists
-      rc=$(curl -I -o /dev/null -w "%{http_code}" -s https://jira.nuxeo.com/rest/api/2/issue/$jira)
+      rc=$(curl -u $USER:$PASS -I -o /dev/null -w "%{http_code}" -s https://jira.nuxeo.com/rest/api/2/issue/$jira)
       if [ $rc -ne 200 ]; then
-        printf "%-20s\t%-80s\t%s\n" $author $branch "($jira does not exist)" >> $FILE_UNKNOWN
+        printf "%-20s\t%-80s\t%s\t%s\n" $author $branch "($jira does not exist)" "http_code:$rc" >> $FILE_UNKNOWN
         continue
       fi
-        status=$(curl -s https://jira.nuxeo.com/rest/api/2/issue/$jira?fields=status|python -c 'import sys, json; print json.load(sys.stdin)["fields"]["status"]["id"]')
-        tags=$(curl -s https://jira.nuxeo.com/rest/api/2/issue/$jira?fields=customfield_10080|python -c 'import sys, json; print json.load(sys.stdin)["fields"]["customfield_10080"]')
+        status=$(curl -u $USER:$PASS -s https://jira.nuxeo.com/rest/api/2/issue/$jira?fields=status|python -c 'import sys, json; print json.load(sys.stdin)["fields"]["status"]["id"]')
+        tags=$(curl -u $USER:$PASS -s https://jira.nuxeo.com/rest/api/2/issue/$jira?fields=customfield_10080|python -c 'import sys, json; print json.load(sys.stdin)["fields"]["customfield_10080"]')
       if (echo "$tags"|grep -q 'backport-'); then
         printf "%-20s\t%-80s\t%s\n" $author $branch "($jira has a backport tag)" >> $FILE_KEEP
       elif [ $status -eq 5 -o $status -eq 6 ]; then
@@ -104,7 +104,7 @@ analyze() {
         printf "%-20s\t%-80s\t%s\n" $author $branch "($jira not resolved)" >> $FILE_KEEP
       fi
     else
-      printf "%-20s\t%-80s\t%s\n" $author $branch "(<3 months)" >> $FILE_KEEP
+      printf "%-20s\t%-80s\t%s\n" $author $branch "(<3 days)" >> $FILE_KEEP
     fi
   done
 
