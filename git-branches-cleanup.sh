@@ -22,6 +22,7 @@
 
 JIRA_PROJECTS=${JIRA_PROJECTS:-"NXP|NXBT|APG|NXDRIVE|NXROADMAP|NXS|NXMOB|NXDOC"}
 PATTERNS=${PATTERNS:-'^origin/master$
+ ^origin/stable$
  ^origin/[0-9]+(\.[0-9]+)+-SNAPSHOT$
  ^origin/[0-9]+(\.[0-9]+)+-HF[0-9]+-SNAPSHOT$
  ^origin/[0-9]+(\.[0-9]+)+$
@@ -66,13 +67,13 @@ analyze() {
     echo "$branch" >> $FILE_LIST
     for pattern in $DEPRECATED_PATTERNS; do
       if [[ $branch =~ $pattern ]]; then
-        printf "%-20s\t%-80s\t%s\t%s\n" "system" $branch "(deprecated pattern '$pattern') stable" >> $FILE_DELETE
+        printf "%-20s\t%-80s\t%s\n" "system" $branch "(deprecated pattern '$pattern')" >> $FILE_DELETE
         continue 2
       fi
     done
     for pattern in $PATTERNS; do
       if [[ $branch =~ $pattern ]]; then
-        printf "%-20s\t%-80s\t%s\t%s\n" "system" $branch "(pattern '$pattern')" stable >> $FILE_KEEP
+        printf "%-20s\t%-80s\t%s\n" "system" $branch "(pattern '$pattern')" >> $FILE_KEEP
         continue 2
       fi
     done
