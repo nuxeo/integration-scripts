@@ -29,12 +29,6 @@ docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-check
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-multidb
 
-docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-8.10
-docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-8.10
-docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-ondemand-8.10
-docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-check-8.10
-docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slavepriv-8.10
-
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-slave-9.10
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-it-9.10
 docker pull dockerpriv.nuxeo.com:443/nuxeo/jenkins-ondemand-9.10
