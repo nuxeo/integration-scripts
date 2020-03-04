@@ -57,9 +57,7 @@ mvn verify -f "$NXDISTRIBUTION"/nuxeo-distribution-dm/ftest/selenium/pom.xml \
   -Dzip.file=$ZIP_FILE \
   -Pqa,$SERVER,$DATABASE \
   -Dclassifier=nuxeo-$PRODUCT \
-  -Dsuites="$SUITES" \
-  -Dwizard.preset=nuxeo-$PRODUCT \
-  -Dnuxeo.wizard.done=true
+  -Dsuites="$SUITES"
 ret1=$?
 
 ret2=0
