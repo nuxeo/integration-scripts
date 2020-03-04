@@ -46,35 +46,8 @@ sha256sum() {
 
 mkdir -p archives
 cd archives
-# already renamed and archived by release.py script
-ARCHIVED_PACKAGES="nuxeo-jsf-ui-*.zip"
-# packages managed by release_mp.py script
-RELEASED_PACKAGES=$(grep uploaded ../nuxeo/marketplace/release.ini | cut -d ' ' -f 4-)
-RELEASED_PACKAGES="$RELEASED_PACKAGES ../nuxeo/packages/nuxeo-*-package/target/nuxeo-*-package-*.zip"
 # adding a default value just in case it is not defined upfront
 FINAL=${FINAL:-False}
-
-MP_DIR=mp-nuxeo-server
-mkdir -p $MP_DIR
-PACKAGES_XML=$MP_DIR/packages.xml
-unzip -p nuxeo-server-*-tomcat.zip "**/setupWizardDownloads/packages.xml" > $PACKAGES_XML
-featured=$(xmlstarlet sel -t -m '//packageDefinitions/package' -i "not(@virtual='true')" -v '@id' -n $PACKAGES_XML)
-echo "$featured" > $MP_DIR/.featured
-
-# Rename packages mentioned in the wizard; move all packages to $MP_DIR/
-for file in $ARCHIVED_PACKAGES $RELEASED_PACKAGES; do
-  name=$(unzip -p $file package.xml | xmlstarlet sel -t -v 'package/@name') || echo ERROR: package.xml parsing failed on $file >&2
-  if [ -z "$name" ]; then
-    continue
-  elif [[ $featured =~ (^|[[:space:]])"$name"($|[[:space:]]) ]]; then
-    cp $file $MP_DIR/$name.zip
-    xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'filename' -v "$name.zip" $PACKAGES_XML
-    md5=$(md5 $MP_DIR/$name.zip)
-    xmlstarlet ed -L -i "//packageDefinitions/package[@id='$name']" -t 'attr' -n 'md5' -v "$md5" $PACKAGES_XML
-  elif [ "${FINAL}" = "False" ]; then # embed all addons only for non final releases
-    mv $file $MP_DIR/$name.zip
-  fi
-done
 
 # Update ZIP archives
 for zip in nuxeo-server-*-tomcat.zip nuxeo-server-*-tomcat-sdk.zip ; do
@@ -89,11 +62,6 @@ for zip in nuxeo-server-*-tomcat.zip nuxeo-server-*-tomcat-sdk.zip ; do
   unzip $zip -d /tmp/
   cd /tmp/
   chmod +x $DIR/bin/*ctl $DIR/bin/*.sh $DIR/bin/*.command $DIR/*.command
-  cp $OLDPWD/$PACKAGES_XML $DIR/setupWizardDownloads/
-  for file in $OLDPWD/$MP_DIR/*.zip; do
-    md5=$(md5 $file)
-    cp $file $DIR/setupWizardDownloads/$md5
-  done
   zip -r $DIR.zip $DIR/
   rm -rf $DIR/
   cd -
