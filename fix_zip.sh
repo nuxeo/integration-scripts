@@ -46,8 +46,23 @@ sha256sum() {
 
 mkdir -p archives
 cd archives
+# already renamed and archived by release.py script
+ARCHIVED_PACKAGES="nuxeo-jsf-ui-*.zip"
 # adding a default value just in case it is not defined upfront
 FINAL=${FINAL:-False}
+
+MP_DIR=mp-nuxeo-server
+mkdir -p $MP_DIR
+
+# Rename packages mentioned in the wizard; move all packages to $MP_DIR/
+for file in $ARCHIVED_PACKAGES; do
+  name=$(unzip -p $file package.xml | xmlstarlet sel -t -v 'package/@name') || echo ERROR: package.xml parsing failed on $file >&2
+  if [ -z "$name" ]; then
+    continue
+  else
+    mv $file $MP_DIR/$name.zip
+  fi
+done
 
 # Update ZIP archives
 for zip in nuxeo-server-*-tomcat.zip nuxeo-server-*-tomcat-sdk.zip ; do
