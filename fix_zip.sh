@@ -65,7 +65,7 @@ for file in $ARCHIVED_PACKAGES; do
 done
 
 # Update ZIP archives
-for zip in nuxeo-server-*-tomcat.zip nuxeo-server-*-tomcat-sdk.zip ; do
+for zip in nuxeo-server-*-tomcat.zip ; do
   if [ ! -e $zip ]; then
     echo Ignore non existing $zip!
     continue
