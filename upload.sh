@@ -20,7 +20,9 @@ if [ ! -z "$UPLOAD_URL" ]; then
     for pkg in $(cat .featured); do
         scp -C $pkg*.zip $UPLOAD_URL/mp-nuxeo-server/ || true
     done
-    scp packages.xml $UPLOAD_URL/mp-nuxeo-server/ || true
+    if [ -f "packages.xml" ]; then
+        scp packages.xml $UPLOAD_URL/mp-nuxeo-server/ || true
+    fi
     cd -
     date
 fi
