@@ -6,4 +6,5 @@ nuxeo-platform-importer
 resources
 results
 twiddle.log
-
+.idea/
+integration-scripts.iml

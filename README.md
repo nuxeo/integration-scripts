@@ -1,6 +1,28 @@
 # integration-scripts
 
-Scripts to manage tools used for integration automation.
+DevTools for integration automation, QA/CI maintenance...
+
+---
+
+# `docker-registry`
+
+## Usage
+
+More usage details are available in the scripts.
+
+- [`cleanup-registry.groovy`](/docker-registry/cleanup-registry.groovy): Jenkins pipeline to delete cache and 
+temporary tags (working branches, closed PRs...).
+- [`purge.sh`](/docker-registry/purge.sh): Purge tags from Docker repositories based on their name and labels.
+```shell script
+GITHUB_TOKEN=$(git config --get github.token) ./purge.sh
+```
+- [`deleteCache.sh`](/docker-registry/deleteCache.sh): Delete Docker repositories which name ends with "/cache*", tag
+by tag.
+- [`deleteTags.sh`](/docker-registry/deleteTags.sh): Bulk delete Docker repository tags by name
+
+## QA
+
+https://jenkins.ai.dev.nuxeo.com/job/nuxeo/job/cleanup-registry/
 
 ---
 
