@@ -133,7 +133,7 @@ for image in $images; do
                 LABELS=$(curl -sL "${dockerRegistryUrl}/v2/${image}/blobs/$CONFIG_DIGEST" | jq -r '.container_config.Labels')
                 SCM=$(echo $LABELS | jq -r '."org.opencontainers.image.source"')
                 if [ "${SCM}" = 'null' ]; then
-                    SCM=$(echo $LABELS | jq -r '."org.nuxeo.scm-ref"')
+                    SCM=$(echo $LABELS | jq -r '."org.nuxeo.scm-url"')
                 fi
                 if [ "${SCM}" = 'null' ]; then
                     SCM=$(echo $LABELS | jq -r '."scm-url"')
