@@ -29,7 +29,7 @@ pipeline {
         label 'jenkins-jx-base'
     }
     triggers {
-        cron(env.BRANCH_NAME == 'master' ? 'H H(0-12) * * 6' : '')
+        cron('H H * * 6')
     }
     parameters {
         booleanParam(name: 'DELETE_CACHE', defaultValue: true, description: 'Delete cache repositories')
@@ -50,7 +50,7 @@ pipeline {
                         withEnv(["DELETE_CACHE=${params.DELETE_CACHE}", "DO_PURGE=${params.DO_PURGE}",
                                  "PURGE_PATTERN=${params.PURGE_PATTERN}", "KUBE_NS=${params.KUBE_NS}"]) {
                             dir('docker-registry') {
-                                sh '[ $DELETE_CACHE = "true" ] && ./deleteCache.sh | tee deleteCache.out'
+                                sh 'if [[ $DELETE_CACHE = "true" ]]; then ./deleteCache.sh | tee deleteCache.out ; fi'
                                 sh "./purge.sh $DELETE_CACHE $DO_PURGE | tee purge.out"
                             }
                         }

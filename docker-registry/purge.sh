@@ -27,13 +27,8 @@
 PURGE_PATTERN=${PURGE_PATTERN:-'PR|feature|fix|task'}
 
 dockerRegistryPod=$(kubectl -n "$KUBE_NS" get pod -l app=docker-registry -o jsonpath="{.items[0].metadata.name}")
-if [ -n "$DOCKER_REGISTRY" ]; then
-    dockerRegistryUrl=http://$DOCKER_REGISTRY
-    dockerRegistryDomain=$DOCKER_REGISTRY
-else
-    dockerRegistryUrl=$(kubectl -n "$KUBE_NS" get svc jenkins-x-docker-registry -o jsonpath='{.metadata.annotations.fabric8\.io/exposeUrl}')
-    dockerRegistryDomain=${dockerRegistryUrl#*://}
-fi
+dockerRegistryUrl=$(kubectl -n "$KUBE_NS" get svc jenkins-x-docker-registry -o jsonpath='{.metadata.annotations.fabric8\.io/exposeUrl}')
+dockerRegistryDomain=${dockerRegistryUrl#*://}
 
 function execDockerRegistry() {
     kubectl -n "$KUBE_NS" exec "$dockerRegistryPod" -- $1
@@ -62,7 +57,7 @@ function deleteTag() {
     image=$1
     tag=$2
     if $(command -v reg >/dev/null); then
-        reg rm "${dockerRegistryDomain}/$image:$tag" >/dev/null 2>&1
+        reg rm "${dockerRegistryDomain}/$image:$tag" >/dev/null
     else
         rawDigest=$(curl -v -s -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' "${dockerRegistryUrl}/v2/$image/manifests/$tag" 2>&1 | grep Docker-Content-Digest | awk '{print $3}')
         digest=${rawDigest%$'\r'}
@@ -80,7 +75,6 @@ echo
 echo '  Usage: ./purge.sh [deleteCacheImages=false] [doPurge=true]'
 echo
 echo '  Parameters:'
-echo "    - DOCKER_REGISTRY: $DOCKER_REGISTRY"
 echo "    - Host: ${dockerRegistryUrl}"
 echo "    - PURGE_PATTERN: ${PURGE_PATTERN}"
 echo "    - delete cache images: ${deleteCacheImages}"
