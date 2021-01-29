@@ -24,19 +24,18 @@
 #   - DOCKER_REGISTRY: Docker Registry URL (optional)
 #   - KUBE_NS: Kubernetes namespace hosting the registry (required if DOCKER_REGISTRY is not set)
 
-if [ -z "$DOCKER_REGISTRY" ]; then
-    : "${KUBE_NS:?}"
-    url=$(kubectl -n "$KUBE_NS" get svc jenkins-x-docker-registry -o jsonpath='{.metadata.annotations.fabric8\.io/exposeUrl}')
-    DOCKER_REGISTRY=${url#*://}
-fi
+: "${KUBE_NS:?}"
+url=$(kubectl -n "$KUBE_NS" get svc jenkins-x-docker-registry -o jsonpath='{.metadata.annotations.fabric8\.io/exposeUrl}')
+dockerRegistryUrl=$(kubectl -n "$KUBE_NS" get svc jenkins-x-docker-registry -o jsonpath='{.metadata.annotations.fabric8\.io/exposeUrl}')
+dockerRegistryDomain=${dockerRegistryUrl#*://}
 
-CACHE_LIST=$(reg ls "$DOCKER_REGISTRY" 2>/dev/null|grep -E '^.*/cache[^/]* '|cut -f 1 -d ' ')
+CACHE_LIST=$(reg ls "${dockerRegistryDomain}" 2>/dev/null|grep -E '^.*/cache[^/]* '|cut -f 1 -d ' ')
 printf "Cache repository list:\n%s\n" "$CACHE_LIST"
 for cacheRepo in $CACHE_LIST; do
     printf "Delete %s\n\t" "$cacheRepo"
-    for tag in $(reg tags "$DOCKER_REGISTRY/$cacheRepo" 2>/dev/null); do
+    for tag in $(reg tags "${dockerRegistryDomain}/$cacheRepo" 2>/dev/null); do
         stdbuf -oL printf "%.5s..." "$tag"
-        reg rm "$DOCKER_REGISTRY/$cacheRepo:$tag" >/dev/null 2>&1 || stdbuf -oL printf "x"
+        reg rm "${dockerRegistryDomain}/$cacheRepo:$tag" >/dev/null 2>&1 || stdbuf -oL printf "x"
     done
     printf "\n"
 done
