@@ -32,10 +32,11 @@ pipeline {
         cron('H H * * 6')
     }
     parameters {
-        booleanParam(name: 'DELETE_CACHE', defaultValue: true, description: 'Delete cache repositories')
-        booleanParam(name: 'DO_PURGE', defaultValue: true, description: 'Purge images matching the pattern')
-        string(name: 'PURGE_PATTERN', defaultValue: 'PR|feature|fix|task', description: 'Tags to delete')
         choice(name: 'KUBE_NS', choices: ['ai'], description: 'Kubernetes namespace hosting the registry')
+        booleanParam(name: 'DELETE_CACHE', defaultValue: true, description: 'Delete cache repositories')
+        string(name: 'PURGE_PATTERN', defaultValue: 'PR|feat|fix|task|master|sprint|SNAPSHOT|bump-regex-version|INSIGHT', description: 'Tags to delete')
+        string(name: 'IMAGES', defaultValue: '', description: 'Fixed list of images. By default, all the images are analyzed.')
+        booleanParam(name: 'DRY_RUN', defaultValue: false, description: 'Dry run mode if set.')
     }
     options {
         disableConcurrentBuilds()
@@ -47,11 +48,12 @@ pipeline {
             steps {
                 container('jx-base') {
                     withCredentials([string(credentialsId: 'github_token', variable: 'GITHUB_TOKEN')]) {
-                        withEnv(["DELETE_CACHE=${params.DELETE_CACHE}", "DO_PURGE=${params.DO_PURGE}",
-                                 "PURGE_PATTERN=${params.PURGE_PATTERN}", "KUBE_NS=${params.KUBE_NS}"]) {
+                        withEnv(["DELETE_CACHE=${params.DELETE_CACHE}", "IMAGES=${params.IMAGES}",
+                                 "PURGE_PATTERN=${params.PURGE_PATTERN}", "KUBE_NS=${params.KUBE_NS}",
+                                 "DRY_RUN=${params.DRY_RUN}"]) {
                             dir('docker-registry') {
                                 sh 'if [[ $DELETE_CACHE = "true" ]]; then ./deleteCache.sh | tee deleteCache.out ; fi'
-                                sh "./purge.sh $DELETE_CACHE $DO_PURGE | tee purge.out"
+                                sh "./purge.sh $DELETE_CACHE | tee purge.out"
                             }
                         }
                     }
@@ -59,7 +61,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'docker-registry/deleteCache.out, docker-registry/purge.out', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'docker-registry/deleteCache.out, docker-registry/purge.*', allowEmptyArchive: true
                 }
             }
         }
