@@ -20,13 +20,19 @@
 #
 # Bulk delete Docker repository tags by name
 
+if [ "$DRY_RUN" = "true" ]; then
+    echo "### DRY_RUN ###"
+else
+    unset DRY_RUN
+fi
+
 function usage() {
-echo "Usage: ./deleteTags.sh <image> <tags>"
-echo "        ./deleteTags.sh <input file with images and tags>"
-echo " Environment properties:"
-echo "   - DOCKER_REGISTRY: Docker Registry URL (optional)"
-echo "   - KUBE_NS: Kubernetes namespace hosting the registry (required if DOCKER_REGISTRY is not set)"
-echo "   - DRY_RUN: dry run mode if set"
+    echo "Usage: ./deleteTags.sh <image> <tags>"
+    echo "       ./deleteTags.sh <input file with images and tags>"
+    echo " Environment properties:"
+    echo "   - DOCKER_REGISTRY: Docker Registry URL (optional)"
+    echo "   - KUBE_NS: Kubernetes namespace hosting the registry (required if DOCKER_REGISTRY is not set)"
+    echo "   - DRY_RUN: dry run mode if true"
 }
 
 function deleteTags() {
@@ -34,12 +40,13 @@ function deleteTags() {
         echo "Missing parameters. Expected: <image> <tag>.. Got: $*"
         exit 2
     fi
-    image=$1
+    local image=$1
     shift
-    echo "Image $image:"
-    for tag in $*; do
-        printf "* tag %s: " "$tag"
-        if [ -z "$DRY_RUN" ]; then
+    local tags=$*
+    if [ -z "$DRY_RUN" ]; then
+        echo "Image $image:"
+        for tag in $tags; do
+            printf "* tag: %s ..." "$tag"
             IFS=$'\n'
             if out=($(reg rm "$DOCKER_REGISTRY/$image:$tag" 2>&1)); then
                 printf "deleted\n"
@@ -47,10 +54,10 @@ function deleteTags() {
                 printf "ERROR %s\n" "${out[-1]}"
                 error=1
             fi
-        else
-            echo reg rm "$DOCKER_REGISTRY/$image:$tag" >/dev/null 2>&1
-        fi
-    done
+        done
+    else
+        printf "reg rm $DOCKER_REGISTRY/$image:%s\n" $tags
+    fi
 }
 
 if ! $(command -v reg >/dev/null); then
@@ -81,16 +88,15 @@ if [ -z "$inputFile" ]; then
     # shellcheck disable=SC2086
     deleteTags $*
 else
-#    set -x
+    #    set -x
     while IFS= read -r line; do
         # shellcheck disable=SC2015
-        [[ $line = \#* || -z "${line// }" ]] && continue || true
+        [[ $line == \#* || -z "${line// /}" ]] && continue || true
         unset IFS
         deleteTags $line
-    done < "$inputFile"
+    done <"$inputFile"
 #    set +x
 fi
-echo Done
 echo
 echo Issue the following command on the registry to trigger garbage collect:
 echo "/bin/registry garbage-collect /etc/docker/registry/config.yml | grep 'blobs eligible for deletion'"
