@@ -1,6 +1,6 @@
-# `cleanup-registry.goovy`
+# `cleanup-registry-ai.groovy`
 
-Jenkins pipeline that runs the other scripts.
+Jenkins pipeline that runs the other scripts for the AI team.
 
 ## QA
 
