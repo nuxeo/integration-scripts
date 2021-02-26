@@ -22,14 +22,8 @@
 # - cache repos
 # - check related PR status
 
-: "${GITHUB_TOKEN:?}"
-: "${KUBE_NS:?}"
 PURGE_PATTERN=${PURGE_PATTERN:-'PR|feat|fix|task|master|sprint|SNAPSHOT|bump-regex-version'}
 PURGE_FILE="purge.list"
-
-dockerRegistryPod=$(kubectl -n "$KUBE_NS" get pod -l app=docker-registry -o jsonpath="{.items[0].metadata.name}")
-dockerRegistryUrl=$(kubectl -n "$KUBE_NS" get svc jenkins-x-docker-registry -o jsonpath='{.metadata.annotations.fabric8\.io/exposeUrl}')
-dockerRegistryDomain=${dockerRegistryUrl#*://}
 
 function execDockerRegistry() {
     kubectl -n "$KUBE_NS" exec "$dockerRegistryPod" -- $1
@@ -151,6 +145,12 @@ if [[ $1 = "-h" || $1 = "--help" || $# -gt 1 ]]; then
     echo "   - IMAGES: Fixed list of images. If unset, all the images are analyzed."
     exit 0
 fi
+
+: "${GITHUB_TOKEN:?}"
+: "${KUBE_NS:?}"
+dockerRegistryPod=$(kubectl -n "$KUBE_NS" get pod -l app=docker-registry -o jsonpath="{.items[0].metadata.name}")
+dockerRegistryUrl=$(kubectl -n "$KUBE_NS" get svc jenkins-x-docker-registry -o jsonpath='{.metadata.annotations.fabric8\.io/exposeUrl}')
+dockerRegistryDomain=${dockerRegistryUrl#*://}
 deleteCacheImages=$([ "$1" = "true" ] && echo -n "true" || echo -n "false")
 echo
 echo '  Parameters:'
