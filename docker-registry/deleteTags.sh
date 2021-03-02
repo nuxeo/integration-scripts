@@ -99,5 +99,5 @@ else
 fi
 echo
 echo Issue the following command on the registry to trigger garbage collect:
-echo "/bin/registry garbage-collect /etc/docker/registry/config.yml | grep 'blobs eligible for deletion'"
+echo "/bin/registry garbage-collect -m /etc/docker/registry/config.yml | grep 'blobs eligible for deletion'"
 exit $error

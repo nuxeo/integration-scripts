@@ -275,7 +275,7 @@ echo
 
 if [ -z "$DRY_RUN" ]; then
     echo 'Garbage collection:'
-    execDockerRegistry "/bin/registry garbage-collect /etc/docker/registry/config.yml" | grep 'blobs eligible for deletion'
+    execDockerRegistry "/bin/registry garbage-collect -n /etc/docker/registry/config.yml" | grep 'blobs eligible for deletion'
     echo
 
     echo 'Space after cleanup:'

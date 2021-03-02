@@ -34,8 +34,8 @@ printf "Cache repository list:\n%s\n" "$CACHE_LIST"
 for cacheRepo in $CACHE_LIST; do
     printf "Delete %s\n\t" "$cacheRepo"
     for tag in $(reg tags "${dockerRegistryDomain}/$cacheRepo" 2>/dev/null); do
-        stdbuf -oL printf "%.5s..." "$tag"
-        reg rm "${dockerRegistryDomain}/$cacheRepo:$tag" >/dev/null 2>&1 || stdbuf -oL printf "x"
+        stdbuf -oL printf "%s ..." "$tag"
+        reg rm "${dockerRegistryDomain}/$cacheRepo:$tag" || stdbuf -oL printf "x"
     done
     printf "\n"
 done
