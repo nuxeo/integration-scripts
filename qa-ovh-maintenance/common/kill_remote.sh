@@ -20,13 +20,14 @@
 # Kill remote slaves. Usage: ./kill_remote.sh <SLAVE_NAME>
 #
 
-args=$1
+SLAVE_NAME=$1
 
-slave=$(docker ps -f "status=running" -f "name=$1" --format "{{.ID}}")
-echo "$slave"
-if [ -n "$slave" ];
-then
-  /usr/bin/docker kill "$slave" && /usr/bin/docker rm -v "$slave"
-  else echo "$slave appears to be already offline"
-  fi
+SLAVE_ID=$(docker ps -f "status=running" -f "name=${SLAVE_NAME}" --format "{{.ID}}")
+if [ -n "${SLAVE_ID}" ];
+  then
+    /usr/bin/docker kill "${SLAVE_NAME}" && /usr/bin/docker rm -v "${SLAVE_NAME}"
+    echo "${SLAVE_NAME} successfully killed"
+  else
+    echo "${SLAVE_NAME} appears to be already offline"
+fi
 exit 0
