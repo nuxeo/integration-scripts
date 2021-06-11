@@ -181,7 +181,7 @@ for image in $images; do
 
     # cache image
     if [[ ${image} =~ .*/cache.*$ ]]; then
-        if [ "${deleteCacheImages}" = "true" ]; then
+        if [[ "${deleteCacheImages}" = "true" && -n $allTags ]]; then
             printf "* delete all digests\n"
             deleteTagsWithDryRun "$image" $allTags
         else
